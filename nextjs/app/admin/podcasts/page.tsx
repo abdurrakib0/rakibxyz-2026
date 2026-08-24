@@ -8,12 +8,12 @@ export default function AdminPodcastsPage() {
   const [loading, setLoading] = useState(true);
   const [editingPodcast, setEditingPodcast] = useState<Podcast | null>(null);
   const [isNew, setIsNew] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
 
   const fetchPodcasts = async () => {
     try {
-      const res = await fetch('/api/podcasts');
+      const res = await fetch('/api/podcasts', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setPodcasts(data);
@@ -40,11 +40,13 @@ export default function AdminPodcastsPage() {
     };
     setEditingPodcast(newPod);
     setIsNew(true);
+    setSaveStatus('idle');
   };
 
   const handleEdit = (podcast: Podcast) => {
     setEditingPodcast({ ...podcast });
     setIsNew(false);
+    setSaveStatus('idle');
   };
 
   const handleDelete = async (id: string) => {
@@ -62,7 +64,8 @@ export default function AdminPodcastsPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPodcast) return;
-    setSaving(true);
+
+    setSaveStatus('saving');
     setMessage('');
 
     try {
@@ -75,17 +78,24 @@ export default function AdminPodcastsPage() {
         body: JSON.stringify(editingPodcast),
       });
 
-      if (res.ok) {
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSaveStatus('success');
         setMessage('Podcast saved successfully!');
-        setEditingPodcast(null);
-        fetchPodcasts();
+        setTimeout(() => {
+          setEditingPodcast(null);
+          setSaveStatus('idle');
+          fetchPodcasts();
+        }, 1200);
       } else {
-        setMessage('Failed to save podcast.');
+        setSaveStatus('error');
+        setMessage(data.message || 'Failed to save podcast.');
+        setTimeout(() => setSaveStatus('idle'), 3500);
       }
-    } catch (err) {
-      setMessage('Error saving podcast.');
-    } finally {
-      setSaving(false);
+    } catch (err: any) {
+      setSaveStatus('error');
+      setMessage(`Error saving podcast: ${err.message || 'Network error'}`);
+      setTimeout(() => setSaveStatus('idle'), 3500);
     }
   };
 
@@ -99,7 +109,7 @@ export default function AdminPodcastsPage() {
       <div className="flex items-center justify-between border-b border-[var(--rule)] pb-6">
         <div>
           <h1 className="font-serif text-[2rem] text-[var(--ink)] font-normal">
-            Podcasts & Videos Manager
+            Podcasts &amp; Videos Manager
           </h1>
           <p className="text-[0.875rem] text-[var(--ink-muted)]">
             Manage YouTube podcast cards and in-site video modal playback.
@@ -130,7 +140,7 @@ export default function AdminPodcastsPage() {
               </h2>
               <button
                 onClick={() => setEditingPodcast(null)}
-                className="w-8 h-8 rounded-full bg-[var(--surface)] border border-[var(--rule)] flex items-center justify-center text-[var(--ink)] hover:bg-[var(--ink)] hover:text-white"
+                className="w-8 h-8 rounded-full bg-[var(--surface)] border border-[var(--rule)] flex items-center justify-center text-[var(--ink)] hover:bg-[var(--ink)] hover:text-white cursor-pointer"
               >
                 ✕
               </button>
@@ -217,20 +227,47 @@ export default function AdminPodcastsPage() {
                 </div>
               </div>
 
+              {/* Action Buttons with Interactive Lifecycle Feedback */}
               <div className="flex items-center justify-end gap-3 border-t border-[var(--rule)] pt-4 mt-2">
                 <button
                   type="button"
                   onClick={() => setEditingPodcast(null)}
-                  className="px-4 py-2 border border-[var(--rule)] rounded font-mono text-[0.8125rem]"
+                  className="px-4 py-2 border border-[var(--rule)] rounded font-mono text-[0.8125rem] cursor-pointer"
                 >
                   Cancel
                 </button>
+
                 <button
                   type="submit"
-                  disabled={saving}
-                  className="bg-[var(--ink)] text-white px-6 py-2 rounded font-mono text-[0.8125rem] hover:bg-[var(--accent)] disabled:opacity-50"
+                  disabled={saveStatus === 'saving'}
+                  className={`px-6 py-2 rounded font-mono text-[0.8125rem] transition-all duration-200 cursor-pointer flex items-center gap-1.5 font-medium ${
+                    saveStatus === 'saving'
+                      ? 'bg-[var(--ink)] text-white opacity-80 cursor-wait'
+                      : saveStatus === 'success'
+                      ? 'bg-emerald-600 text-white scale-[1.02]'
+                      : saveStatus === 'error'
+                      ? 'bg-red-600 text-white'
+                      : 'bg-[var(--ink)] hover:bg-[var(--accent)] text-white'
+                  }`}
                 >
-                  {saving ? 'Saving...' : 'Save Podcast'}
+                  {saveStatus === 'saving' ? (
+                    <>
+                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : saveStatus === 'success' ? (
+                    <>
+                      <span className="font-bold">✓</span>
+                      <span>Saved!</span>
+                    </>
+                  ) : saveStatus === 'error' ? (
+                    <>
+                      <span>✕</span>
+                      <span>Failed</span>
+                    </>
+                  ) : (
+                    <span>Save Podcast</span>
+                  )}
                 </button>
               </div>
             </form>

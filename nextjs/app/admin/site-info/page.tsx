@@ -1,14 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SiteInfo } from '@/lib/data';
+
+const DRAFT_SITEINFO_KEY = 'abdur_rakib_siteinfo_draft_v1';
 
 export default function AdminSiteInfoPage() {
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
+  const [draftStatus, setDraftStatus] = useState('');
+  const [hasSavedDraft, setHasSavedDraft] = useState(false);
+
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchSiteInfo = async () => {
     try {
@@ -26,7 +32,62 @@ export default function AdminSiteInfoPage() {
 
   useEffect(() => {
     fetchSiteInfo();
+    try {
+      if (localStorage.getItem(DRAFT_SITEINFO_KEY)) {
+        setHasSavedDraft(true);
+      }
+    } catch (e) {}
   }, []);
+
+  // Auto-Save Draft watcher
+  useEffect(() => {
+    if (!siteInfo) return;
+
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    setDraftStatus('Saving draft...');
+
+    autoSaveTimerRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem(
+          DRAFT_SITEINFO_KEY,
+          JSON.stringify({
+            siteInfo,
+            savedAt: new Date().toISOString(),
+          })
+        );
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        setDraftStatus(`Draft auto-saved at ${timeStr}`);
+      } catch (e) {
+        setDraftStatus('');
+      }
+    }, 1500);
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [siteInfo]);
+
+  const handleRestoreDraft = () => {
+    try {
+      const raw = localStorage.getItem(DRAFT_SITEINFO_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.siteInfo) {
+          setSiteInfo(parsed.siteInfo);
+          const time = parsed.savedAt ? new Date(parsed.savedAt).toLocaleTimeString() : '';
+          setDraftStatus(`Restored draft from ${time}`);
+          setHasSavedDraft(false);
+        }
+      }
+    } catch (e) {
+      alert('Failed to restore draft.');
+    }
+  };
 
   const handleStatChange = (idx: number, field: 'number' | 'label', value: string) => {
     if (!siteInfo) return;
@@ -39,7 +100,8 @@ export default function AdminSiteInfoPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!siteInfo) return;
-    setSaving(true);
+
+    setSaveStatus('saving');
     setMessage('');
     setIsError(false);
 
@@ -52,20 +114,33 @@ export default function AdminSiteInfoPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
+        setSaveStatus('success');
         setMessage('Site information & statistics updated successfully!');
         setIsError(false);
         if (data.siteInfo) {
           setSiteInfo(data.siteInfo);
         }
+
+        // Clear draft on successful save
+        try {
+          localStorage.removeItem(DRAFT_SITEINFO_KEY);
+          setHasSavedDraft(false);
+        } catch (e) {}
+
+        setTimeout(() => {
+          setSaveStatus('idle');
+        }, 2500);
       } else {
+        setSaveStatus('error');
         setMessage(data.message || 'Failed to update site information.');
         setIsError(true);
+        setTimeout(() => setSaveStatus('idle'), 3500);
       }
     } catch (err: any) {
+      setSaveStatus('error');
       setMessage(`Error updating site information: ${err.message || 'Network error'}`);
       setIsError(true);
-    } finally {
-      setSaving(false);
+      setTimeout(() => setSaveStatus('idle'), 3500);
     }
   };
 
@@ -76,7 +151,7 @@ export default function AdminSiteInfoPage() {
   return (
     <div className="flex flex-col gap-8">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--rule)] pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--rule)] pb-6">
         <div>
           <h1 className="font-serif text-[2rem] text-[var(--ink)] font-normal">
             Site Info &amp; Statistics Manager
@@ -84,6 +159,24 @@ export default function AdminSiteInfoPage() {
           <p className="text-[0.875rem] text-[var(--ink-muted)]">
             Live-edit Hero statement, bio, metrics numbers, and 2030 mission values.
           </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {draftStatus && (
+            <span className="font-mono text-[0.6875rem] text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+              {draftStatus}
+            </span>
+          )}
+
+          {hasSavedDraft && (
+            <button
+              type="button"
+              onClick={handleRestoreDraft}
+              className="bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-3.5 py-1.5 rounded-[var(--radius)] font-mono text-[0.75rem] transition-colors cursor-pointer"
+            >
+              📋 Restore Auto-Saved Draft
+            </button>
+          )}
         </div>
       </div>
 
@@ -244,14 +337,39 @@ export default function AdminSiteInfoPage() {
           </div>
         </div>
 
-        {/* Save Button */}
+        {/* Save Button with Interactive Lifecycle State */}
         <div className="flex items-center justify-end">
           <button
             type="submit"
-            disabled={saving}
-            className="bg-[var(--accent)] text-white px-8 py-3 rounded-[var(--radius)] font-mono text-[0.875rem] uppercase tracking-wider hover:bg-[var(--ink)] transition-colors disabled:opacity-50 cursor-pointer shadow-md"
+            disabled={saveStatus === 'saving'}
+            className={`px-8 py-3 rounded-[var(--radius)] font-mono text-[0.875rem] uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-md flex items-center gap-2 font-medium ${
+              saveStatus === 'saving'
+                ? 'bg-[var(--ink)] text-white opacity-80 cursor-wait'
+                : saveStatus === 'success'
+                ? 'bg-emerald-600 text-white scale-[1.02]'
+                : saveStatus === 'error'
+                ? 'bg-red-600 text-white'
+                : 'bg-[var(--accent)] hover:bg-[var(--ink)] text-white'
+            }`}
           >
-            {saving ? 'Saving...' : 'Save All Changes'}
+            {saveStatus === 'saving' ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Saving &amp; Syncing...</span>
+              </>
+            ) : saveStatus === 'success' ? (
+              <>
+                <span className="text-base font-bold">✓</span>
+                <span>Saved Successfully!</span>
+              </>
+            ) : saveStatus === 'error' ? (
+              <>
+                <span>✕</span>
+                <span>Failed to Save</span>
+              </>
+            ) : (
+              <span>Save All Changes</span>
+            )}
           </button>
         </div>
       </form>

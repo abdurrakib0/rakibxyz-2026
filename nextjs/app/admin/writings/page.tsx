@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Post } from '@/lib/data';
+import { compressImage, formatBytes } from '@/lib/image-compressor';
+
+const DRAFT_STORAGE_KEY = 'abdur_rakib_post_draft_v1';
 
 // Converts rich pasted HTML (from Word, Google Docs, Notion, Web) into clean Markdown
 function htmlToMarkdown(html: string): string {
@@ -69,18 +72,27 @@ export default function AdminWritingsPage() {
   const [loading, setLoading] = useState(true);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [isNew, setIsNew] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
   const [editorMode, setEditorMode] = useState<'write' | 'preview'>('write');
 
+  // Button lifecycle state: 'idle' | 'saving' | 'success' | 'error'
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  const [statusMessage, setStatusMessage] = useState('');
+
+  // Auto-Save Draft state
+  const [draftStatus, setDraftStatus] = useState<string>('');
+  const [hasSavedDraft, setHasSavedDraft] = useState(false);
+
+  // Image Upload & Compression state
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingToolbar, setUploadingToolbar] = useState(false);
+  const [compressionStats, setCompressionStats] = useState<string | null>(null);
   const [isDraggingCover, setIsDraggingCover] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const coverFileInputRef = useRef<HTMLInputElement | null>(null);
   const toolbarFileInputRef = useRef<HTMLInputElement | null>(null);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchPosts = async () => {
     try {
@@ -98,7 +110,49 @@ export default function AdminWritingsPage() {
 
   useEffect(() => {
     fetchPosts();
+    // Check if there is an unsaved draft stored
+    try {
+      const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (saved) {
+        setHasSavedDraft(true);
+      }
+    } catch (e) {}
   }, []);
+
+  // Auto-Save Draft watcher
+  useEffect(() => {
+    if (!editingPost) return;
+
+    // Clear previous timer
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    setDraftStatus('Saving draft...');
+
+    autoSaveTimerRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem(
+          DRAFT_STORAGE_KEY,
+          JSON.stringify({
+            post: editingPost,
+            savedAt: new Date().toISOString(),
+            isNew,
+          })
+        );
+        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        setDraftStatus(`Draft auto-saved at ${timeStr}`);
+      } catch (e) {
+        setDraftStatus('');
+      }
+    }, 1200);
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [editingPost, isNew]);
 
   const calculateReadTime = (text: string) => {
     const words = text.trim().split(/\s+/).filter(Boolean).length;
@@ -123,12 +177,44 @@ export default function AdminWritingsPage() {
     setEditingPost(newPost);
     setIsNew(true);
     setEditorMode('write');
+    setSaveStatus('idle');
+    setCompressionStats(null);
+  };
+
+  const handleRestoreDraft = () => {
+    try {
+      const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.post) {
+          setEditingPost(parsed.post);
+          setIsNew(parsed.isNew ?? true);
+          setEditorMode('write');
+          setSaveStatus('idle');
+          const time = parsed.savedAt ? new Date(parsed.savedAt).toLocaleTimeString() : '';
+          setDraftStatus(`Restored draft from ${time}`);
+          setHasSavedDraft(false);
+        }
+      }
+    } catch (e) {
+      alert('Failed to restore draft.');
+    }
+  };
+
+  const handleDiscardDraft = () => {
+    try {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+      setHasSavedDraft(false);
+      setDraftStatus('');
+    } catch (e) {}
   };
 
   const handleEdit = (post: Post) => {
     setEditingPost({ ...post });
     setIsNew(false);
     setEditorMode('write');
+    setSaveStatus('idle');
+    setCompressionStats(null);
   };
 
   const handleDelete = async (id: string) => {
@@ -137,18 +223,33 @@ export default function AdminWritingsPage() {
       const res = await fetch(`/api/posts/${id}`, { method: 'DELETE' });
       if (res.ok) {
         setPosts(posts.filter((p) => p.id !== id));
-        setMessage('Post deleted successfully');
-        setTimeout(() => setMessage(''), 3000);
       }
     } catch (err) {
       alert('Failed to delete post');
     }
   };
 
-  // Upload helper for files from device
-  const uploadImageFile = async (file: File): Promise<string | null> => {
+  // Client-Side Image Compression + Upload to /api/upload
+  const compressAndUploadImage = async (file: File): Promise<string | null> => {
+    // 1. Compress Image in browser to optimized WebP
+    const compressedResult = await compressImage(file, {
+      maxWidth: 1600,
+      maxHeight: 1600,
+      quality: 0.82,
+      format: 'image/webp',
+    });
+
+    const origStr = formatBytes(compressedResult.originalSize);
+    const compStr = formatBytes(compressedResult.compressedSize);
+    const percent = compressedResult.reductionPercent;
+
+    if (percent > 0) {
+      setCompressionStats(`⚡ Compressed: ${origStr} ➔ ${compStr} (${percent}% smaller WebP)`);
+    }
+
+    // 2. Upload compressed WebP to server / Supabase
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', compressedResult.file);
 
     const res = await fetch('/api/upload', {
       method: 'POST',
@@ -169,8 +270,9 @@ export default function AdminWritingsPage() {
     if (!file || !editingPost) return;
 
     setUploadingCover(true);
+    setCompressionStats(null);
     try {
-      const uploadedUrl = await uploadImageFile(file);
+      const uploadedUrl = await compressAndUploadImage(file);
       if (uploadedUrl) {
         setEditingPost({ ...editingPost, coverImage: uploadedUrl });
       }
@@ -190,8 +292,9 @@ export default function AdminWritingsPage() {
     if (!file || !editingPost) return;
 
     setUploadingCover(true);
+    setCompressionStats(null);
     try {
-      const uploadedUrl = await uploadImageFile(file);
+      const uploadedUrl = await compressAndUploadImage(file);
       if (uploadedUrl) {
         setEditingPost({ ...editingPost, coverImage: uploadedUrl });
       }
@@ -208,8 +311,9 @@ export default function AdminWritingsPage() {
     if (!file || !editingPost) return;
 
     setUploadingToolbar(true);
+    setCompressionStats(null);
     try {
-      const uploadedUrl = await uploadImageFile(file);
+      const uploadedUrl = await compressAndUploadImage(file);
       if (uploadedUrl) {
         const alt = file.name.split('.')[0] || 'Image';
         insertFormatting(`\n\n![${alt}](`, `${uploadedUrl})\n\n`, '');
@@ -225,7 +329,7 @@ export default function AdminWritingsPage() {
   // Smart Paste Handler: Converts copied rich formatted text into clean Markdown
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const html = e.clipboardData.getData('text/html');
-    if (!html || html.trim() === '') return; // Plain text paste proceeds normally
+    if (!html || html.trim() === '') return;
 
     e.preventDefault();
     const markdown = htmlToMarkdown(html);
@@ -300,15 +404,17 @@ export default function AdminWritingsPage() {
     });
   };
 
+  // Main Submit Handler with Button Lifecycle Feedback
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPost) return;
-    setSaving(true);
-    setMessage('');
+
+    setSaveStatus('saving');
+    setStatusMessage('');
 
     try {
-      const url = isNew ? '/api/posts' : `/api/posts/${editingPost.id}`;
-      const method = isNew ? 'POST' : 'PUT';
+      const url = isNew || !editingPost.id ? '/api/posts' : `/api/posts/${editingPost.id}`;
+      const method = isNew || !editingPost.id ? 'POST' : 'PUT';
 
       const res = await fetch(url, {
         method,
@@ -318,16 +424,28 @@ export default function AdminWritingsPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setMessage('Post saved & published successfully!');
-        setEditingPost(null);
-        fetchPosts();
+        setSaveStatus('success');
+
+        // Clear Auto-Saved Draft on successful publish
+        try {
+          localStorage.removeItem(DRAFT_STORAGE_KEY);
+          setHasSavedDraft(false);
+        } catch (e) {}
+
+        setTimeout(() => {
+          setEditingPost(null);
+          setSaveStatus('idle');
+          fetchPosts();
+        }, 1200);
       } else {
-        setMessage(data.message || 'Failed to save post.');
+        setSaveStatus('error');
+        setStatusMessage(data.message || 'Failed to save post.');
+        setTimeout(() => setSaveStatus('idle'), 3500);
       }
     } catch (err: any) {
-      setMessage(`Error saving post: ${err.message || 'Network error'}`);
-    } finally {
-      setSaving(false);
+      setSaveStatus('error');
+      setStatusMessage(`Error saving post: ${err.message || 'Network error'}`);
+      setTimeout(() => setSaveStatus('idle'), 3500);
     }
   };
 
@@ -364,23 +482,28 @@ export default function AdminWritingsPage() {
             Writings &amp; Essays Manager
           </h1>
           <p className="text-[0.875rem] text-[var(--ink-muted)] mt-1">
-            Visual editor with Direct Device Image Upload, Paste Preservation, and Live Preview.
+            Auto-save Drafts · Smart WebP Image Compression · Instant Button Feedback.
           </p>
         </div>
 
-        <button
-          onClick={handleCreateNew}
-          className="bg-[var(--accent)] text-white px-5 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem] hover:bg-[var(--ink)] transition-colors cursor-pointer self-start sm:self-auto"
-        >
-          + Write New Essay
-        </button>
-      </div>
+        <div className="flex items-center gap-3">
+          {hasSavedDraft && !editingPost && (
+            <button
+              onClick={handleRestoreDraft}
+              className="bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-4 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem] transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <span>📋 Restore Auto-Saved Draft</span>
+            </button>
+          )}
 
-      {message && (
-        <div className="p-3.5 bg-green-50 border border-green-200 text-green-800 rounded font-mono text-xs">
-          {message}
+          <button
+            onClick={handleCreateNew}
+            className="bg-[var(--accent)] text-white px-5 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem] hover:bg-[var(--ink)] transition-colors cursor-pointer self-start sm:self-auto shadow-sm"
+          >
+            + Write New Essay
+          </button>
         </div>
-      )}
+      </div>
 
       {/* Visual Editor Modal */}
       {editingPost && (
@@ -388,7 +511,7 @@ export default function AdminWritingsPage() {
           <div className="bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius-lg)] max-w-4xl w-full my-auto shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-[var(--rule)] px-6 py-4 bg-[var(--surface)]">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 flex-wrap">
                 <h2 className="font-serif text-[1.375rem] text-[var(--ink)] font-medium">
                   {isNew ? 'Write New Essay' : 'Edit Essay'}
                 </h2>
@@ -416,6 +539,13 @@ export default function AdminWritingsPage() {
                     👁️ Live Preview
                   </button>
                 </div>
+
+                {/* Auto-save status pill */}
+                {draftStatus && (
+                  <span className="font-mono text-[0.6875rem] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    {draftStatus}
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center gap-3">
@@ -434,6 +564,12 @@ export default function AdminWritingsPage() {
 
             {/* Modal Body */}
             <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-6 flex flex-col gap-5">
+              {statusMessage && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-800 rounded font-mono text-xs">
+                  {statusMessage}
+                </div>
+              )}
+
               {/* Meta Inputs */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
@@ -468,13 +604,15 @@ export default function AdminWritingsPage() {
                 </div>
               </div>
 
-              {/* Cover Image Upload from Device Box */}
+              {/* Cover Image Upload with Smart WebP Compression */}
               <div className="flex flex-col gap-2 p-4 bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius)]">
                 <div className="flex items-center justify-between">
                   <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink)] font-bold flex items-center gap-2">
                     <span>🖼️ Thumbnail / Cover Image</span>
                     {uploadingCover && (
-                      <span className="text-[var(--accent)] animate-pulse font-normal">(Uploading from device...)</span>
+                      <span className="text-[var(--accent)] animate-pulse font-normal">
+                        (Compressing &amp; Uploading WebP...)
+                      </span>
                     )}
                   </label>
                   <button
@@ -485,6 +623,12 @@ export default function AdminWritingsPage() {
                     {showUrlInput ? 'Switch to Device Upload' : 'or enter Image URL'}
                   </button>
                 </div>
+
+                {compressionStats && (
+                  <div className="p-2 bg-emerald-50 border border-emerald-200 rounded font-mono text-[0.6875rem] text-emerald-800">
+                    {compressionStats}
+                  </div>
+                )}
 
                 {showUrlInput ? (
                   <div className="flex flex-col sm:flex-row gap-3 items-start">
@@ -525,7 +669,7 @@ export default function AdminWritingsPage() {
                       <div className="py-4 flex flex-col items-center gap-2">
                         <div className="w-6 h-6 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
                         <span className="font-mono text-xs text-[var(--accent)]">
-                          Uploading image from your device...
+                          Compressing &amp; Uploading WebP image...
                         </span>
                       </div>
                     ) : editingPost.coverImage ? (
@@ -542,6 +686,7 @@ export default function AdminWritingsPage() {
                             onClick={(e) => {
                               e.stopPropagation();
                               setEditingPost({ ...editingPost, coverImage: '' });
+                              setCompressionStats(null);
                             }}
                             className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded font-mono text-xs cursor-pointer"
                           >
@@ -558,7 +703,7 @@ export default function AdminWritingsPage() {
                           Click to upload image from your device (PC / Phone)
                         </div>
                         <div className="font-mono text-[0.6875rem] text-[var(--ink-muted)]">
-                          or drag &amp; drop any PNG, JPG, WEBP, GIF here
+                          Auto-compressed to ultra-lightweight WebP format (typically 80-95% smaller)
                         </div>
                       </div>
                     )}
@@ -718,13 +863,13 @@ export default function AdminWritingsPage() {
                       🔗 Link
                     </button>
 
-                    {/* Toolbar Direct Device Image Upload */}
+                    {/* Toolbar Direct Device Image Upload with Compression */}
                     <button
                       type="button"
                       disabled={uploadingToolbar}
                       onClick={() => toolbarFileInputRef.current?.click()}
                       className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer flex items-center gap-1 disabled:opacity-50"
-                      title="Upload Image from Device"
+                      title="Upload Image from Device (Auto-Compressed WebP)"
                     >
                       <span>🖼️ Upload Image</span>
                       {uploadingToolbar && <span className="animate-spin text-[0.625rem]">⏳</span>}
@@ -860,7 +1005,7 @@ export default function AdminWritingsPage() {
                 </div>
               )}
 
-              {/* Publish Toggle & Action Buttons */}
+              {/* Publish Toggle & Action Buttons with Interactive Lifecycle Feedback */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-[var(--rule)] pt-5 mt-auto">
                 <div className="flex items-center gap-3">
                   <input
@@ -879,16 +1024,43 @@ export default function AdminWritingsPage() {
                   <button
                     type="button"
                     onClick={() => setEditingPost(null)}
-                    className="px-4 py-2 border border-[var(--rule)] rounded-[var(--radius)] font-mono text-[0.8125rem] hover:bg-[var(--surface)] cursor-pointer"
+                    className="px-4 py-2.5 border border-[var(--rule)] rounded-[var(--radius)] font-mono text-[0.8125rem] hover:bg-[var(--surface)] cursor-pointer"
                   >
                     Cancel
                   </button>
+
+                  {/* Interactive Button with Lifecycle Visual States */}
                   <button
                     type="submit"
-                    disabled={saving || uploadingCover || uploadingToolbar}
-                    className="bg-[var(--ink)] hover:bg-[var(--accent)] text-white px-7 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem] transition-colors disabled:opacity-50 cursor-pointer shadow-md"
+                    disabled={saveStatus === 'saving' || uploadingCover || uploadingToolbar}
+                    className={`px-7 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem] transition-all duration-200 cursor-pointer shadow-md flex items-center gap-2 font-medium ${
+                      saveStatus === 'saving'
+                        ? 'bg-[var(--ink)] text-white opacity-80 cursor-wait'
+                        : saveStatus === 'success'
+                        ? 'bg-emerald-600 text-white scale-[1.02]'
+                        : saveStatus === 'error'
+                        ? 'bg-red-600 text-white'
+                        : 'bg-[var(--accent)] hover:bg-[var(--ink)] text-white'
+                    }`}
                   >
-                    {saving ? 'Saving...' : isNew ? 'Publish Essay' : 'Save Changes'}
+                    {saveStatus === 'saving' ? (
+                      <>
+                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Saving &amp; Syncing...</span>
+                      </>
+                    ) : saveStatus === 'success' ? (
+                      <>
+                        <span className="text-sm font-bold">✓</span>
+                        <span>Saved &amp; Published!</span>
+                      </>
+                    ) : saveStatus === 'error' ? (
+                      <>
+                        <span>✕</span>
+                        <span>Failed to Save</span>
+                      </>
+                    ) : (
+                      <span>{isNew ? 'Publish Essay' : 'Save Changes'}</span>
+                    )}
                   </button>
                 </div>
               </div>
