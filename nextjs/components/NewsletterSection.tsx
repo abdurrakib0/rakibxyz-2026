@@ -2,24 +2,34 @@
 
 import React, { useState } from 'react';
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 export default function NewsletterSection() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
   const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    const cleanEmail = email.trim();
+
+    if (!cleanEmail || !EMAIL_REGEX.test(cleanEmail)) {
+      setMessage('Please provide a valid email address (e.g., yourname@gmail.com).');
+      setIsError(true);
+      return;
+    }
 
     setLoading(true);
     setMessage('');
+    setIsError(false);
 
     try {
       const res = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: cleanEmail }),
       });
 
       const data = await res.json();
@@ -27,9 +37,11 @@ export default function NewsletterSection() {
         setSubscribed(true);
       } else {
         setMessage(data.message || 'Subscription failed. Please try again.');
+        setIsError(true);
       }
     } catch (err) {
       setMessage('Connection error. Please try again.');
+      setIsError(true);
     } finally {
       setLoading(false);
     }
@@ -52,14 +64,20 @@ export default function NewsletterSection() {
               ✓ Thank you for subscribing! You will receive the next quiet essay.
             </div>
           ) : (
-            <form className="newsletter-form" onSubmit={handleSubmit}>
+            <form className="newsletter-form" onSubmit={handleSubmit} noValidate>
               <input
-                className="newsletter-input"
+                className={`newsletter-input ${isError ? '!border-red-500 ring-1 ring-red-500' : ''}`}
                 type="email"
-                placeholder="you@email.com"
+                placeholder="you@gmail.com"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (message) {
+                    setMessage('');
+                    setIsError(false);
+                  }
+                }}
                 aria-label="Email address"
               />
               <button className="newsletter-button" type="submit" disabled={loading}>
@@ -69,7 +87,10 @@ export default function NewsletterSection() {
           )}
 
           {message && (
-            <p className="font-mono text-xs text-red-600 mt-1">{message}</p>
+            <p className="font-mono text-xs text-red-600 mt-2 flex items-center gap-1.5">
+              <span>⚠️</span>
+              <span>{message}</span>
+            </p>
           )}
 
           <p className="newsletter-caption">
