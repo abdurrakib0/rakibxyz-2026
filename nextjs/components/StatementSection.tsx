@@ -8,19 +8,22 @@ interface StatementSectionProps {
 export default function StatementSection({ philosophy }: StatementSectionProps) {
   return (
     <section className="container statement-section">
-      <div className="py-14 md:py-20 border-y border-[var(--rule)]">
+      <div className="pt-14 md:pt-20 pb-4 md:pb-6 border-t border-[var(--rule)]">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
           {/* Left: Operating Philosophy */}
           <div className="lg:col-span-7 flex flex-col gap-6">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
-              <span className="font-mono text-[0.75rem] uppercase tracking-widest text-[var(--accent)] font-medium">
+              <span className="font-mono text-[0.75rem] uppercase tracking-widest text-[var(--accent)] font-medium italic">
                 Operating Philosophy
               </span>
             </div>
 
-            <blockquote className="m-0 p-0">
-              <h2 className="font-serif text-[1.875rem] sm:text-[2.25rem] md:text-[2.625rem] leading-[1.2] tracking-tight text-[var(--ink)] font-normal">
+            <blockquote className="m-0 p-0 relative">
+              <span className="font-serif text-[4.5rem] md:text-[5.5rem] leading-none text-[var(--accent)] opacity-25 select-none block -mb-8 -ml-1">
+                “
+              </span>
+              <h2 className="font-serif text-[1.875rem] sm:text-[2.25rem] md:text-[2.625rem] leading-[1.2] tracking-tight text-[var(--ink)] font-normal relative z-10">
                 AI raised the bar for junior developers.{' '}
                 <span className="text-[var(--accent)] italic">Motivation does not clear it. Systems do.</span>
               </h2>
