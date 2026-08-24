@@ -337,6 +337,30 @@
       "relation": "Collaborated on tech hiring and placement corridors",
       "date": "2024",
       "sortOrder": 3
+    },
+    {
+      "id": "rec_4",
+      "name": "Arifur Rahman",
+      "role": "Lead Architect",
+      "company": "CloudScale Systems",
+      "avatarUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+      "content": "Rakib approaches every technical and managerial challenge with incredible clarity. His ability to align distributed teams toward quantifiable milestones made working alongside him a privilege.",
+      "linkedinUrl": "https://www.linkedin.com",
+      "relation": "Worked with Abdur on engineering system architecture",
+      "date": "2023",
+      "sortOrder": 4
+    },
+    {
+      "id": "rec_5",
+      "name": "Mahmudul Karim",
+      "role": "Chief Technology Officer",
+      "company": "NextGen Ventures",
+      "avatarUrl": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80",
+      "content": "A leader who leads by example. Abdur Rakib has built an unparalleled operational model for tech workforce development. His dedication to craft, systems thinking, and execution speed is truly world-class.",
+      "linkedinUrl": "https://www.linkedin.com",
+      "relation": "Advised on tech operations and executive scaling",
+      "date": "2024",
+      "sortOrder": 5
     }
   ]
 }
