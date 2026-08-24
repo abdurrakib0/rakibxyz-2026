@@ -3,11 +3,17 @@
 import React, { useEffect, useState } from 'react';
 import { Subscriber } from '@/lib/data';
 
+const GMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+
 export default function AdminSubscribersPage() {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editEmail, setEditEmail] = useState('');
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [editError, setEditError] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
 
   const fetchSubscribers = async () => {
@@ -28,6 +34,59 @@ export default function AdminSubscribersPage() {
   useEffect(() => {
     fetchSubscribers();
   }, []);
+
+  const handleStartEdit = (sub: Subscriber) => {
+    setEditingId(sub.id);
+    setEditEmail(sub.email);
+    setEditError('');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditEmail('');
+    setEditError('');
+  };
+
+  const handleSaveEdit = async (id: string) => {
+    const cleanEmail = editEmail.trim().toLowerCase();
+
+    if (!cleanEmail) {
+      setEditError('Email address cannot be empty.');
+      return;
+    }
+
+    if (!GMAIL_REGEX.test(cleanEmail)) {
+      setEditError('Please enter a valid @gmail.com address.');
+      return;
+    }
+
+    setSavingId(id);
+    setEditError('');
+
+    try {
+      const res = await fetch('/api/subscribers', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, email: cleanEmail }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setSubscribers((prev) =>
+          prev.map((s) => (s.id === id ? { ...s, email: cleanEmail } : s))
+        );
+        setStatusMessage(`Successfully updated subscriber to "${cleanEmail}"`);
+        setTimeout(() => setStatusMessage(''), 4000);
+        handleCancelEdit();
+      } else {
+        setEditError(data.message || 'Failed to update subscriber');
+      }
+    } catch (err) {
+      setEditError('Error updating subscriber. Please try again.');
+    } finally {
+      setSavingId(null);
+    }
+  };
 
   const handleDelete = async (id: string, email: string) => {
     if (!confirm(`Are you sure you want to remove "${email}" from the subscriber list?`)) {
@@ -195,7 +254,7 @@ export default function AdminSubscribersPage() {
 
       {statusMessage && (
         <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem]">
-          {statusMessage}
+          ✓ {statusMessage}
         </div>
       )}
 
@@ -264,28 +323,86 @@ export default function AdminSubscribersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--rule)]">
-                {filteredSubscribers.map((sub, index) => (
-                  <tr key={sub.id} className="hover:bg-[var(--bg)] transition-colors">
-                    <td className="py-3.5 px-4 text-[var(--ink-muted)]">{index + 1}</td>
-                    <td className="py-3.5 px-4 text-[var(--ink)] font-medium">
-                      <a href={`mailto:${sub.email}`} className="no-underline hover:text-[var(--accent)]">
-                        {sub.email}
-                      </a>
-                    </td>
-                    <td className="py-3.5 px-4 text-[var(--ink-muted)]">
-                      {new Date(sub.created_at).toLocaleString()}
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <button
-                        onClick={() => handleDelete(sub.id, sub.email)}
-                        disabled={deletingId === sub.id}
-                        className="text-red-600 hover:text-red-800 text-[0.75rem] font-mono cursor-pointer border-0 bg-transparent"
-                      >
-                        {deletingId === sub.id ? 'Deleting...' : 'Delete'}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {filteredSubscribers.map((sub, index) => {
+                  const isEditing = editingId === sub.id;
+
+                  return (
+                    <tr key={sub.id} className="hover:bg-[var(--bg)] transition-colors">
+                      <td className="py-3.5 px-4 text-[var(--ink-muted)]">{index + 1}</td>
+                      <td className="py-3.5 px-4 text-[var(--ink)] font-medium">
+                        {isEditing ? (
+                          <div className="flex flex-col gap-1 max-w-md">
+                            <input
+                              type="email"
+                              value={editEmail}
+                              onChange={(e) => {
+                                setEditEmail(e.target.value);
+                                if (editError) setEditError('');
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSaveEdit(sub.id);
+                                if (e.key === 'Escape') handleCancelEdit();
+                              }}
+                              placeholder="name@gmail.com"
+                              autoFocus
+                              className="bg-white border border-[var(--ink)] px-2.5 py-1 rounded text-[0.8125rem] font-mono focus:outline-none focus:ring-1 focus:ring-[var(--ink)]"
+                            />
+                            {editError && (
+                              <span className="text-red-600 text-[0.7rem] font-mono">
+                                ⚠️ {editError}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <a href={`mailto:${sub.email}`} className="no-underline hover:text-[var(--accent)]">
+                            {sub.email}
+                          </a>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 text-[var(--ink-muted)]">
+                        {new Date(sub.created_at).toLocaleString()}
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        {isEditing ? (
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => handleSaveEdit(sub.id)}
+                              disabled={savingId === sub.id}
+                              className="text-green-700 hover:text-green-900 font-bold text-[0.75rem] font-mono cursor-pointer border-0 bg-transparent"
+                            >
+                              {savingId === sub.id ? 'Saving...' : 'Save'}
+                            </button>
+                            <span className="text-[var(--rule)]">|</span>
+                            <button
+                              onClick={handleCancelEdit}
+                              disabled={savingId === sub.id}
+                              className="text-[var(--ink-muted)] hover:text-[var(--ink)] text-[0.75rem] font-mono cursor-pointer border-0 bg-transparent"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-end gap-2.5">
+                            <button
+                              onClick={() => handleStartEdit(sub)}
+                              className="text-[var(--ink)] hover:text-[var(--accent)] text-[0.75rem] font-mono cursor-pointer border-0 bg-transparent"
+                            >
+                              Edit
+                            </button>
+                            <span className="text-[var(--rule)]">|</span>
+                            <button
+                              onClick={() => handleDelete(sub.id, sub.email)}
+                              disabled={deletingId === sub.id}
+                              className="text-red-600 hover:text-red-800 text-[0.75rem] font-mono cursor-pointer border-0 bg-transparent"
+                            >
+                              {deletingId === sub.id ? 'Deleting...' : 'Delete'}
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -301,3 +301,42 @@ export async function deleteSubscriberAsync(id: string): Promise<boolean> {
   }
   return false;
 }
+
+export async function updateSubscriberAsync(id: string, newEmail: string): Promise<{ success: boolean; message?: string }> {
+  if (isSupabaseConfigured() && supabaseAdmin) {
+    try {
+      const { error } = await supabaseAdmin
+        .from('subscribers')
+        .update({ email: newEmail })
+        .eq('id', id);
+      if (error) {
+        if (error.code === '23505') {
+          return { success: false, message: 'Email already exists in subscriber list.' };
+        }
+        throw error;
+      }
+      return { success: true };
+    } catch (err: any) {
+      console.error('Error updating subscriber in Supabase:', err);
+      return { success: false, message: err.message || 'Failed to update subscriber' };
+    }
+  }
+
+  const localDb = getDatabase();
+  if (localDb.subscribers) {
+    const exists = localDb.subscribers.find(
+      (s) => s.email.toLowerCase() === newEmail.toLowerCase() && s.id !== id
+    );
+    if (exists) {
+      return { success: false, message: 'Email already exists in subscriber list.' };
+    }
+    const sub = localDb.subscribers.find((s) => s.id === id);
+    if (sub) {
+      sub.email = newEmail;
+      saveDatabase(localDb);
+      return { success: true };
+    }
+  }
+  return { success: false, message: 'Subscriber not found' };
+}
+

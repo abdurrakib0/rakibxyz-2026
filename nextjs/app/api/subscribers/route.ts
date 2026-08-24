@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSubscribersAsync, deleteSubscriberAsync } from '@/lib/data';
+import { getSubscribersAsync, deleteSubscriberAsync, updateSubscriberAsync } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
+
+const GMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
 
 export async function GET() {
   try {
@@ -10,6 +12,42 @@ export async function GET() {
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message || 'Failed to fetch subscribers' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const { id, email } = await req.json();
+    const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+
+    if (!id || !cleanEmail) {
+      return NextResponse.json(
+        { success: false, message: 'Subscriber ID and email are required.' },
+        { status: 400 }
+      );
+    }
+
+    if (!GMAIL_REGEX.test(cleanEmail)) {
+      return NextResponse.json(
+        { success: false, message: 'Please provide a valid @gmail.com address.' },
+        { status: 400 }
+      );
+    }
+
+    const result = await updateSubscriberAsync(id, cleanEmail);
+    if (!result.success) {
+      return NextResponse.json(
+        { success: false, message: result.message || 'Failed to update subscriber' },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({ success: true, message: 'Subscriber updated successfully.' });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: error.message || 'Failed to update subscriber' },
       { status: 500 }
     );
   }
