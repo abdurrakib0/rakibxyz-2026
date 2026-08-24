@@ -73,7 +73,14 @@ export default function AdminWritingsPage() {
   const [message, setMessage] = useState('');
   const [editorMode, setEditorMode] = useState<'write' | 'preview'>('write');
 
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingToolbar, setUploadingToolbar] = useState(false);
+  const [isDraggingCover, setIsDraggingCover] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const coverFileInputRef = useRef<HTMLInputElement | null>(null);
+  const toolbarFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const fetchPosts = async () => {
     try {
@@ -138,10 +145,87 @@ export default function AdminWritingsPage() {
     }
   };
 
+  // Upload helper for files from device
+  const uploadImageFile = async (file: File): Promise<string | null> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success && data.url) {
+      return data.url;
+    } else {
+      throw new Error(data.message || 'Image upload failed');
+    }
+  };
+
+  // Cover Image device file upload handler
+  const handleCoverFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingPost) return;
+
+    setUploadingCover(true);
+    try {
+      const uploadedUrl = await uploadImageFile(file);
+      if (uploadedUrl) {
+        setEditingPost({ ...editingPost, coverImage: uploadedUrl });
+      }
+    } catch (err: any) {
+      alert(`Upload failed: ${err.message || err}`);
+    } finally {
+      setUploadingCover(false);
+      if (coverFileInputRef.current) coverFileInputRef.current.value = '';
+    }
+  };
+
+  // Cover Image drag and drop handler
+  const handleCoverFileDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDraggingCover(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file || !editingPost) return;
+
+    setUploadingCover(true);
+    try {
+      const uploadedUrl = await uploadImageFile(file);
+      if (uploadedUrl) {
+        setEditingPost({ ...editingPost, coverImage: uploadedUrl });
+      }
+    } catch (err: any) {
+      alert(`Upload failed: ${err.message || err}`);
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
+  // Toolbar Image device file upload handler
+  const handleToolbarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingPost) return;
+
+    setUploadingToolbar(true);
+    try {
+      const uploadedUrl = await uploadImageFile(file);
+      if (uploadedUrl) {
+        const alt = file.name.split('.')[0] || 'Image';
+        insertFormatting(`\n\n![${alt}](`, `${uploadedUrl})\n\n`, '');
+      }
+    } catch (err: any) {
+      alert(`Upload failed: ${err.message || err}`);
+    } finally {
+      setUploadingToolbar(false);
+      if (toolbarFileInputRef.current) toolbarFileInputRef.current.value = '';
+    }
+  };
+
   // Smart Paste Handler: Converts copied rich formatted text into clean Markdown
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const html = e.clipboardData.getData('text/html');
-    if (!html || html.trim() === '') return; // Let plain text paste normally
+    if (!html || html.trim() === '') return; // Plain text paste proceeds normally
 
     e.preventDefault();
     const markdown = htmlToMarkdown(html);
@@ -190,13 +274,6 @@ export default function AdminWritingsPage() {
         start + prefix.length + selectedText.length
       );
     }, 50);
-  };
-
-  const handleInsertImage = () => {
-    const url = prompt('Enter Image URL (e.g. https://images.unsplash.com/... or /img/photo.jpg):');
-    if (!url) return;
-    const alt = prompt('Enter Image Description / Caption (optional):', 'Featured image') || 'Image';
-    insertFormatting(`\n\n![${alt}](`, `${url})\n\n`, '');
   };
 
   const handleContentChange = (val: string) => {
@@ -264,6 +341,22 @@ export default function AdminWritingsPage() {
 
   return (
     <div className="flex flex-col gap-8">
+      {/* Hidden file inputs for direct device uploads */}
+      <input
+        type="file"
+        ref={coverFileInputRef}
+        accept="image/*"
+        onChange={handleCoverFileChange}
+        className="hidden"
+      />
+      <input
+        type="file"
+        ref={toolbarFileInputRef}
+        accept="image/*"
+        onChange={handleToolbarFileChange}
+        className="hidden"
+      />
+
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--rule)] pb-6">
         <div>
@@ -271,7 +364,7 @@ export default function AdminWritingsPage() {
             Writings &amp; Essays Manager
           </h1>
           <p className="text-[0.875rem] text-[var(--ink-muted)] mt-1">
-            Visual editor with Cover Image support, Rich-Text Paste preservation, and live preview.
+            Visual editor with Direct Device Image Upload, Paste Preservation, and Live Preview.
           </p>
         </div>
 
@@ -375,42 +468,102 @@ export default function AdminWritingsPage() {
                 </div>
               </div>
 
-              {/* Cover Image URL & Thumbnail Preview */}
+              {/* Cover Image Upload from Device Box */}
               <div className="flex flex-col gap-2 p-4 bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius)]">
                 <div className="flex items-center justify-between">
-                  <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink)] font-bold">
-                    Featured Thumbnail / Cover Image URL
+                  <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink)] font-bold flex items-center gap-2">
+                    <span>🖼️ Thumbnail / Cover Image</span>
+                    {uploadingCover && (
+                      <span className="text-[var(--accent)] animate-pulse font-normal">(Uploading from device...)</span>
+                    )}
                   </label>
-                  <span className="font-mono text-[0.6875rem] text-[var(--ink-muted)]">
-                    Direct Image URL (.jpg, .png, .webp) or Unsplash link
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowUrlInput(!showUrlInput)}
+                    className="font-mono text-[0.6875rem] text-[var(--accent)] hover:underline cursor-pointer"
+                  >
+                    {showUrlInput ? 'Switch to Device Upload' : 'or enter Image URL'}
+                  </button>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 items-start">
-                  <input
-                    type="text"
-                    value={editingPost.coverImage || ''}
-                    onChange={(e) => setEditingPost({ ...editingPost, coverImage: e.target.value })}
-                    placeholder="e.g. https://images.unsplash.com/photo-... or /img/cover.jpg"
-                    className="bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] px-3 py-2 text-[0.8125rem] font-mono text-[var(--ink)] focus:outline-none focus:border-[var(--accent)] flex-1 w-full"
-                  />
-                  {editingPost.coverImage && (
-                    <div className="relative group w-24 h-14 rounded overflow-hidden border border-[var(--rule)] bg-black shrink-0">
-                      <img
-                        src={editingPost.coverImage}
-                        alt="Cover Preview"
-                        className="w-full h-full object-cover"
-                      />
+                {showUrlInput ? (
+                  <div className="flex flex-col sm:flex-row gap-3 items-start">
+                    <input
+                      type="text"
+                      value={editingPost.coverImage || ''}
+                      onChange={(e) => setEditingPost({ ...editingPost, coverImage: e.target.value })}
+                      placeholder="e.g. https://images.unsplash.com/... or /img/cover.jpg"
+                      className="bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] px-3 py-2 text-[0.8125rem] font-mono text-[var(--ink)] focus:outline-none focus:border-[var(--accent)] flex-1 w-full"
+                    />
+                    {editingPost.coverImage && (
                       <button
                         type="button"
                         onClick={() => setEditingPost({ ...editingPost, coverImage: '' })}
-                        className="absolute inset-0 bg-black/60 text-white font-mono text-[0.6875rem] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                        className="px-3 py-2 border border-[var(--rule)] rounded font-mono text-[0.75rem] text-red-600 hover:bg-red-50"
                       >
-                        ✕ Remove
+                        Clear
                       </button>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
+                ) : (
+                  /* Device Upload Drag & Drop Area */
+                  <div
+                    onClick={() => coverFileInputRef.current?.click()}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setIsDraggingCover(true);
+                    }}
+                    onDragLeave={() => setIsDraggingCover(false)}
+                    onDrop={handleCoverFileDrop}
+                    className={`border-2 border-dashed rounded-[var(--radius)] p-4 text-center transition-all cursor-pointer bg-[var(--bg)] flex flex-col items-center justify-center gap-2 ${
+                      isDraggingCover
+                        ? 'border-[var(--accent)] bg-[var(--accent)]/5'
+                        : 'border-[var(--rule)] hover:border-[var(--accent)]'
+                    }`}
+                  >
+                    {uploadingCover ? (
+                      <div className="py-4 flex flex-col items-center gap-2">
+                        <div className="w-6 h-6 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
+                        <span className="font-mono text-xs text-[var(--accent)]">
+                          Uploading image from your device...
+                        </span>
+                      </div>
+                    ) : editingPost.coverImage ? (
+                      <div className="relative group w-full max-h-48 overflow-hidden rounded flex flex-col items-center">
+                        <img
+                          src={editingPost.coverImage}
+                          alt="Cover"
+                          className="w-full h-40 object-cover rounded border border-[var(--rule)]"
+                        />
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                          <span className="text-white font-mono text-xs">Click or drop to replace</span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingPost({ ...editingPost, coverImage: '' });
+                            }}
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded font-mono text-xs cursor-pointer"
+                          >
+                            Remove Image
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="py-3 flex flex-col items-center gap-1.5">
+                        <div className="w-10 h-10 rounded-full bg-[var(--surface)] border border-[var(--rule)] flex items-center justify-center text-lg">
+                          📁
+                        </div>
+                        <div className="font-mono text-xs text-[var(--ink)] font-semibold">
+                          Click to upload image from your device (PC / Phone)
+                        </div>
+                        <div className="font-mono text-[0.6875rem] text-[var(--ink-muted)]">
+                          or drag &amp; drop any PNG, JPG, WEBP, GIF here
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col gap-1">
@@ -564,14 +717,19 @@ export default function AdminWritingsPage() {
                     >
                       🔗 Link
                     </button>
+
+                    {/* Toolbar Direct Device Image Upload */}
                     <button
                       type="button"
-                      onClick={handleInsertImage}
-                      className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer"
-                      title="Insert Image"
+                      disabled={uploadingToolbar}
+                      onClick={() => toolbarFileInputRef.current?.click()}
+                      className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer flex items-center gap-1 disabled:opacity-50"
+                      title="Upload Image from Device"
                     >
-                      🖼️ Image
+                      <span>🖼️ Upload Image</span>
+                      {uploadingToolbar && <span className="animate-spin text-[0.625rem]">⏳</span>}
                     </button>
+
                     <button
                       type="button"
                       onClick={() => insertFormatting('\n\n---\n\n')}
@@ -727,7 +885,7 @@ export default function AdminWritingsPage() {
                   </button>
                   <button
                     type="submit"
-                    disabled={saving}
+                    disabled={saving || uploadingCover || uploadingToolbar}
                     className="bg-[var(--ink)] hover:bg-[var(--accent)] text-white px-7 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem] transition-colors disabled:opacity-50 cursor-pointer shadow-md"
                   >
                     {saving ? 'Saving...' : isNew ? 'Publish Essay' : 'Save Changes'}
