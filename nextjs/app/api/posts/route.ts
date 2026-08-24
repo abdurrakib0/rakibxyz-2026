@@ -14,19 +14,23 @@ export async function GET() {
         .order('created_at', { ascending: false });
 
       if (!error && data) {
-        const posts: Post[] = data.map((p) => ({
-          id: p.id,
-          slug: p.slug,
-          title: p.title,
-          subtitle: p.subtitle || '',
-          date: p.date,
-          isoDate: p.iso_date || '',
-          readTime: p.read_time || '6 min read',
-          tag: p.tag || 'Systems & Leadership',
-          coverImage: p.cover_image || '',
-          published: p.published ?? true,
-          content: p.content,
-        }));
+        const localDb = getDatabase();
+        const posts: Post[] = data.map((p) => {
+          const localPost = localDb.posts.find((lp) => lp.id === p.id || lp.slug === p.slug);
+          return {
+            id: p.id,
+            slug: p.slug,
+            title: p.title || localPost?.title || '',
+            subtitle: p.subtitle || localPost?.subtitle || '',
+            date: p.date || localPost?.date || '',
+            isoDate: p.iso_date || localPost?.isoDate || '',
+            readTime: p.read_time || localPost?.readTime || '6 min read',
+            tag: p.tag || localPost?.tag || 'Systems & Leadership',
+            coverImage: p.cover_image || localPost?.coverImage || '',
+            published: p.published ?? localPost?.published ?? true,
+            content: p.content || localPost?.content || '',
+          };
+        });
         return NextResponse.json(posts);
       }
     } catch (e) {

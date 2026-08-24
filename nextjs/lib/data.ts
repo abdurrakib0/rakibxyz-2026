@@ -130,19 +130,22 @@ export async function getDatabaseAsync(): Promise<DatabaseSchema> {
     const localDb = getDatabase();
 
     const posts: Post[] = postsRes.data && postsRes.data.length > 0
-      ? postsRes.data.map((p) => ({
-          id: p.id,
-          slug: p.slug,
-          title: p.title,
-          subtitle: p.subtitle || '',
-          date: p.date,
-          isoDate: p.iso_date || '',
-          readTime: p.read_time || '6 min read',
-          tag: p.tag || 'Systems & Leadership',
-          coverImage: p.cover_image || '',
-          published: p.published ?? true,
-          content: p.content,
-        }))
+      ? postsRes.data.map((p) => {
+          const localPost = localDb.posts.find((lp) => lp.id === p.id || lp.slug === p.slug);
+          return {
+            id: p.id,
+            slug: p.slug,
+            title: p.title || localPost?.title || '',
+            subtitle: p.subtitle || localPost?.subtitle || '',
+            date: p.date || localPost?.date || '',
+            isoDate: p.iso_date || localPost?.isoDate || '',
+            readTime: p.read_time || localPost?.readTime || '6 min read',
+            tag: p.tag || localPost?.tag || 'Systems & Leadership',
+            coverImage: p.cover_image || localPost?.coverImage || '',
+            published: p.published ?? localPost?.published ?? true,
+            content: p.content || localPost?.content || '',
+          };
+        })
       : localDb.posts;
 
     const podcasts: Podcast[] = podcastsRes.data && podcastsRes.data.length > 0
