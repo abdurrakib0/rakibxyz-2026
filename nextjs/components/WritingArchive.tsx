@@ -64,7 +64,7 @@ export default function WritingArchive({ posts }: WritingArchiveProps) {
   }, [filteredPosts]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', width: '100%', boxSizing: 'border-box' }}>
       {/* Search & Filter Toolbar */}
       <div
         style={{
@@ -185,7 +185,7 @@ export default function WritingArchive({ posts }: WritingArchiveProps) {
                 style={{
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.75rem',
-                  padding: '6px 12px',
+                  padding: '6px 14px',
                   borderRadius: '999px',
                   border: isActive
                     ? '1px solid var(--ink)'
@@ -214,14 +214,14 @@ export default function WritingArchive({ posts }: WritingArchiveProps) {
         </div>
       </div>
 
-      {/* Results Header */}
+      {/* Results Count Header */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           borderBottom: '1px solid var(--rule)',
-          paddingBottom: '16px',
+          paddingBottom: '14px',
         }}
       >
         <span
@@ -294,20 +294,21 @@ export default function WritingArchive({ posts }: WritingArchiveProps) {
         </div>
       )}
 
-      {/* Category Decorated Essay Sections */}
+      {/* HORIZONTAL EDITORIAL LIST OF ESSAYS */}
       {selectedCategory === 'All' && !searchQuery ? (
-        // When viewing all: show categorized sections with headers
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '64px' }}>
+        // When viewing all: Group into categorized horizontal sections
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '56px' }}>
           {Object.entries(groupedByCategory).map(([categoryName, categoryPosts]) => (
             <section key={categoryName} style={{ margin: 0 }}>
+              {/* Category Section Header */}
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  marginBottom: '24px',
-                  borderBottom: '1px solid var(--rule)',
-                  paddingBottom: '12px',
+                  marginBottom: '16px',
+                  borderBottom: '2px solid var(--ink)',
+                  paddingBottom: '10px',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -323,10 +324,11 @@ export default function WritingArchive({ posts }: WritingArchiveProps) {
                   <h3
                     style={{
                       fontFamily: 'var(--font-display)',
-                      fontSize: '1.5rem',
-                      fontWeight: 400,
+                      fontSize: '1.375rem',
+                      fontWeight: 500,
                       color: 'var(--ink)',
                       margin: 0,
+                      letterSpacing: '-0.01em',
                     }}
                   >
                     {categoryName}
@@ -339,28 +341,34 @@ export default function WritingArchive({ posts }: WritingArchiveProps) {
                     color: 'var(--ink-muted)',
                   }}
                 >
-                  {categoryPosts.length} {categoryPosts.length === 1 ? 'essay' : 'essays'}
+                  {categoryPosts.length} {categoryPosts.length === 1 ? 'piece' : 'pieces'}
                 </span>
               </div>
 
-              <div className="writing-grid">
+              {/* Horizontal List Items */}
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {categoryPosts.map((post) => (
                   <Link
                     key={post.id}
                     href={`/writing/${post.slug}`}
-                    className="writing-card"
-                    style={{ textDecoration: 'none' }}
+                    className="horizontal-essay-row"
                     aria-label={`Read essay: ${post.title}`}
                   >
-                    <div className="writing-card-body">
-                      <span className="writing-card-meta">
-                        {post.date} · {post.readTime}
-                      </span>
-                      <h4 className="writing-card-title">{post.title}</h4>
-                      <p className="writing-card-excerpt">{post.subtitle}</p>
+                    {/* Left Meta: Date & Read Time */}
+                    <div className="essay-row-meta">
+                      <span className="essay-row-date">{post.date}</span>
+                      <span className="essay-row-readtime">{post.readTime}</span>
                     </div>
-                    <div className="writing-card-action">
-                      <span>Read essay</span>
+
+                    {/* Middle: Title & Subtitle */}
+                    <div className="essay-row-content">
+                      <h4 className="essay-row-title">{post.title}</h4>
+                      <p className="essay-row-excerpt">{post.subtitle}</p>
+                    </div>
+
+                    {/* Right: Read Action Arrow */}
+                    <div className="essay-row-action">
+                      <span className="essay-row-link-text">Read</span>
                       <svg
                         width="16"
                         height="16"
@@ -370,6 +378,7 @@ export default function WritingArchive({ posts }: WritingArchiveProps) {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
+                        className="essay-row-arrow"
                       >
                         <line x1="3" y1="8" x2="13" y2="8"></line>
                         <polyline points="9 4 13 8 9 12"></polyline>
@@ -382,25 +391,33 @@ export default function WritingArchive({ posts }: WritingArchiveProps) {
           ))}
         </div>
       ) : (
-        // When filtered or searched: show standard grid of matching items
-        <div className="writing-grid">
+        // When filtered by Category or Search: Single Flat Horizontal List
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           {filteredPosts.map((post) => (
             <Link
               key={post.id}
               href={`/writing/${post.slug}`}
-              className="writing-card"
-              style={{ textDecoration: 'none' }}
+              className="horizontal-essay-row"
               aria-label={`Read essay: ${post.title}`}
             >
-              <div className="writing-card-body">
-                <span className="writing-card-meta">
-                  {post.tag} · {post.date} · {post.readTime}
+              {/* Left Meta: Date & Tag */}
+              <div className="essay-row-meta">
+                <span className="podcast-tag" style={{ fontSize: '0.6875rem' }}>
+                  {post.tag}
                 </span>
-                <h3 className="writing-card-title">{post.title}</h3>
-                <p className="writing-card-excerpt">{post.subtitle}</p>
+                <span className="essay-row-date">{post.date}</span>
+                <span className="essay-row-readtime">{post.readTime}</span>
               </div>
-              <div className="writing-card-action">
-                <span>Read essay</span>
+
+              {/* Middle: Title & Subtitle */}
+              <div className="essay-row-content">
+                <h4 className="essay-row-title">{post.title}</h4>
+                <p className="essay-row-excerpt">{post.subtitle}</p>
+              </div>
+
+              {/* Right: Read Action Arrow */}
+              <div className="essay-row-action">
+                <span className="essay-row-link-text">Read</span>
                 <svg
                   width="16"
                   height="16"
@@ -410,6 +427,7 @@ export default function WritingArchive({ posts }: WritingArchiveProps) {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  className="essay-row-arrow"
                 >
                   <line x1="3" y1="8" x2="13" y2="8"></line>
                   <polyline points="9 4 13 8 9 12"></polyline>

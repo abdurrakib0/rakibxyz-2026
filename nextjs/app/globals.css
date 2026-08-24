@@ -1740,4 +1740,133 @@
       color: var(--ink-muted);
       margin: 0;
     }
+
+    /* Horizontal Essay List Row Layout */
+    .horizontal-essay-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 24px 16px;
+      border-bottom: 1px solid var(--rule);
+      text-decoration: none;
+      color: inherit;
+      border-radius: var(--radius);
+      transition: background-color 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), padding-left 0.2s ease;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .horizontal-essay-row:last-child {
+      border-bottom: none;
+    }
+
+    .horizontal-essay-row:hover {
+      background-color: var(--surface);
+      transform: translateX(4px);
+    }
+
+    @media (min-width: 768px) {
+      .horizontal-essay-row {
+        display: grid;
+        grid-template-columns: 170px 1fr auto;
+        align-items: baseline;
+        gap: 32px;
+        padding: 24px 20px;
+      }
+    }
+
+    .essay-row-meta {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    @media (min-width: 768px) {
+      .essay-row-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+    }
+
+    .essay-row-date {
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .essay-row-readtime {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      color: var(--ink-muted);
+    }
+
+    .essay-row-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .essay-row-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      line-height: 1.3;
+      font-weight: 400;
+      color: var(--ink);
+      margin: 0;
+      transition: color 0.2s ease;
+    }
+
+    @media (min-width: 768px) {
+      .essay-row-title {
+        font-size: 1.375rem;
+      }
+    }
+
+    .horizontal-essay-row:hover .essay-row-title {
+      color: var(--accent);
+    }
+
+    .essay-row-excerpt {
+      font-family: var(--font-body);
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      color: var(--ink-muted);
+      margin: 0;
+    }
+
+    .essay-row-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: var(--accent);
+      font-weight: 500;
+      white-space: nowrap;
+      margin-top: 4px;
+      opacity: 0.8;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    @media (min-width: 768px) {
+      .essay-row-action {
+        margin-top: 0;
+      }
+    }
+
+    .horizontal-essay-row:hover .essay-row-action {
+      opacity: 1;
+    }
+
+    .horizontal-essay-row:hover .essay-row-arrow {
+      transform: translateX(4px);
+    }
+
+    .essay-row-arrow {
+      transition: transform 0.2s ease;
+    }
   
