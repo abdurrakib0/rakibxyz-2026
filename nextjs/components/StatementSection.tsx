@@ -19,12 +19,9 @@ export default function StatementSection({ philosophy }: StatementSectionProps) 
               </span>
             </div>
 
-            <blockquote className="m-0 p-0 relative">
-              <span className="font-serif text-[4.5rem] md:text-[5.5rem] leading-none text-[var(--accent)] opacity-25 select-none block -mb-8 -ml-1">
-                “
-              </span>
-              <h2 className="font-serif text-[1.875rem] sm:text-[2.25rem] md:text-[2.625rem] leading-[1.2] tracking-tight text-[var(--ink)] font-normal relative z-10">
-                AI raised the bar for junior developers.{' '}
+            <blockquote className="m-0 p-0">
+              <h2 className="font-serif text-[1.875rem] sm:text-[2.25rem] md:text-[2.625rem] leading-[1.25] tracking-tight text-[var(--ink)] font-normal">
+                <span className="text-[var(--accent)] font-serif text-[2.25rem] sm:text-[2.75rem] md:text-[3.25rem] leading-none select-none align-top inline-block mr-1">“</span>AI raised the bar for junior developers.{' '}
                 <span className="text-[var(--accent)] italic">Motivation does not clear it. Systems do.</span>
               </h2>
             </blockquote>
