@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = `${post.title} | Abdur Rakib`;
   const description = post.subtitle || post.content.substring(0, 160).replace(/\n/g, ' ');
   const url = `https://rakib.xyz/writing/${post.slug}`;
-  const ogImage = 'https://rakib.xyz/img/Abdur%20Rakib%20Vaiya%202.JPG';
+  const ogImage = post.coverImage || 'https://rakib.xyz/img/Abdur%20Rakib%20Vaiya%202.JPG';
 
   return {
     title,
@@ -77,6 +77,7 @@ export default async function SingleEssayPage({ params }: PageProps) {
 
   const db = await getDatabaseAsync();
   const relatedPosts = await getRelatedPostsAsync(post.id, 3);
+  const featuredImage = post.coverImage || 'https://rakib.xyz/img/Abdur%20Rakib%20Vaiya%202.JPG';
 
   // Schema.org BlogPosting & BreadcrumbList JSON-LD
   const structuredData = {
@@ -114,7 +115,7 @@ export default async function SingleEssayPage({ params }: PageProps) {
         },
         headline: post.title,
         description: post.subtitle || post.content.substring(0, 160).replace(/\n/g, ' '),
-        image: 'https://rakib.xyz/img/Abdur%20Rakib%20Vaiya%202.JPG',
+        image: featuredImage,
         author: {
           '@type': 'Person',
           name: 'Abdur Rakib',
@@ -161,7 +162,7 @@ export default async function SingleEssayPage({ params }: PageProps) {
         {/* Breadcrumb / Back Link */}
         <div style={{ marginBottom: '28px', maxWidth: '720px', margin: '0 auto 28px' }}>
           <Link
-            href="/#writing"
+            href="/writing"
             className="btn-playlist-link"
             style={{
               fontSize: '0.8125rem',
@@ -192,7 +193,7 @@ export default async function SingleEssayPage({ params }: PageProps) {
               display: 'flex',
               flexDirection: 'column',
               gap: '16px',
-              marginBottom: '36px',
+              marginBottom: '32px',
             }}
           >
             <div
@@ -270,6 +271,33 @@ export default async function SingleEssayPage({ params }: PageProps) {
             />
           </header>
 
+          {/* Featured Thumbnail / Cover Image */}
+          {post.coverImage && (
+            <div
+              style={{
+                width: '100%',
+                maxHeight: '440px',
+                overflow: 'hidden',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--rule)',
+                marginBottom: '36px',
+                background: 'var(--surface)',
+              }}
+            >
+              <img
+                src={post.coverImage}
+                alt={post.title}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  maxHeight: '440px',
+                  objectFit: 'cover',
+                  display: 'block',
+                }}
+              />
+            </div>
+          )}
+
           {/* Article Full Body */}
           <div
             className="modal-article-body"
@@ -288,6 +316,8 @@ export default async function SingleEssayPage({ params }: PageProps) {
           >
             {post.content.split('\n\n').map((paragraph, idx) => {
               const trimmed = paragraph.trim();
+
+              // Heading 2
               if (trimmed.startsWith('## ')) {
                 return (
                   <h2
@@ -307,6 +337,110 @@ export default async function SingleEssayPage({ params }: PageProps) {
                   </h2>
                 );
               }
+
+              // Heading 3
+              if (trimmed.startsWith('### ')) {
+                return (
+                  <h3
+                    key={idx}
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: 'clamp(1.2rem, 3vw, 1.45rem)',
+                      fontWeight: 500,
+                      marginTop: '20px',
+                      marginBottom: '4px',
+                      color: 'var(--ink)',
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {trimmed.replace('### ', '')}
+                  </h3>
+                );
+              }
+
+              // Blockquote
+              if (trimmed.startsWith('> ')) {
+                return (
+                  <blockquote
+                    key={idx}
+                    style={{
+                      borderLeft: '2px solid var(--accent)',
+                      paddingLeft: '16px',
+                      fontStyle: 'italic',
+                      color: 'var(--ink-muted)',
+                      margin: '8px 0',
+                    }}
+                  >
+                    {trimmed.replace(/^>\s*/gm, '')}
+                  </blockquote>
+                );
+              }
+
+              // Code block
+              if (trimmed.startsWith('```')) {
+                const code = trimmed.replace(/```/g, '').trim();
+                return (
+                  <pre
+                    key={idx}
+                    style={{
+                      background: 'var(--surface)',
+                      border: '1px solid var(--rule)',
+                      borderRadius: 'var(--radius)',
+                      padding: '16px',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.8125rem',
+                      overflowX: 'auto',
+                      color: 'var(--ink)',
+                      margin: '12px 0',
+                    }}
+                  >
+                    <code>{code}</code>
+                  </pre>
+                );
+              }
+
+              // Horizontal rule
+              if (trimmed === '---') {
+                return <hr key={idx} style={{ border: 0, borderTop: '1px solid var(--rule)', margin: '24px 0' }} />;
+              }
+
+              // Inline image markdown ![alt](url)
+              const imgMatch = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/);
+              if (imgMatch) {
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      margin: '16px 0',
+                      borderRadius: 'var(--radius)',
+                      overflow: 'hidden',
+                      border: '1px solid var(--rule)',
+                    }}
+                  >
+                    <img
+                      src={imgMatch[2]}
+                      alt={imgMatch[1]}
+                      style={{ width: '100%', height: 'auto', display: 'block' }}
+                    />
+                    {imgMatch[1] && (
+                      <span
+                        style={{
+                          display: 'block',
+                          padding: '8px 12px',
+                          fontSize: '0.75rem',
+                          color: 'var(--ink-muted)',
+                          fontFamily: 'var(--font-mono)',
+                          background: 'var(--surface)',
+                          textAlign: 'center',
+                        }}
+                      >
+                        {imgMatch[1]}
+                      </span>
+                    )}
+                  </div>
+                );
+              }
+
               return (
                 <p key={idx} style={{ margin: '0' }}>
                   {paragraph}

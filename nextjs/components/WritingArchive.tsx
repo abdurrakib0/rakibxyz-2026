@@ -360,10 +360,33 @@ export default function WritingArchive({ posts }: WritingArchiveProps) {
                       <span className="essay-row-readtime">{post.readTime}</span>
                     </div>
 
-                    {/* Middle: Title & Subtitle */}
-                    <div className="essay-row-content">
-                      <h4 className="essay-row-title">{post.title}</h4>
-                      <p className="essay-row-excerpt">{post.subtitle}</p>
+                    {/* Middle: Title & Subtitle + Thumbnail */}
+                    <div className="essay-row-content" style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                      {post.coverImage && (
+                        <div
+                          style={{
+                            width: '72px',
+                            height: '48px',
+                            borderRadius: 'var(--radius)',
+                            overflow: 'hidden',
+                            border: '1px solid var(--rule)',
+                            flexShrink: 0,
+                            marginTop: '4px',
+                            background: 'var(--surface)',
+                          }}
+                          className="hidden sm:block"
+                        >
+                          <img
+                            src={post.coverImage}
+                            alt={post.title}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        </div>
+                      )}
+                      <div style={{ flex: 1 }}>
+                        <h4 className="essay-row-title">{post.title}</h4>
+                        <p className="essay-row-excerpt">{post.subtitle}</p>
+                      </div>
                     </div>
 
                     {/* Right: Read Action Arrow */}
@@ -409,10 +432,33 @@ export default function WritingArchive({ posts }: WritingArchiveProps) {
                 <span className="essay-row-readtime">{post.readTime}</span>
               </div>
 
-              {/* Middle: Title & Subtitle */}
-              <div className="essay-row-content">
-                <h4 className="essay-row-title">{post.title}</h4>
-                <p className="essay-row-excerpt">{post.subtitle}</p>
+              {/* Middle: Title & Subtitle + Thumbnail */}
+              <div className="essay-row-content" style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                {post.coverImage && (
+                  <div
+                    style={{
+                      width: '72px',
+                      height: '48px',
+                      borderRadius: 'var(--radius)',
+                      overflow: 'hidden',
+                      border: '1px solid var(--rule)',
+                      flexShrink: 0,
+                      marginTop: '4px',
+                      background: 'var(--surface)',
+                    }}
+                    className="hidden sm:block"
+                  >
+                    <img
+                      src={post.coverImage}
+                      alt={post.title}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </div>
+                )}
+                <div style={{ flex: 1 }}>
+                  <h4 className="essay-row-title">{post.title}</h4>
+                  <p className="essay-row-excerpt">{post.subtitle}</p>
+                </div>
               </div>
 
               {/* Right: Read Action Arrow */}

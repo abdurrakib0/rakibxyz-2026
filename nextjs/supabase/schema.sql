@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS posts (
     iso_date TEXT,
     read_time TEXT DEFAULT '6 min read',
     tag TEXT DEFAULT 'Systems & Leadership',
+    cover_image TEXT,
     published BOOLEAN DEFAULT true,
     content TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

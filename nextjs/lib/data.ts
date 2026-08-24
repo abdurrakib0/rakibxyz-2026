@@ -46,6 +46,7 @@ export interface Post {
   isoDate: string;
   readTime: string;
   tag: string;
+  coverImage?: string;
   published: boolean;
   content: string;
 }
@@ -138,6 +139,7 @@ export async function getDatabaseAsync(): Promise<DatabaseSchema> {
           isoDate: p.iso_date || '',
           readTime: p.read_time || '6 min read',
           tag: p.tag || 'Systems & Leadership',
+          coverImage: p.cover_image || '',
           published: p.published ?? true,
           content: p.content,
         }))

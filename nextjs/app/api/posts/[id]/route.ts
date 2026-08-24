@@ -20,6 +20,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             iso_date: updatedData.isoDate,
             read_time: updatedData.readTime,
             tag: updatedData.tag,
+            cover_image: updatedData.coverImage,
             published: updatedData.published,
             content: updatedData.content,
             updated_at: new Date().toISOString(),

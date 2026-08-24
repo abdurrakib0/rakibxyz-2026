@@ -3,6 +3,67 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Post } from '@/lib/data';
 
+// Converts rich pasted HTML (from Word, Google Docs, Notion, Web) into clean Markdown
+function htmlToMarkdown(html: string): string {
+  let md = html;
+
+  // Remove doc headers, styles, and scripts
+  md = md.replace(/<head>[\s\S]*?<\/head>/gi, '');
+  md = md.replace(/<style>[\s\S]*?<\/style>/gi, '');
+  md = md.replace(/<script>[\s\S]*?<\/script>/gi, '');
+  md = md.replace(/<!--[\s\S]*?-->/g, '');
+
+  // Headings
+  md = md.replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, '\n\n# $1\n\n');
+  md = md.replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, '\n\n## $1\n\n');
+  md = md.replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, '\n\n### $1\n\n');
+  md = md.replace(/<h[4-6][^>]*>([\s\S]*?)<\/h[4-6]>/gi, '\n\n#### $1\n\n');
+
+  // Bold & Italic
+  md = md.replace(/<(strong|b)[^>]*>([\s\S]*?)<\/(strong|b)>/gi, '**$2**');
+  md = md.replace(/<(em|i)[^>]*>([\s\S]*?)<\/(em|i)>/gi, '*$2*');
+
+  // Blockquotes
+  md = md.replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi, (match, p1) => {
+    const text = p1.trim().replace(/<p[^>]*>/gi, '').replace(/<\/p>/gi, '\n');
+    return `\n\n> ${text.split('\n').join('\n> ')}\n\n`;
+  });
+
+  // Code blocks & inline code
+  md = md.replace(/<pre[^>]*><code[^>]*>([\s\S]*?)<\/code><\/pre>/gi, '\n\n```\n$1\n```\n\n');
+  md = md.replace(/<code[^>]*>([\s\S]*?)<\/code>/gi, '`$1`');
+
+  // Links & Images
+  md = md.replace(/<a\s+(?:[^>]*?\s+)?href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, '[$2]($1)');
+  md = md.replace(/<img\s+(?:[^>]*?\s+)?src="([^"]*)"(?:\s+alt="([^"]*)")?[^>]*>/gi, '![$2]($1)');
+
+  // Lists
+  md = md.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, '- $1\n');
+  md = md.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi, '\n\n$1\n\n');
+  md = md.replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi, '\n\n$1\n\n');
+
+  // Paragraphs & Breaks
+  md = md.replace(/<hr[^>]*>/gi, '\n\n---\n\n');
+  md = md.replace(/<br\s*\/?>/gi, '\n');
+  md = md.replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '\n\n$1\n\n');
+
+  // Strip remaining HTML tags
+  md = md.replace(/<[^>]+>/g, '');
+
+  // Decode common HTML entities
+  md = md.replace(/&nbsp;/g, ' ');
+  md = md.replace(/&amp;/g, '&');
+  md = md.replace(/&lt;/g, '<');
+  md = md.replace(/&gt;/g, '>');
+  md = md.replace(/&quot;/g, '"');
+  md = md.replace(/&#39;/g, "'");
+
+  // Clean excessive empty lines
+  md = md.replace(/\n{3,}/g, '\n\n').trim();
+
+  return md;
+}
+
 export default function AdminWritingsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +109,7 @@ export default function AdminWritingsPage() {
       isoDate: new Date().toISOString().split('T')[0],
       readTime: '1 min read',
       tag: 'Systems & Leadership',
+      coverImage: '',
       published: true,
       content: '',
     };
@@ -76,6 +138,30 @@ export default function AdminWritingsPage() {
     }
   };
 
+  // Smart Paste Handler: Converts copied rich formatted text into clean Markdown
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const html = e.clipboardData.getData('text/html');
+    if (!html || html.trim() === '') return; // Let plain text paste normally
+
+    e.preventDefault();
+    const markdown = htmlToMarkdown(html);
+
+    const textarea = textareaRef.current;
+    if (!textarea || !editingPost) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const currentText = editingPost.content || '';
+
+    const newContent = currentText.substring(0, start) + markdown + currentText.substring(end);
+    handleContentChange(newContent);
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + markdown.length, start + markdown.length);
+    }, 50);
+  };
+
   // Visual Toolbar Insert Helper
   const insertFormatting = (prefix: string, suffix: string = '', defaultPlaceholder: string = '') => {
     if (!textareaRef.current || !editingPost) return;
@@ -97,7 +183,6 @@ export default function AdminWritingsPage() {
       readTime: newReadTime,
     });
 
-    // Reset selection focus
     setTimeout(() => {
       textarea.focus();
       textarea.setSelectionRange(
@@ -105,6 +190,13 @@ export default function AdminWritingsPage() {
         start + prefix.length + selectedText.length
       );
     }, 50);
+  };
+
+  const handleInsertImage = () => {
+    const url = prompt('Enter Image URL (e.g. https://images.unsplash.com/... or /img/photo.jpg):');
+    if (!url) return;
+    const alt = prompt('Enter Image Description / Caption (optional):', 'Featured image') || 'Image';
+    insertFormatting(`\n\n![${alt}](`, `${url})\n\n`, '');
   };
 
   const handleContentChange = (val: string) => {
@@ -179,7 +271,7 @@ export default function AdminWritingsPage() {
             Writings &amp; Essays Manager
           </h1>
           <p className="text-[0.875rem] text-[var(--ink-muted)] mt-1">
-            Visual editor for writing, previewing, and publishing essays.
+            Visual editor with Cover Image support, Rich-Text Paste preservation, and live preview.
           </p>
         </div>
 
@@ -197,7 +289,7 @@ export default function AdminWritingsPage() {
         </div>
       )}
 
-      {/* Visual Editor Modal (Full WordPress / Notion style) */}
+      {/* Visual Editor Modal */}
       {editingPost && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 md:p-6 overflow-y-auto">
           <div className="bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius-lg)] max-w-4xl w-full my-auto shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
@@ -283,6 +375,44 @@ export default function AdminWritingsPage() {
                 </div>
               </div>
 
+              {/* Cover Image URL & Thumbnail Preview */}
+              <div className="flex flex-col gap-2 p-4 bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius)]">
+                <div className="flex items-center justify-between">
+                  <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink)] font-bold">
+                    Featured Thumbnail / Cover Image URL
+                  </label>
+                  <span className="font-mono text-[0.6875rem] text-[var(--ink-muted)]">
+                    Direct Image URL (.jpg, .png, .webp) or Unsplash link
+                  </span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 items-start">
+                  <input
+                    type="text"
+                    value={editingPost.coverImage || ''}
+                    onChange={(e) => setEditingPost({ ...editingPost, coverImage: e.target.value })}
+                    placeholder="e.g. https://images.unsplash.com/photo-... or /img/cover.jpg"
+                    className="bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] px-3 py-2 text-[0.8125rem] font-mono text-[var(--ink)] focus:outline-none focus:border-[var(--accent)] flex-1 w-full"
+                  />
+                  {editingPost.coverImage && (
+                    <div className="relative group w-24 h-14 rounded overflow-hidden border border-[var(--rule)] bg-black shrink-0">
+                      <img
+                        src={editingPost.coverImage}
+                        alt="Cover Preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setEditingPost({ ...editingPost, coverImage: '' })}
+                        className="absolute inset-0 bg-black/60 text-white font-mono text-[0.6875rem] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                      >
+                        ✕ Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="flex flex-col gap-1">
                 <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink-muted)]">
                   Subtitle / Hook (Displays in list cards and lead paragraph)
@@ -342,10 +472,10 @@ export default function AdminWritingsPage() {
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
                     <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink-muted)]">
-                      Article Content (Visual Editor &amp; Markdown)
+                      Article Content (Smart Paste &amp; Visual Formatting Enabled)
                     </label>
-                    <span className="font-mono text-[0.6875rem] text-[var(--ink-muted)]">
-                      Use toolbar buttons or type Markdown directly
+                    <span className="font-mono text-[0.6875rem] text-[var(--accent)] font-medium">
+                      💡 Pasting formatted text preserves headings, bold, italic &amp; lists
                     </span>
                   </div>
 
@@ -436,6 +566,14 @@ export default function AdminWritingsPage() {
                     </button>
                     <button
                       type="button"
+                      onClick={handleInsertImage}
+                      className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer"
+                      title="Insert Image"
+                    >
+                      🖼️ Image
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => insertFormatting('\n\n---\n\n')}
                       className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer"
                       title="Horizontal Divider"
@@ -444,12 +582,13 @@ export default function AdminWritingsPage() {
                     </button>
                   </div>
 
-                  {/* Textarea */}
+                  {/* Textarea with smart onPaste handler */}
                   <textarea
                     ref={textareaRef}
                     value={editingPost.content}
                     onChange={(e) => handleContentChange(e.target.value)}
-                    placeholder="Write your article here... Tip: Click the toolbar buttons above to format headings, quotes, bold, links, and code blocks."
+                    onPaste={handlePaste}
+                    placeholder="Write or paste your article here... Formatted text copied from Word, Docs, Notion, or Web will automatically preserve bold, italic, headings, links, and lists."
                     rows={14}
                     required
                     className="bg-[var(--surface)] border border-[var(--rule)] rounded-b-[var(--radius)] p-4 text-[0.9375rem] leading-[1.7] text-[var(--ink)] focus:outline-none focus:border-[var(--accent)] font-sans border-t-0 resize-y"
@@ -475,6 +614,17 @@ export default function AdminWritingsPage() {
                     <p className="text-[1.125rem] text-[var(--ink-muted)] leading-[1.6]">
                       {editingPost.subtitle}
                     </p>
+                  )}
+
+                  {/* Live Preview Cover Image */}
+                  {editingPost.coverImage && (
+                    <div className="w-full max-h-[360px] rounded-[var(--radius)] overflow-hidden border border-[var(--rule)] bg-black my-2">
+                      <img
+                        src={editingPost.coverImage}
+                        alt="Cover Preview"
+                        className="w-full h-full object-cover max-h-[360px]"
+                      />
+                    </div>
                   )}
 
                   <div className="h-px bg-[var(--rule)] my-2" />
@@ -527,6 +677,19 @@ export default function AdminWritingsPage() {
                         }
                         if (trimmed === '---') {
                           return <hr key={idx} className="border-[var(--rule)] my-4" />;
+                        }
+                        const imgMatch = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/);
+                        if (imgMatch) {
+                          return (
+                            <div key={idx} className="rounded overflow-hidden border border-[var(--rule)] my-3">
+                              <img src={imgMatch[2]} alt={imgMatch[1]} className="w-full h-auto" />
+                              {imgMatch[1] && (
+                                <span className="block p-2 text-center text-xs font-mono text-[var(--ink-muted)] bg-[var(--bg)]">
+                                  {imgMatch[1]}
+                                </span>
+                              )}
+                            </div>
+                          );
                         }
                         return <p key={idx}>{paragraph}</p>;
                       })
@@ -581,7 +744,7 @@ export default function AdminWritingsPage() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-[var(--rule)] font-mono text-[0.75rem] uppercase tracking-wider text-[var(--ink-muted)] bg-[var(--bg)]">
-              <th className="p-4">Title &amp; Subtitle</th>
+              <th className="p-4">Cover &amp; Title</th>
               <th className="p-4 hidden sm:table-cell">Category</th>
               <th className="p-4 hidden md:table-cell">Date &amp; Read Time</th>
               <th className="p-4">Status</th>
@@ -592,11 +755,28 @@ export default function AdminWritingsPage() {
             {posts.map((post) => (
               <tr key={post.id} className="hover:bg-[var(--bg)]/70 transition-colors">
                 <td className="p-4">
-                  <div className="font-serif text-[1rem] text-[var(--ink)] font-medium">
-                    {post.title}
-                  </div>
-                  <div className="text-[0.75rem] text-[var(--ink-muted)] line-clamp-1 mt-0.5">
-                    {post.subtitle}
+                  <div className="flex items-center gap-3">
+                    {post.coverImage ? (
+                      <div className="w-12 h-12 rounded overflow-hidden border border-[var(--rule)] bg-black shrink-0">
+                        <img
+                          src={post.coverImage}
+                          alt={post.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 rounded border border-dashed border-[var(--rule)] bg-[var(--bg)] shrink-0 flex items-center justify-center font-mono text-[0.625rem] text-[var(--ink-muted)]">
+                        No img
+                      </div>
+                    )}
+                    <div>
+                      <div className="font-serif text-[1rem] text-[var(--ink)] font-medium">
+                        {post.title}
+                      </div>
+                      <div className="text-[0.75rem] text-[var(--ink-muted)] line-clamp-1 mt-0.5">
+                        {post.subtitle}
+                      </div>
+                    </div>
                   </div>
                 </td>
                 <td className="p-4 hidden sm:table-cell font-mono text-[0.75rem] text-[var(--ink-muted)]">

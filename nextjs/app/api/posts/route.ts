@@ -23,6 +23,7 @@ export async function GET() {
           isoDate: p.iso_date || '',
           readTime: p.read_time || '6 min read',
           tag: p.tag || 'Systems & Leadership',
+          coverImage: p.cover_image || '',
           published: p.published ?? true,
           content: p.content,
         }));
@@ -57,6 +58,7 @@ export async function POST(req: NextRequest) {
       isoDate: postData.isoDate || new Date().toISOString().split('T')[0],
       readTime: postData.readTime || '6 min read',
       tag: postData.tag || 'Systems & Leadership',
+      coverImage: postData.coverImage || '',
       published: postData.published ?? true,
       content: postData.content || '',
     };
@@ -73,6 +75,7 @@ export async function POST(req: NextRequest) {
           iso_date: newPost.isoDate,
           read_time: newPost.readTime,
           tag: newPost.tag,
+          cover_image: newPost.coverImage,
           published: newPost.published,
           content: newPost.content,
           updated_at: new Date().toISOString(),
