@@ -6,16 +6,32 @@
     "heroHeadline": "Careers are built by <em>systems</em>, not motivation.",
     "heroBio": "Started programming at 15. Ten years across software engineering, project management, and strategic leadership. Contributing to <strong>150+ tech job placements every month, 6,300+ overall</strong>, Alhamdulillah.",
     "stats": [
-      { "number": "6,300+", "label": "developers placed" },
-      { "number": "57", "label": "countries" },
-      { "number": "1,400+", "label": "trained per year" },
-      { "number": "130+", "label": "team" }
+      {
+        "number": "6,300+",
+        "label": "developers placed"
+      },
+      {
+        "number": "57",
+        "label": "countries"
+      },
+      {
+        "number": "1,400+",
+        "label": "trained per year"
+      },
+      {
+        "number": "130+",
+        "label": "team"
+      }
     ],
     "statsCaption": "As of August 2026. 150+ new placements every month, Alhamdulillah.",
     "philosophy": {
       "quote": "AI raised the bar for junior developers. Motivation does not clear it. Systems do.",
       "reflection": "I love meeting inspiring people, learning from them, and passing their wisdom to the next generation through repeatable engineering frameworks.",
-      "tags": ["Deliberate Practice", "Architectural Judgement", "Feedback Loops"],
+      "tags": [
+        "Deliberate Practice",
+        "Architectural Judgement",
+        "Feedback Loops"
+      ],
       "decadeTarget": "10,000",
       "decadeTargetLabel": "Global tech placements / year",
       "decadeNote": "In Sha' Allah. Building high-throughput vocational corridors across 57+ countries to help disciplined talent cross the hiring bar.",
@@ -30,10 +46,22 @@
       "email": "abdur.rakib@programming-hero.com"
     },
     "ecosystemLinks": [
-      { "title": "Programming Hero", "url": "https://www.programming-hero.com/" },
-      { "title": "Graduation Ceremony", "url": "https://web.programming-hero.com/hero-union" },
-      { "title": "Programming Hero Impact", "url": "https://www.programming-hero.com/ph-phitron-success" },
-      { "title": "Phitron.io", "url": "https://phitron.io/" }
+      {
+        "title": "Programming Hero",
+        "url": "https://www.programming-hero.com/"
+      },
+      {
+        "title": "Graduation Ceremony",
+        "url": "https://web.programming-hero.com/hero-union"
+      },
+      {
+        "title": "Programming Hero Impact",
+        "url": "https://www.programming-hero.com/ph-phitron-success"
+      },
+      {
+        "title": "Phitron.io",
+        "url": "https://phitron.io/"
+      }
     ]
   },
   "posts": [
@@ -261,6 +289,13 @@
         "Delivered 40+ client projects across web and mobile.",
         "Built the habit of shipping every week."
       ]
+    }
+  ],
+  "subscribers": [
+    {
+      "id": "sub_1787572746573",
+      "email": "lead_developer@example.com",
+      "created_at": "2026-08-24T11:59:06.573Z"
     }
   ]
 }

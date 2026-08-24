@@ -1,11 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
-import { getDatabase } from '@/lib/data';
+import { getDatabaseAsync, getSubscribersAsync } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
-export default function AdminDashboardPage() {
-  const db = getDatabase();
+export default async function AdminDashboardPage() {
+  const [db, subscribers] = await Promise.all([
+    getDatabaseAsync(),
+    getSubscribersAsync(),
+  ]);
   const { posts, podcasts, siteInfo } = db;
 
   return (
@@ -16,12 +19,12 @@ export default function AdminDashboardPage() {
           Dashboard Overview
         </h1>
         <p className="text-[0.9375rem] text-[var(--ink-muted)]">
-          Manage writings, site statistics, YouTube podcast cards, and operational information.
+          Manage writings, newsletter subscribers, site statistics, YouTube podcast cards, and operational information.
         </p>
       </div>
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-2">
           <span className="font-mono text-[0.75rem] uppercase tracking-wider text-[var(--ink-muted)]">
             Total Writings
@@ -30,13 +33,28 @@ export default function AdminDashboardPage() {
             {posts.length}
           </span>
           <span className="font-mono text-[0.75rem] text-[var(--accent)] mt-1">
-            {posts.filter(p => p.published).length} Published Essays
+            {posts.filter((p) => p.published).length} Published Essays
           </span>
         </div>
 
         <div className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-2">
           <span className="font-mono text-[0.75rem] uppercase tracking-wider text-[var(--ink-muted)]">
-            Podcasts & Videos
+            Subscribers
+          </span>
+          <span className="font-serif text-[2.5rem] text-[var(--ink)] leading-none">
+            {subscribers.length}
+          </span>
+          <Link
+            href="/admin/subscribers"
+            className="font-mono text-[0.75rem] text-[var(--accent)] mt-1 no-underline hover:underline"
+          >
+            Manage &amp; Export →
+          </Link>
+        </div>
+
+        <div className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-2">
+          <span className="font-mono text-[0.75rem] uppercase tracking-wider text-[var(--ink-muted)]">
+            Podcasts &amp; Videos
           </span>
           <span className="font-serif text-[2.5rem] text-[var(--ink)] leading-none">
             {podcasts.length}
@@ -60,7 +78,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Quick Action Navigation */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Link
           href="/admin/writings"
           className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-3 no-underline hover:border-[var(--ink)] hover:shadow-sm transition-all group"
@@ -77,12 +95,27 @@ export default function AdminDashboardPage() {
         </Link>
 
         <Link
+          href="/admin/subscribers"
+          className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-3 no-underline hover:border-[var(--ink)] hover:shadow-sm transition-all group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="font-serif text-[1.25rem] text-[var(--ink)] group-hover:text-[var(--accent)] transition-colors">
+              Subscribers
+            </span>
+            <span className="text-[var(--accent)] font-mono text-[1.125rem]">→</span>
+          </div>
+          <p className="text-[0.875rem] text-[var(--ink-muted)] leading-[1.5]">
+            View real-time email subscribers, search, and export to CSV or Excel (.xls).
+          </p>
+        </Link>
+
+        <Link
           href="/admin/site-info"
           className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-3 no-underline hover:border-[var(--ink)] hover:shadow-sm transition-all group"
         >
           <div className="flex items-center justify-between">
             <span className="font-serif text-[1.25rem] text-[var(--ink)] group-hover:text-[var(--accent)] transition-colors">
-              Update Site Info & Stats
+              Site Info &amp; Stats
             </span>
             <span className="text-[var(--accent)] font-mono text-[1.125rem]">→</span>
           </div>
@@ -97,7 +130,7 @@ export default function AdminDashboardPage() {
         >
           <div className="flex items-center justify-between">
             <span className="font-serif text-[1.25rem] text-[var(--ink)] group-hover:text-[var(--accent)] transition-colors">
-              Manage Podcasts
+              Podcasts
             </span>
             <span className="text-[var(--accent)] font-mono text-[1.125rem]">→</span>
           </div>
@@ -129,7 +162,13 @@ export default function AdminDashboardPage() {
                   {post.date} · {post.readTime}
                 </span>
               </div>
-              <span className={`font-mono text-[0.6875rem] px-2 py-0.5 rounded ${post.published ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
+              <span
+                className={`font-mono text-[0.6875rem] px-2 py-0.5 rounded ${
+                  post.published
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-amber-100 text-amber-800'
+                }`}
+              >
                 {post.published ? 'Published' : 'Draft'}
               </span>
             </div>

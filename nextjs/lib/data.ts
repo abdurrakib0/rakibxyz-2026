@@ -67,11 +67,18 @@ export interface ExperienceItem {
   details: string[];
 }
 
+export interface Subscriber {
+  id: string;
+  email: string;
+  created_at: string;
+}
+
 export interface DatabaseSchema {
   siteInfo: SiteInfo;
   posts: Post[];
   podcasts: Podcast[];
   experience: ExperienceItem[];
+  subscribers?: Subscriber[];
 }
 
 const dataFilePath = path.join(process.cwd(), 'data', 'site-data.json');
@@ -83,7 +90,9 @@ export function getDatabase(): DatabaseSchema {
       throw new Error(`Data file not found at ${dataFilePath}`);
     }
     const fileContent = fs.readFileSync(dataFilePath, 'utf-8');
-    return JSON.parse(fileContent) as DatabaseSchema;
+    const data = JSON.parse(fileContent) as DatabaseSchema;
+    if (!data.subscribers) data.subscribers = [];
+    return data;
   } catch (error) {
     console.error('Error reading local database:', error);
     throw error;
@@ -174,6 +183,7 @@ export async function getDatabaseAsync(): Promise<DatabaseSchema> {
       posts,
       podcasts,
       experience,
+      subscribers: localDb.subscribers,
     };
   } catch (error) {
     console.error('Error querying Supabase, falling back to local JSON:', error);
@@ -190,6 +200,35 @@ export async function getPostBySlugAsync(slug: string): Promise<Post | null> {
 export async function getRelatedPostsAsync(currentId: string, limit = 3): Promise<Post[]> {
   const db = await getDatabaseAsync();
   return db.posts.filter((p) => p.id !== currentId && p.published).slice(0, limit);
+}
+
+// ---------------------------------------------------------------------------
+// SUBSCRIBER MANAGEMENT METHODS
+// ---------------------------------------------------------------------------
+
+export async function getSubscribersAsync(): Promise<Subscriber[]> {
+  if (isSupabaseConfigured() && supabaseAdmin) {
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('subscribers')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!error && data) {
+        return data.map((d) => ({
+          id: String(d.id),
+          email: d.email,
+          created_at: d.created_at || new Date().toISOString(),
+        }));
+      }
+    } catch (err) {
+      console.error('Error fetching subscribers from Supabase:', err);
+    }
+  }
+
+  const localDb = getDatabase();
+  return (localDb.subscribers || []).sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 }
 
 export async function saveNewsletterSubscriber(email: string): Promise<{ success: boolean; message: string }> {
@@ -211,7 +250,48 @@ export async function saveNewsletterSubscriber(email: string): Promise<{ success
     }
   }
 
-  // Local fallback log
+  // Local fallback save
+  try {
+    const localDb = getDatabase();
+    if (!localDb.subscribers) localDb.subscribers = [];
+    const exists = localDb.subscribers.find(
+      (s) => s.email.toLowerCase() === email.toLowerCase()
+    );
+    if (exists) {
+      return { success: true, message: 'Already subscribed!' };
+    }
+    localDb.subscribers.unshift({
+      id: `sub_${Date.now()}`,
+      email,
+      created_at: new Date().toISOString(),
+    });
+    saveDatabase(localDb);
+  } catch (e) {
+    console.error('Local subscriber save error:', e);
+  }
+
   console.log(`[Local Fallback] Subscriber recorded: ${email}`);
   return { success: true, message: 'Subscribed successfully!' };
+}
+
+export async function deleteSubscriberAsync(id: string): Promise<boolean> {
+  if (isSupabaseConfigured() && supabaseAdmin) {
+    try {
+      const { error } = await supabaseAdmin
+        .from('subscribers')
+        .delete()
+        .eq('id', id);
+      if (!error) return true;
+    } catch (err) {
+      console.error('Error deleting subscriber from Supabase:', err);
+    }
+  }
+
+  const localDb = getDatabase();
+  if (localDb.subscribers) {
+    localDb.subscribers = localDb.subscribers.filter((s) => s.id !== id);
+    saveDatabase(localDb);
+    return true;
+  }
+  return false;
 }
