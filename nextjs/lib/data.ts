@@ -102,9 +102,10 @@ export function getDatabase(): DatabaseSchema {
 export function saveDatabase(data: DatabaseSchema): void {
   try {
     fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error saving local database:', error);
-    throw error;
+  } catch (error: any) {
+    // In serverless environments like Vercel (/var/task), the local filesystem is read-only (EROFS).
+    // Cloud persistence is handled by Supabase PostgreSQL.
+    console.warn('Local filesystem write note (serverless/read-only):', error?.message || error);
   }
 }
 
