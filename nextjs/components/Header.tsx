@@ -68,6 +68,12 @@ export default function Header() {
             Writing
           </Link>
           <Link
+            href="/#recommendations"
+            onClick={(e) => handleNavClick(e, 'recommendations')}
+          >
+            Endorsements
+          </Link>
+          <Link
             href="/#podcast"
             onClick={(e) => handleNavClick(e, 'podcast')}
           >
@@ -78,12 +84,6 @@ export default function Header() {
             onClick={(e) => handleNavClick(e, 'experience')}
           >
             Experience
-          </Link>
-          <Link
-            href="/#recommendations"
-            onClick={(e) => handleNavClick(e, 'recommendations')}
-          >
-            Endorsements
           </Link>
           <Link
             href="/#contact"
@@ -115,6 +115,15 @@ export default function Header() {
                 Writing
               </Link>
               <Link
+                href="/#recommendations"
+                onClick={(e) => {
+                  closeMobileMenu();
+                  handleNavClick(e, 'recommendations');
+                }}
+              >
+                Endorsements
+              </Link>
+              <Link
                 href="/#podcast"
                 onClick={(e) => {
                   closeMobileMenu();
@@ -131,15 +140,6 @@ export default function Header() {
                 }}
               >
                 Experience
-              </Link>
-              <Link
-                href="/#recommendations"
-                onClick={(e) => {
-                  closeMobileMenu();
-                  handleNavClick(e, 'recommendations');
-                }}
-              >
-                Endorsements
               </Link>
               <Link
                 href="/#contact"
