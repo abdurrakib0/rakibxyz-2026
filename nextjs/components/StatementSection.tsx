@@ -49,14 +49,6 @@ export default function StatementSection({ philosophy }: StatementSectionProps) 
           <p className="mission-metric-note">
             {philosophy.decadeNote}
           </p>
-
-          <div className="mission-progress-track">
-            <div className="mission-progress-bar"></div>
-            <div className="mission-progress-labels">
-              <span>{philosophy.placedToDate}</span>
-              <span>{philosophy.targetRate}</span>
-            </div>
-          </div>
         </div>
       </div>
     </section>
