@@ -1,0 +1,266 @@
+{
+  "siteInfo": {
+    "name": "Abdur Rakib",
+    "role": "Chief Operating Officer",
+    "company": "Programming Hero",
+    "heroHeadline": "Careers are built by <em>systems</em>, not motivation.",
+    "heroBio": "Started programming at 15. Ten years across software engineering, project management, and strategic leadership. Contributing to <strong>150+ tech job placements every month, 6,300+ overall</strong>, Alhamdulillah.",
+    "stats": [
+      { "number": "6,300+", "label": "developers placed" },
+      { "number": "57", "label": "countries" },
+      { "number": "1,400+", "label": "trained per year" },
+      { "number": "130+", "label": "team" }
+    ],
+    "statsCaption": "As of August 2026. 150+ new placements every month, Alhamdulillah.",
+    "philosophy": {
+      "quote": "AI raised the bar for junior developers. Motivation does not clear it. Systems do.",
+      "reflection": "I love meeting inspiring people, learning from them, and passing their wisdom to the next generation through repeatable engineering frameworks.",
+      "tags": ["Deliberate Practice", "Architectural Judgement", "Feedback Loops"],
+      "decadeTarget": "10,000",
+      "decadeTargetLabel": "Global tech placements / year",
+      "decadeNote": "In Sha' Allah. Building high-throughput vocational corridors across 57+ countries to help disciplined talent cross the hiring bar.",
+      "placedToDate": "6,300+ placed to date",
+      "targetRate": "10,000 / yr"
+    },
+    "socialLinks": {
+      "linkedin": "https://www.linkedin.com/in/abdurrakib0/",
+      "facebook": "https://www.facebook.com/abdurrakibzero",
+      "github": "https://github.com/abdurrakib129",
+      "youtube": "https://www.youtube.com/@abdurrakib0",
+      "email": "abdur.rakib@programming-hero.com"
+    },
+    "ecosystemLinks": [
+      { "title": "Programming Hero", "url": "https://www.programming-hero.com/" },
+      { "title": "Graduation Ceremony", "url": "https://web.programming-hero.com/hero-union" },
+      { "title": "Programming Hero Impact", "url": "https://www.programming-hero.com/ph-phitron-success" },
+      { "title": "Phitron.io", "url": "https://phitron.io/" }
+    ]
+  },
+  "posts": [
+    {
+      "id": "1",
+      "slug": "the-quiet-advantage-of-a-system",
+      "title": "The quiet advantage of a system",
+      "subtitle": "Why deliberate, boring systems outperform motivation when it comes to learning to code and hiring junior developers.",
+      "date": "Aug 19, 2026",
+      "isoDate": "2026-08-19",
+      "readTime": "6 min read",
+      "tag": "Leadership & Systems",
+      "published": true,
+      "content": "Every year a few thousand students tell me the same thing: they lost momentum. Almost none of them tell me their process failed, because almost none of them had one.\n\nI started programming at fifteen, on a shared computer, with a textbook that was already out of date. What carried me was not enthusiasm. Enthusiasm was abundant and cheap; it arrived every Sunday and left by Tuesday. What carried me was a small set of rules I could follow on a bad day — write code before checking messages, finish the exercise even if the solution is ugly, submit something every week whether or not it is ready.\n\nNone of those rules are clever. Their only virtue is that they do not require me to feel a certain way before they work.\n\nTen years later I watch the same pattern at scale. We have placed more than six thousand developers into jobs, and the students who make it are rarely the most talented ones in the first month. They are the ones who built a container for their effort: a fixed hour, a visible queue of tasks, one person who notices when they disappear. Talent decides how fast you move. A system decides whether you are still moving in month five.\n\nWhen AI entered the picture, people told me coding education was over. What actually happened is that the floor rose. Anyone can generate a React component in four seconds. What companies pay for now is the developer who can read what the model generated, notice the edge case it missed, and stay with a broken build until it passes the test suite. That is not a technical skill; it is an attentional habit. You cannot download an attentional habit. You can only practice one until it becomes your default response to frustration.\n\nThat is what we build. Not a curriculum that promises ease, but an environment that makes discipline slightly easier to repeat than avoidance. The students who finish are not the ones who found it effortless. They are the ones who made peace with the effort and kept the calendar."
+    },
+    {
+      "id": "2",
+      "slug": "hiring-junior-engineers-when-ai-writes-the-code",
+      "title": "Hiring junior engineers when AI writes the code",
+      "subtitle": "What we look for when code generation is free, and why debugging stamina is the new filter.",
+      "date": "Jul 28, 2026",
+      "isoDate": "2026-07-28",
+      "readTime": "8 min read",
+      "tag": "Hiring & Talent",
+      "published": true,
+      "content": "When Copilot and generative AI tools became ubiquitous, engineering managers feared that evaluating junior engineers would become impossible. If an applicant can generate a complete full-stack app with a single prompt, what does a take-home assignment actually measure?\n\nOver the past two years, placing thousands of developers in engineering organizations worldwide, we noticed the opposite: AI did not obscure talent, it polarized it.\n\nJunior candidates now fall into two distinct groups:\n\n1. **The Assembers**: They copy prompts, glue libraries together, and panic when an unhandled runtime exception appears. They cannot explain the state lifecycle of their own application.\n2. **The Systems Thinkers**: They use AI as an accelerator for syntax, but maintain complete mental models of their data flow, architecture boundaries, and failure modes.\n\nIn our placement interviews, we stopped asking candidates to write boilerplate from scratch. Instead, we give them a running application with a subtle, race-condition bug and ask them to debug it live with access to AI tools. The candidates who succeed are those with high **debugging stamina** — the ability to form a hypothesis, instrument logs, inspect network payloads, and verify assumptions systematically."
+    },
+    {
+      "id": "3",
+      "slug": "scaling-placement-operations-across-57-countries",
+      "title": "Scaling placement operations across 57 countries",
+      "subtitle": "The operational architecture behind placing 150+ engineers every month across time zones and cultures.",
+      "date": "Jun 14, 2026",
+      "isoDate": "2026-06-14",
+      "readTime": "11 min read",
+      "tag": "Operations & Scale",
+      "published": true,
+      "content": "Placing 150+ software engineers into remote and on-site roles every month is not an HR function; it is a supply chain and QA challenge.\n\nWhen we crossed our first 1,000 placements, we realized that manual coordination would collapse under volume. To scale across 57 countries, we had to build an institutional placement corridor founded on three operational pillars:\n\n### 1. The Production Readiness Gateway\nBefore any candidate is presented to hiring partners, they must pass through an internal staging review. This is not a LeetCode quiz — it is a rigorous production audit: PR review etiquette, Dockerized environment setup, API schema validation, and CI/CD pipelines.\n\n### 2. Employer-Calibrated Matching\nA startup in Berlin has completely different latency expectations than an enterprise in Singapore. We built operational taxonomy matrices that map hiring partner interview styles to candidate strengths.\n\n### 3. The 90-Day Post-Placement Retention Loop\nA placement is only successful if the engineer thrives past probation. Our operations team monitors 30, 60, and 90-day retention checkpoints with both candidate and engineering lead, continuously feeding performance data back into our training curriculum."
+    },
+    {
+      "id": "4",
+      "slug": "the-10000-placement-thesis",
+      "title": "The 10,000 placement thesis",
+      "subtitle": "Why vocational engineering tracks will replace traditional degree requirements in global tech hiring by 2030.",
+      "date": "May 02, 2026",
+      "isoDate": "2026-05-02",
+      "readTime": "7 min read",
+      "tag": "Vision & Future",
+      "published": true,
+      "content": "Our decade objective is simple: 10,000 verified tech placements per year by 2030 (In Sha' Allah).\n\nWhy does this matter? Because the global demand for engineering talent cannot be satisfied by traditional 4-year computer science institutions alone. University curriculums evolve on 5-to-10 year review cycles, whereas the production engineering landscape changes quarterly.\n\nHigh-throughput vocational tracks that combine rigorous fundamentals with daily deliberate practice will become the premier pipeline for software talent globally."
+    },
+    {
+      "id": "5",
+      "slug": "why-coding-bootcamps-fail-their-graduates",
+      "title": "Why coding bootcamps fail their graduates",
+      "subtitle": "Tutorial compliance vs production competence: why finishing a course is not enough.",
+      "date": "Apr 11, 2026",
+      "isoDate": "2026-04-11",
+      "readTime": "5 min read",
+      "tag": "Education & Mentorship",
+      "published": true,
+      "content": "Tutorial compliance gives a dangerous illusion of competence. Following a step-by-step video to build an e-commerce clone teaches you how to follow instructions, not how to build software.\n\nWhen graduates hit real-world interviews, they stumble on the first unexpected requirement. True learning happens in the state of disequilibrium — when things break, docs are vague, and there is no video to show the solution."
+    },
+    {
+      "id": "6",
+      "slug": "the-architecture-of-daily-discipline",
+      "title": "The architecture of daily discipline",
+      "subtitle": "How I structure energy, writing, and operational reviews across high-output executive weeks.",
+      "date": "Mar 19, 2026",
+      "isoDate": "2026-03-19",
+      "readTime": "6 min read",
+      "tag": "Personal Systems",
+      "published": true,
+      "content": "Discipline is not an innate personality trait; it is an environmental design problem.\n\nIf you rely on willpower to start working at 9 AM, you have already lost. In this essay, I share the asynchronous routines, deep work blocks, and queue reviews that keep our executive operations humming smoothly."
+    },
+    {
+      "id": "7",
+      "slug": "the-anatomy-of-a-great-engineering-portfolio-in-2026",
+      "title": "The anatomy of a great engineering portfolio in 2026",
+      "subtitle": "Moving past generic clone apps into production systems that hiring managers actually respect.",
+      "date": "Feb 22, 2026",
+      "isoDate": "2026-02-22",
+      "readTime": "9 min read",
+      "tag": "Career Strategy",
+      "published": true,
+      "content": "Stop building Netflix and Spotify clones. In 2026, every hiring manager knows an AI model can generate an exact clone in minutes.\n\nInstead, build small, resilient systems that solve specific operational problems: rate-limited background workers, idempotent payment webhooks, or indexed search filters with benchmarks."
+    },
+    {
+      "id": "8",
+      "slug": "why-most-team-daily-standups-are-a-waste-of-time",
+      "title": "Why most team daily standups are a waste of time",
+      "subtitle": "How to replace ceremonial roundtables with async execution logs that keep engineers unblocked.",
+      "date": "Jan 15, 2026",
+      "isoDate": "2026-01-15",
+      "readTime": "4 min read",
+      "tag": "Engineering Management",
+      "published": true,
+      "content": "Thirty minutes of 12 people reciting what they did yesterday is not team synchronization; it is an operational tax.\n\nWe replaced synchronous standups with a lightweight async queue: what shipped, what is next, and exact blockers. Engineers get uninterrupted deep work blocks, while managers get real-time clarity."
+    },
+    {
+      "id": "9",
+      "slug": "zero-to-first-placement-the-first-90-days",
+      "title": "Zero to first placement (The first 90 days)",
+      "subtitle": "A pragmatic blueprint for engineers transitioning into their first professional software role.",
+      "date": "Dec 08, 2025",
+      "isoDate": "2025-12-08",
+      "readTime": "10 min read",
+      "tag": "Career Roadmaps",
+      "published": true,
+      "content": "The first 90 days of learning to code determine whether you become a professional engineer or give up. Here is the exact roadmap we give to thousands of incoming students on navigating the emotional and technical learning curve."
+    }
+  ],
+  "podcasts": [
+    {
+      "id": "NeRnnnRP1c0",
+      "title": "CGPA নাকি Portfolio? AI যুগে Company গুলো আপনার থেকে কী Expect করে? | Nahid Bin Azhar",
+      "guest": "Nahid Bin Azhar",
+      "date": "Oct 15, 2025",
+      "tag": "Tech Hiring & Portfolio",
+      "youtubeUrl": "https://www.youtube.com/watch?v=NeRnnnRP1c0&t=1s"
+    },
+    {
+      "id": "PCqCy94S5nI",
+      "title": "যে কারণে চাকরি হারাচ্ছেন সফটওয়্যার ইঞ্জিনিয়াররা | Shah Ali Newaj Topu",
+      "guest": "Shah Ali Newaj Topu",
+      "date": "Nov 02, 2025",
+      "tag": "Career Resilience",
+      "youtubeUrl": "https://www.youtube.com/watch?v=PCqCy94S5nI"
+    },
+    {
+      "id": "oo6aI0HC0OQ",
+      "title": "কোডিং জানলেও চাকরি জুটবে না? | Hasan Shahriar Masud",
+      "guest": "Hasan Shahriar Masud",
+      "date": "Nov 20, 2025",
+      "tag": "Industry Competence",
+      "youtubeUrl": "https://www.youtube.com/watch?v=oo6aI0HC0OQ"
+    },
+    {
+      "id": "o4sLGPZMxkc",
+      "title": "আগামী ৫ বছরে কোন চাকরিগুলো থাকবে? | Sadman Sadik",
+      "guest": "Sadman Sadik",
+      "date": "Dec 05, 2025",
+      "tag": "Future of Careers",
+      "youtubeUrl": "https://www.youtube.com/watch?v=o4sLGPZMxkc&t=108s"
+    },
+    {
+      "id": "OZSgWq_OKr8",
+      "title": "এই ১ টা এপিসোড বাংলাদেশের প্রত্যেক ইউনিভার্সিটি স্টুডেন্টের দেখা উচিত | Omar Faroque",
+      "guest": "Omar Faroque",
+      "date": "Jan 10, 2026",
+      "tag": "University & Roadmaps",
+      "youtubeUrl": "https://www.youtube.com/watch?v=OZSgWq_OKr8"
+    },
+    {
+      "id": "Fowv2UMF2_s",
+      "title": "ফেসবুকের চাকরি কেন ছেড়ে দিলেন? টাকা কী জীবনের সব? | Omar AL Zabir",
+      "guest": "Omar AL Zabir (Ex-Meta)",
+      "date": "Feb 14, 2026",
+      "tag": "Tech Leadership",
+      "youtubeUrl": "https://www.youtube.com/watch?v=Fowv2UMF2_s&t=173s"
+    }
+  ],
+  "experience": [
+    {
+      "id": "1",
+      "period": "2023 — Present",
+      "role": "Chief Operating Officer",
+      "company": "Programming Hero",
+      "details": [
+        "Directing operational execution across curriculum, mentorship, placement, and institutional partnerships.",
+        "Contributing to 150+ tech job placements every month (6,300+ overall across 57+ countries, Alhamdulillah).",
+        "Targeting 10,000 yearly tech placements by 2030 (In Sha' Allah)."
+      ]
+    },
+    {
+      "id": "2",
+      "period": "2022 — 2023",
+      "role": "Head of Operations",
+      "company": "Programming Hero",
+      "details": [
+        "Scaled student success operations from 400 to 1,400+ learners per cohort.",
+        "Introduced the structured daily standup model for junior developers.",
+        "Reduced time-to-first-placement by 22%."
+      ]
+    },
+    {
+      "id": "3",
+      "period": "2021 — 2022",
+      "role": "Operations & Curriculum Lead",
+      "company": "Programming Hero",
+      "details": [
+        "Shipped the first job-placement track.",
+        "Introduced weekly cohort reviews.",
+        "Wrote the curriculum QA checklist still in use."
+      ]
+    },
+    {
+      "id": "4",
+      "period": "2020 — 2021",
+      "role": "Software Engineer",
+      "company": "Product studio, Dhaka",
+      "details": [
+        "Built client dashboards in React and Node.",
+        "Owned release process for three products.",
+        "Mentored two interns into full-time roles."
+      ]
+    },
+    {
+      "id": "5",
+      "period": "2018 — 2020",
+      "role": "Junior Developer",
+      "company": "Software agency, Dhaka",
+      "details": [
+        "Maintained PHP and JavaScript codebases.",
+        "Learned to read a system before changing it.",
+        "First exposure to hiring from the other side."
+      ]
+    },
+    {
+      "id": "6",
+      "period": "2015 — 2018",
+      "role": "Freelance developer",
+      "company": "Self-directed",
+      "details": [
+        "Delivered 40+ client projects across web and mobile.",
+        "Built the habit of shipping every week."
+      ]
+    }
+  ]
+}

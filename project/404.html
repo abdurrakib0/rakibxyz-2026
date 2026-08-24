@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting...</title>
+  <script>
+    // GitHub Pages SPA Routing handler
+    // Preserves clean URL path and redirects to root with the target section
+    var path = window.location.pathname.replace(/^\/+/, '');
+    var validSections = ['writing', 'podcast', 'experience', 'contact', 'home'];
+    
+    if (validSections.indexOf(path) !== -1) {
+      window.location.replace('/#' + path);
+    } else {
+      window.location.replace('/');
+    }
+  </script>
+</head>
+<body>
+  <p>Redirecting to <a href="/">homepage</a>...</p>
+</body>
+</html>

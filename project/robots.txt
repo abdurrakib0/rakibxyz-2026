@@ -1,0 +1,32 @@
+# robots.txt for https://rakib.xyz/ (Abdur Rakib Official Personal Site)
+# Optimized for Web Indexing, GEO (Generative Engine Optimization) & AIO
+
+User-agent: *
+Allow: /
+Allow: /img/
+Allow: /llms.txt
+Allow: /sitemap.xml
+
+# AI & LLM Search Engine Crawlers (2026 GEO standard)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://rakib.xyz/sitemap.xml

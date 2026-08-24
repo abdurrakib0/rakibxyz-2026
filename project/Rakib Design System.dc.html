@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #FAF9F5; color: #141413; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #C4633F; text-decoration: none; border-bottom: 1px solid #C4633F; }
+  a:hover { color: #141413; border-bottom-color: #141413; }
+  input { font: inherit; }
+</style>
+</helmet>
+
+<div style="font-family: Inter, Helvetica, Arial, sans-serif; background: #FAF9F5; color: #141413; padding: 64px 40px 128px; display: flex; flex-direction: column; align-items: center; gap: 128px">
+
+  <header style="width: 100%; max-width: 1120px; display: flex; flex-direction: column; gap: 24px">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; line-height: 1.4; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B66">Design system + reference screens · rakib.xyz · August 2026</div>
+    <h1 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 3.25rem; line-height: 1.08; letter-spacing: -0.015em; margin: 0; max-width: 800px">A quiet, editorial system for a personal site</h1>
+    <p style="font-size: 1.0625rem; line-height: 1.65; color: #6B6B66; margin: 0; max-width: 680px">Locked tokens, a full type scale, component treatments, and three reference screens. Static HTML and CSS only — no runtime behaviour beyond a mobile menu toggle. Sample photography and thumbnails are marked placeholders.</p>
+  </header>
+
+  <section style="width: 100%; max-width: 1120px; display: flex; flex-direction: column; gap: 64px">
+    <div style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #E3E0D6; padding-top: 20px">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B66">Deliverable 01</div>
+      <h2 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 2rem; line-height: 1.2; margin: 0">Design system sheet</h2>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 24px">
+      <h3 style="font-family: Inter, sans-serif; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #6B6B66; margin: 0">Colour tokens</h3>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="height: 96px; background: #FAF9F5; border: 1px solid #E3E0D6; border-radius: 4px"></div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem">--bg &nbsp;#FAF9F5</div>
+            <div style="font-size: 0.9375rem; line-height: 1.5; color: #6B6B66">Page background. Every screen sits on this.</div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="height: 96px; background: #F0EEE6; border: 1px solid #E3E0D6; border-radius: 4px"></div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem">--surface &nbsp;#F0EEE6</div>
+            <div style="font-size: 0.9375rem; line-height: 1.5; color: #6B6B66">Section bands only. Never on cards or inputs.</div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="height: 96px; background: #141413; border-radius: 4px"></div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem">--ink &nbsp;#141413</div>
+            <div style="font-size: 0.9375rem; line-height: 1.5; color: #6B6B66">All primary text. Primary button fill.</div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="height: 96px; background: #6B6B66; border-radius: 4px"></div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem">--ink-muted &nbsp;#6B6B66</div>
+            <div style="font-size: 0.9375rem; line-height: 1.5; color: #6B6B66">Captions, dates, labels, secondary lines.</div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="height: 96px; background: #C4633F; border-radius: 4px"></div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem">--accent &nbsp;#C4633F</div>
+            <div style="font-size: 0.9375rem; line-height: 1.5; color: #6B6B66">Links, one button, small marks. Under 5% of any screen.</div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="height: 96px; background: #E3E0D6; border-radius: 4px"></div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem">--rule &nbsp;#E3E0D6</div>
+            <div style="font-size: 0.9375rem; line-height: 1.5; color: #6B6B66">1px borders and dividers. Never a shadow instead.</div>
+          </div>
+        </div>
+      </div>
+      <pre style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; line-height: 1.7; background: #F0EEE6; border: 1px solid #E3E0D6; border-radius: 6px; padding: 24px; margin: 0; overflow-x: auto; color: #141413">:root {
+  --bg:        #FAF9F5;
+  --surface:   #F0EEE6;
+  --ink:       #141413;
+  --ink-muted: #6B6B66;
+  --accent:    #C4633F;
+  --rule:      #E3E0D6;
+
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-body:    "Inter", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+
+  --step--2: 0.8125rem;  /* 13px  caption      lh 1.45 */
+  --step--1: 0.9375rem;  /* 15px  small / ui   lh 1.5  */
+  --step-0:  1.0625rem;  /* 17px  body mobile  lh 1.65 */
+  --step-0b: 1.125rem;   /* 18px  body desktop lh 1.7  */
+  --step-1:  1.3125rem;  /* 21px  lead         lh 1.55 */
+  --step-2:  1.5rem;     /* 24px  h3           lh 1.35 */
+  --step-3:  2rem;       /* 32px  h2           lh 1.2  */
+  --step-4:  2.5rem;     /* 40px  h1 mobile    lh 1.1  */
+  --step-5:  3.5rem;     /* 56px  h1 desktop   lh 1.05 */
+
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;
+  --space-4: 16px;  --space-6: 24px;  --space-8: 32px;
+  --space-12: 48px; --space-16: 64px; --space-24: 96px;
+  --space-32: 128px;
+
+  --measure: 680px;   /* reading column   */
+  --container: 1120px; /* content container */
+  --radius: 4px;      /* 6px for large panels only */
+  --hairline: 1px solid var(--rule);
+}</pre>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 32px">
+      <h3 style="font-family: Inter, sans-serif; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #6B6B66; margin: 0">Type scale</h3>
+      <div style="display: flex; flex-direction: column">
+        <div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; padding: 24px 0; border-top: 1px solid #E3E0D6; align-items: baseline">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; line-height: 1.6; color: #6B6B66">H1 desktop<br />3.5rem / 56px<br />lh 1.05 · ls −0.02em<br />Newsreader 400</div>
+          <div style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 3.5rem; line-height: 1.05; letter-spacing: -0.02em">Careers are built by systems</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; padding: 24px 0; border-top: 1px solid #E3E0D6; align-items: baseline">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; line-height: 1.6; color: #6B6B66">H1 mobile<br />2.5rem / 40px<br />lh 1.1 · ls −0.015em</div>
+          <div style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 2.5rem; line-height: 1.1; letter-spacing: -0.015em">Careers are built by systems</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; padding: 24px 0; border-top: 1px solid #E3E0D6; align-items: baseline">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; line-height: 1.6; color: #6B6B66">H2 section<br />2rem / 32px<br />lh 1.2</div>
+          <div style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 2rem; line-height: 1.2">Experience and writing</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; padding: 24px 0; border-top: 1px solid #E3E0D6; align-items: baseline">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; line-height: 1.6; color: #6B6B66">H3 / card title<br />1.5rem / 24px<br />lh 1.35</div>
+          <div style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 1.5rem; line-height: 1.35">What changed for junior developers</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; padding: 24px 0; border-top: 1px solid #E3E0D6; align-items: baseline">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; line-height: 1.6; color: #6B6B66">Lead / statement<br />1.3125rem / 21px<br />lh 1.55 · Inter 400</div>
+          <div style="font-size: 1.3125rem; line-height: 1.55">AI raised the bar for junior developers. Motivation does not clear it. Systems do.</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; padding: 24px 0; border-top: 1px solid #E3E0D6; align-items: baseline">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; line-height: 1.6; color: #6B6B66">Body<br />1.0625–1.125rem<br />17–18px · lh 1.65–1.7</div>
+          <div style="font-size: 1.125rem; line-height: 1.7; max-width: 680px">Started programming at 15. Ten years across software engineering, project management, and strategic leadership. Contributing to 150+ tech job placements every month, 6,300+ overall, Alhamdulillah.</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; padding: 24px 0; border-top: 1px solid #E3E0D6; align-items: baseline">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; line-height: 1.6; color: #6B6B66">Small / UI<br />0.9375rem / 15px<br />lh 1.5</div>
+          <div style="font-size: 0.9375rem; line-height: 1.5">Buttons, inputs, dates, durations, nav items.</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; padding: 24px 0; border-top: 1px solid #E3E0D6; border-bottom: 1px solid #E3E0D6; align-items: baseline">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; line-height: 1.6; color: #6B6B66">Caption / label<br />0.8125rem / 13px<br />lh 1.45 · muted</div>
+          <div style="font-size: 0.8125rem; line-height: 1.45; color: #6B6B66">As of August 2026. 150+ new placements every month, Alhamdulillah.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 24px">
+      <h3 style="font-family: Inter, sans-serif; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #6B6B66; margin: 0">Spacing scale — 4px base</h3>
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <div style="display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 24px; align-items: center">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; color: #6B6B66">4px · inline</div>
+          <div style="height: 12px; width: 4px; background: #141413"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 24px; align-items: center">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; color: #6B6B66">8px · tight</div>
+          <div style="height: 12px; width: 8px; background: #141413"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 24px; align-items: center">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; color: #6B6B66">16px · stack</div>
+          <div style="height: 12px; width: 16px; background: #141413"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 24px; align-items: center">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; color: #6B6B66">24px · block</div>
+          <div style="height: 12px; width: 24px; background: #141413"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 24px; align-items: center">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; color: #6B6B66">48px · group</div>
+          <div style="height: 12px; width: 48px; background: #141413"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 24px; align-items: center">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; color: #6B6B66">96px · section mobile</div>
+          <div style="height: 12px; width: 96px; background: #141413"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 24px; align-items: center">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; color: #6B6B66">128px · section desktop</div>
+          <div style="height: 12px; width: 128px; background: #141413"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px">
+      <div style="display: flex; flex-direction: column; gap: 24px">
+        <h3 style="font-family: Inter, sans-serif; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #6B6B66; margin: 0">Buttons and links</h3>
+        <div style="display: flex; flex-direction: column; gap: 20px; align-items: flex-start">
+          <button style="font-family: Inter, sans-serif; font-size: 0.9375rem; font-weight: 500; line-height: 1; color: #FAF9F5; background: #141413; border: 1px solid #141413; border-radius: 4px; padding: 14px 22px; cursor: pointer" style-hover="background: #C4633F; border-color: #C4633F">Subscribe</button>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; line-height: 1.6; color: #6B6B66">Primary · ink fill, 4px radius, 14/22 pad<br />hover → accent fill. One per screen.</div>
+          <a href="#experience" style="font-size: 1.0625rem; color: #C4633F; border-bottom: 1px solid #C4633F; text-decoration: none">Read the experience timeline</a>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; line-height: 1.6; color: #6B6B66">Text link · accent + 1px underline<br />hover → ink, underline follows.</div>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 24px">
+        <h3 style="font-family: Inter, sans-serif; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #6B6B66; margin: 0">Card, divider, input</h3>
+        <div style="border: 1px solid #E3E0D6; border-radius: 6px; overflow: hidden; background: #FAF9F5">
+          <div style="aspect-ratio: 16 / 9; background: #F0EEE6; border-bottom: 1px solid #E3E0D6; display: flex; align-items: center; justify-content: center">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.6875rem; letter-spacing: 0.06em; text-transform: uppercase; color: #6B6B66">youtube thumbnail 16:9</span>
+          </div>
+          <div style="padding: 20px; display: flex; flex-direction: column; gap: 8px">
+            <div style="font-family: Newsreader, Georgia, serif; font-size: 1.1875rem; line-height: 1.35">Card title sits in the serif</div>
+            <div style="font-size: 0.8125rem; color: #6B6B66">12 Jul 2026 · 48 min</div>
+          </div>
+        </div>
+        <div style="height: 1px; background: #E3E0D6"></div>
+        <div style="display: flex; gap: 8px">
+          <input type="email" placeholder="you@email.com" style="flex: 1; font-size: 0.9375rem; line-height: 1.4; color: #141413; background: #FAF9F5; border: 1px solid #E3E0D6; border-radius: 4px; padding: 13px 14px; outline: none" style-focus="border-color: #141413" />
+          <button style="font-family: Inter, sans-serif; font-size: 0.9375rem; font-weight: 500; color: #FAF9F5; background: #141413; border: 1px solid #141413; border-radius: 4px; padding: 13px 20px; cursor: pointer">Join</button>
+        </div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; line-height: 1.6; color: #6B6B66">Input · bg = page bg, 1px rule, focus → ink border.<br />No shadow, no ring, no fill change.</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="width: 100%; max-width: 1120px; display: flex; flex-direction: column; gap: 48px">
+    <div style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #E3E0D6; padding-top: 20px">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B66">Type decision</div>
+      <h2 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 2rem; line-height: 1.2; margin: 0">Two serifs on the H1</h2>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px">
+      <div style="display: flex; flex-direction: column; gap: 20px; border: 1px solid #E3E0D6; border-radius: 6px; padding: 32px">
+        <div style="display: flex; align-items: baseline; gap: 12px">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B66">Option A · Newsreader</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #C4633F">recommended</div>
+        </div>
+        <div style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 2.75rem; line-height: 1.08; letter-spacing: -0.015em">Careers are built by systems, not motivation.</div>
+        <div style="font-size: 1rem; line-height: 1.65; color: #6B6B66">A text-first serif with real optical sizing, so the same family works at 56px and at 18px in the long-form article. Slightly darker on screen, which holds up on cheap Android panels. Reads as considered rather than decorative — a person stating a fact.</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 20px; border: 1px solid #E3E0D6; border-radius: 6px; padding: 32px">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B66">Option B · Instrument Serif</div>
+        <div style="font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: 2.75rem; line-height: 1.06; letter-spacing: -0.01em">Careers are built by systems, not motivation.</div>
+        <div style="font-size: 1rem; line-height: 1.65; color: #6B6B66">Narrower, higher contrast, more magazine masthead. Beautiful at display size and one weight only, so it is display-only — body must fall to Inter. Thin strokes get fragile on low-DPI screens, which is the primary audience.</div>
+      </div>
+    </div>
+    <div style="max-width: 680px; display: flex; flex-direction: column; gap: 16px">
+      <p style="font-size: 1.0625rem; line-height: 1.7; margin: 0">Body and UI stay in <strong style="font-weight: 500">Inter</strong>: it is neutral, ships two weights here (400/500), and its tall x-height keeps 17px legible on a mid-range phone. Two families total, four files — roughly 110KB of woff2 subset to Latin, comfortably inside the 500KB budget.</p>
+      <p style="font-size: 1.0625rem; line-height: 1.7; margin: 0; color: #6B6B66">Recommendation: Newsreader. Instrument Serif is the sharper poster, Newsreader is the better document — and this site is a document. Pick one and I will lock it into the tokens.</p>
+    </div>
+  </section>
+
+  <section style="width: 100%; max-width: 1120px; display: flex; flex-direction: column; gap: 48px">
+    <div style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #E3E0D6; padding-top: 20px">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B66">Deliverable 02 · Screen A</div>
+      <h2 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 2rem; line-height: 1.2; margin: 0">Mobile — 390px</h2>
+      <p style="font-size: 1.0625rem; line-height: 1.65; color: #6B6B66; margin: 0; max-width: 680px">24px side margins. Above the fold: headline, subhead, body, portrait — nothing else.</p>
+    </div>
+    <div style="display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap">
+      <div data-screen-label="Screen A — mobile" style="width: 390px; flex: none; border: 1px solid #E3E0D6; border-radius: 6px; overflow: hidden; background: #FAF9F5">
+        <div style="height: 56px; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #E3E0D6">
+          <span style="font-size: 0.9375rem; font-weight: 500">Abdur Rakib</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.6875rem; letter-spacing: 0.06em; text-transform: uppercase; color: #6B6B66">menu</span>
+        </div>
+        <div style="padding: 48px 24px 64px; display: flex; flex-direction: column; gap: 24px">
+          <h1 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 2.5rem; line-height: 1.1; letter-spacing: -0.015em; margin: 0">Careers are built by systems, not motivation.</h1>
+          <p style="font-size: 1.0625rem; line-height: 1.5; font-weight: 500; margin: 0">Abdur Rakib. COO, Programming Hero.</p>
+          <p style="font-size: 1.0625rem; line-height: 1.65; margin: 0; color: #141413">Started programming at 15. Ten years across software engineering, project management, and strategic leadership. Contributing to 150+ tech job placements every month, 6,300+ overall, Alhamdulillah.</p>
+          <div style="aspect-ratio: 4 / 5; background: #F0EEE6; border: 1px solid #E3E0D6; border-radius: 4px; display: flex; align-items: center; justify-content: center; padding: 16px; text-align: center; margin-top: 8px">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.6875rem; line-height: 1.6; letter-spacing: 0.06em; text-transform: uppercase; color: #6B6B66">portrait photograph<br />untreated · 4:5 · no cutout</span>
+          </div>
+        </div>
+        <div style="background: #F0EEE6; border-top: 1px solid #E3E0D6; border-bottom: 1px solid #E3E0D6; padding: 48px 24px; display: flex; flex-direction: column; gap: 24px">
+          <div style="display: flex; flex-direction: column; gap: 16px">
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-family: Newsreader, Georgia, serif; font-size: 1.75rem; line-height: 1.1">6,300+</span>
+              <span style="font-size: 0.9375rem; line-height: 1.4; color: #6B6B66">developers placed</span>
+            </div>
+            <div style="height: 1px; background: #E3E0D6"></div>
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-family: Newsreader, Georgia, serif; font-size: 1.75rem; line-height: 1.1">57</span>
+              <span style="font-size: 0.9375rem; line-height: 1.4; color: #6B6B66">countries</span>
+            </div>
+            <div style="height: 1px; background: #E3E0D6"></div>
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-family: Newsreader, Georgia, serif; font-size: 1.75rem; line-height: 1.1">1,400+</span>
+              <span style="font-size: 0.9375rem; line-height: 1.4; color: #6B6B66">trained per year</span>
+            </div>
+            <div style="height: 1px; background: #E3E0D6"></div>
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-family: Newsreader, Georgia, serif; font-size: 1.75rem; line-height: 1.1">130+</span>
+              <span style="font-size: 0.9375rem; line-height: 1.4; color: #6B6B66">team</span>
+            </div>
+          </div>
+          <p style="font-size: 0.8125rem; line-height: 1.45; color: #6B6B66; margin: 0">As of August 2026. 150+ new placements every month, Alhamdulillah.</p>
+        </div>
+        <div style="padding: 64px 24px 72px; display: flex; flex-direction: column; gap: 20px">
+          <p style="font-size: 1.3125rem; line-height: 1.5; margin: 0">AI raised the bar for junior developers. Motivation does not clear it. Systems do.</p>
+          <p style="font-size: 1.0625rem; line-height: 1.65; margin: 0">I love meeting inspiring people, learning from them, and passing their wisdom to the next generation.</p>
+          <p style="font-size: 1.0625rem; line-height: 1.65; margin: 0">Mission: 10,000 global tech job placements per year by 2030, In Sha' Allah.</p>
+        </div>
+      </div>
+      <div style="width: 420px; flex: none; display: flex; flex-direction: column; gap: 20px; font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; line-height: 1.7; color: #6B6B66">
+        <div style="border-top: 1px solid #E3E0D6; padding-top: 12px">H1 40px / lh 1.1 — three lines at 390px. Do not shrink below 36px.</div>
+        <div style="border-top: 1px solid #E3E0D6; padding-top: 12px">Fold sits just below the portrait. No badge, no CTA, no scroll cue.</div>
+        <div style="border-top: 1px solid #E3E0D6; padding-top: 12px">Proof band = --surface, full bleed, hairlines top and bottom. Stats stack on mobile, split by 1px rules.</div>
+        <div style="border-top: 1px solid #E3E0D6; padding-top: 12px">Intro block: first line 21px, following lines 17px. 64px above, 72px below.</div>
+        <div style="border-top: 1px solid #E3E0D6; padding-top: 12px">Menu is the only JS: a checkbox-free &lt;details&gt; or a 12-line toggle. Header height fixed at 56px.</div>
+        <div style="border-top: 1px solid #E3E0D6; padding-top: 12px">Portrait: single AVIF/WebP at 780px wide, ~60KB. width/height set to reserve space, no lazy-load above the fold.</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="width: 100%; display: flex; flex-direction: column; gap: 48px; align-items: center">
+    <div style="width: 100%; max-width: 1120px; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #E3E0D6; padding-top: 20px">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B66">Deliverable 02 · Screen B</div>
+      <h2 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 2rem; line-height: 1.2; margin: 0">Desktop hero — 1440px</h2>
+      <p style="font-size: 1.0625rem; line-height: 1.65; color: #6B6B66; margin: 0; max-width: 680px">1120px container, 7/5 split. Same content order; the portrait moves beside the text instead of under it.</p>
+    </div>
+    <div style="width: 100%; overflow-x: auto; display: flex; justify-content: flex-start">
+    <div data-screen-label="Screen B — desktop hero" style="width: 1440px; flex: none; border: 1px solid #E3E0D6; border-radius: 6px; overflow: hidden; background: #FAF9F5">
+      <div style="height: 72px; padding: 0 160px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #E3E0D6">
+        <span style="font-size: 0.9375rem; font-weight: 500">Abdur Rakib</span>
+        <div style="display: flex; gap: 32px; font-size: 0.9375rem; color: #6B6B66">
+          <span>Writing</span>
+          <span>Podcast</span>
+          <span>Experience</span>
+          <span>Contact</span>
+        </div>
+      </div>
+      <div style="padding: 112px 160px 128px; display: grid; grid-template-columns: 7fr 5fr; gap: 80px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 32px">
+          <h1 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 3.5rem; line-height: 1.05; letter-spacing: -0.02em; margin: 0">Careers are built by systems, not motivation.</h1>
+          <p style="font-size: 1.125rem; line-height: 1.5; font-weight: 500; margin: 0">Abdur Rakib. COO, Programming Hero.</p>
+          <p style="font-size: 1.125rem; line-height: 1.7; margin: 0; max-width: 560px">Started programming at 15. Ten years across software engineering, project management, and strategic leadership. Contributing to 150+ tech job placements every month, 6,300+ overall, Alhamdulillah.</p>
+        </div>
+        <div style="aspect-ratio: 4 / 5; background: #F0EEE6; border: 1px solid #E3E0D6; border-radius: 4px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.6875rem; line-height: 1.6; letter-spacing: 0.06em; text-transform: uppercase; color: #6B6B66">portrait photograph<br />untreated · 4:5</span>
+        </div>
+      </div>
+      <div style="background: #F0EEE6; border-top: 1px solid #E3E0D6; border-bottom: 1px solid #E3E0D6; padding: 64px 160px">
+        <div style="display: flex; flex-direction: column; gap: 24px">
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px">
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <span style="font-family: Newsreader, Georgia, serif; font-size: 2.5rem; line-height: 1">6,300+</span>
+              <span style="font-size: 0.9375rem; color: #6B6B66">developers placed</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px; border-left: 1px solid #E3E0D6; padding-left: 40px">
+              <span style="font-family: Newsreader, Georgia, serif; font-size: 2.5rem; line-height: 1">57</span>
+              <span style="font-size: 0.9375rem; color: #6B6B66">countries</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px; border-left: 1px solid #E3E0D6; padding-left: 40px">
+              <span style="font-family: Newsreader, Georgia, serif; font-size: 2.5rem; line-height: 1">1,400+</span>
+              <span style="font-size: 0.9375rem; color: #6B6B66">trained per year</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px; border-left: 1px solid #E3E0D6; padding-left: 40px">
+              <span style="font-family: Newsreader, Georgia, serif; font-size: 2.5rem; line-height: 1">130+</span>
+              <span style="font-size: 0.9375rem; color: #6B6B66">team</span>
+            </div>
+          </div>
+          <p style="font-size: 0.8125rem; line-height: 1.45; color: #6B6B66; margin: 0">As of August 2026. 150+ new placements every month, Alhamdulillah.</p>
+        </div>
+      </div>
+      <div style="padding: 128px 160px; display: grid; grid-template-columns: 7fr 5fr; gap: 80px">
+        <div style="display: flex; flex-direction: column; gap: 24px; max-width: 680px">
+          <p style="font-size: 1.5rem; line-height: 1.45; margin: 0">AI raised the bar for junior developers. Motivation does not clear it. Systems do.</p>
+          <p style="font-size: 1.125rem; line-height: 1.7; margin: 0">I love meeting inspiring people, learning from them, and passing their wisdom to the next generation.</p>
+          <p style="font-size: 1.125rem; line-height: 1.7; margin: 0">Mission: 10,000 global tech job placements per year by 2030, In Sha' Allah.</p>
+        </div>
+        <div></div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <section style="width: 100%; display: flex; flex-direction: column; gap: 48px; align-items: center">
+    <div style="width: 100%; max-width: 1120px; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #E3E0D6; padding-top: 20px">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B66">Deliverable 02 · Screen C</div>
+      <h2 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 2rem; line-height: 1.2; margin: 0">Desktop content sections — 1440px</h2>
+      <p style="font-size: 1.0625rem; line-height: 1.65; color: #6B6B66; margin: 0; max-width: 680px">128px between sections. Separation comes from space and one hairline; only the newsletter sits on a band.</p>
+    </div>
+    <div style="width: 100%; overflow-x: auto; display: flex; justify-content: flex-start">
+    <div data-screen-label="Screen C — desktop sections" style="width: 1440px; flex: none; border: 1px solid #E3E0D6; border-radius: 6px; overflow: hidden; background: #FAF9F5">
+
+      <div style="padding: 112px 160px 0; display: flex; flex-direction: column; gap: 40px">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid #E3E0D6; padding-bottom: 20px">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B66">Podcast</div>
+            <h2 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 2rem; line-height: 1.2; margin: 0">Conversations with people worth listening to</h2>
+          </div>
+          <a href="#podcast" style="font-size: 0.9375rem; color: #C4633F; border-bottom: 1px solid #C4633F">All episodes</a>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px">
+          <div style="border: 1px solid #E3E0D6; border-radius: 6px; overflow: hidden">
+            <div style="aspect-ratio: 16 / 9; background: #F0EEE6; border-bottom: 1px solid #E3E0D6; display: flex; align-items: center; justify-content: center">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.6875rem; letter-spacing: 0.06em; text-transform: uppercase; color: #6B6B66">youtube thumbnail</span>
+            </div>
+            <div style="padding: 24px; display: flex; flex-direction: column; gap: 10px">
+              <h3 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 1.25rem; line-height: 1.35; margin: 0">Hiring a junior developer in the age of AI</h3>
+              <div style="font-size: 0.8125rem; color: #6B6B66">14 Jul 2026 · 52 min</div>
+            </div>
+          </div>
+          <div style="border: 1px solid #E3E0D6; border-radius: 6px; overflow: hidden">
+            <div style="aspect-ratio: 16 / 9; background: #F0EEE6; border-bottom: 1px solid #E3E0D6; display: flex; align-items: center; justify-content: center">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.6875rem; letter-spacing: 0.06em; text-transform: uppercase; color: #6B6B66">youtube thumbnail</span>
+            </div>
+            <div style="padding: 24px; display: flex; flex-direction: column; gap: 10px">
+              <h3 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 1.25rem; line-height: 1.35; margin: 0">What 6,300 placements taught us about practice</h3>
+              <div style="font-size: 0.8125rem; color: #6B6B66">28 Jun 2026 · 41 min</div>
+            </div>
+          </div>
+          <div style="border: 1px solid #E3E0D6; border-radius: 6px; overflow: hidden">
+            <div style="aspect-ratio: 16 / 9; background: #F0EEE6; border-bottom: 1px solid #E3E0D6; display: flex; align-items: center; justify-content: center">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.6875rem; letter-spacing: 0.06em; text-transform: uppercase; color: #6B6B66">youtube thumbnail</span>
+            </div>
+            <div style="padding: 24px; display: flex; flex-direction: column; gap: 10px">
+              <h3 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 1.25rem; line-height: 1.35; margin: 0">Building a 130-person team from a Dhaka classroom</h3>
+              <div style="font-size: 0.8125rem; color: #6B6B66">09 Jun 2026 · 63 min</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 128px 160px 0; display: flex; flex-direction: column; gap: 40px">
+        <div style="display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid #E3E0D6; padding-bottom: 20px">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B66">Experience</div>
+          <h2 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 2rem; line-height: 1.2; margin: 0">Ten years, one direction</h2>
+        </div>
+        <div style="display: flex; flex-direction: column">
+          <div style="display: grid; grid-template-columns: 180px 1fr 1fr; gap: 48px; padding: 32px 0; border-bottom: 1px solid #E3E0D6">
+            <div style="font-size: 0.9375rem; line-height: 1.5; color: #6B6B66">2024 — Present</div>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <div style="font-family: Newsreader, Georgia, serif; font-size: 1.25rem; line-height: 1.35">Chief Operating Officer</div>
+              <div style="font-size: 0.9375rem; color: #6B6B66">Programming Hero</div>
+            </div>
+            <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 1rem; line-height: 1.6">
+              <li>Own placement operations across 57 countries.</li>
+              <li>Scaled monthly placements past 150.</li>
+              <li>Grew the team to 130+ without losing the standard.</li>
+            </ul>
+          </div>
+          <div style="display: grid; grid-template-columns: 180px 1fr 1fr; gap: 48px; padding: 32px 0; border-bottom: 1px solid #E3E0D6">
+            <div style="font-size: 0.9375rem; line-height: 1.5; color: #6B6B66">2022 — 2024</div>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <div style="font-family: Newsreader, Georgia, serif; font-size: 1.25rem; line-height: 1.35">Head of Operations</div>
+              <div style="font-size: 0.9375rem; color: #6B6B66">Programming Hero</div>
+            </div>
+            <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 1rem; line-height: 1.6">
+              <li>Rebuilt the student support model end to end.</li>
+              <li>Cut course completion drop-off by a third.</li>
+              <li>Standardised hiring for instructors and mentors.</li>
+            </ul>
+          </div>
+          <div style="display: grid; grid-template-columns: 180px 1fr 1fr; gap: 48px; padding: 32px 0; border-bottom: 1px solid #E3E0D6">
+            <div style="font-size: 0.9375rem; line-height: 1.5; color: #6B6B66">2021 — 2022</div>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <div style="font-family: Newsreader, Georgia, serif; font-size: 1.25rem; line-height: 1.35">Project Manager</div>
+              <div style="font-size: 0.9375rem; color: #6B6B66">Programming Hero</div>
+            </div>
+            <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 1rem; line-height: 1.6">
+              <li>Shipped the first job-placement track.</li>
+              <li>Introduced weekly cohort reviews.</li>
+              <li>Wrote the curriculum QA checklist still in use.</li>
+            </ul>
+          </div>
+          <div style="display: grid; grid-template-columns: 180px 1fr 1fr; gap: 48px; padding: 32px 0; border-bottom: 1px solid #E3E0D6">
+            <div style="font-size: 0.9375rem; line-height: 1.5; color: #6B6B66">2020 — 2021</div>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <div style="font-family: Newsreader, Georgia, serif; font-size: 1.25rem; line-height: 1.35">Software Engineer</div>
+              <div style="font-size: 0.9375rem; color: #6B6B66">Product studio, Dhaka</div>
+            </div>
+            <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 1rem; line-height: 1.6">
+              <li>Built client dashboards in React and Node.</li>
+              <li>Owned release process for three products.</li>
+              <li>Mentored two interns into full-time roles.</li>
+            </ul>
+          </div>
+          <div style="display: grid; grid-template-columns: 180px 1fr 1fr; gap: 48px; padding: 32px 0; border-bottom: 1px solid #E3E0D6">
+            <div style="font-size: 0.9375rem; line-height: 1.5; color: #6B6B66">2018 — 2020</div>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <div style="font-family: Newsreader, Georgia, serif; font-size: 1.25rem; line-height: 1.35">Junior Developer</div>
+              <div style="font-size: 0.9375rem; color: #6B6B66">Software agency, Dhaka</div>
+            </div>
+            <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 1rem; line-height: 1.6">
+              <li>Maintained PHP and JavaScript codebases.</li>
+              <li>Learned to read a system before changing it.</li>
+              <li>First exposure to hiring from the other side.</li>
+            </ul>
+          </div>
+          <div style="display: grid; grid-template-columns: 180px 1fr 1fr; gap: 48px; padding: 32px 0; border-bottom: 1px solid #E3E0D6">
+            <div style="font-size: 0.9375rem; line-height: 1.5; color: #6B6B66">2015 — 2018</div>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <div style="font-family: Newsreader, Georgia, serif; font-size: 1.25rem; line-height: 1.35">Freelance developer</div>
+              <div style="font-size: 0.9375rem; color: #6B6B66">Self-employed</div>
+            </div>
+            <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 1rem; line-height: 1.6">
+              <li>Started programming at 15.</li>
+              <li>Delivered small business sites and tools.</li>
+              <li>Taught first students informally, for free.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 128px; background: #F0EEE6; border-top: 1px solid #E3E0D6; border-bottom: 1px solid #E3E0D6; padding: 96px 160px">
+        <div style="max-width: 680px; display: flex; flex-direction: column; gap: 24px">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B66">Newsletter</div>
+          <h2 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 2rem; line-height: 1.2; margin: 0">One letter a month on systems, hiring, and the work</h2>
+          <form style="display: flex; gap: 8px; max-width: 480px">
+            <input type="email" placeholder="you@email.com" style="flex: 1; font-size: 0.9375rem; line-height: 1.4; color: #141413; background: #FAF9F5; border: 1px solid #E3E0D6; border-radius: 4px; padding: 14px 14px; outline: none" style-focus="border-color: #141413" />
+            <button type="submit" style="font-family: Inter, sans-serif; font-size: 0.9375rem; font-weight: 500; color: #FAF9F5; background: #141413; border: 1px solid #141413; border-radius: 4px; padding: 14px 22px; cursor: pointer" style-hover="background: #C4633F; border-color: #C4633F">Subscribe</button>
+          </form>
+          <p style="font-size: 0.8125rem; line-height: 1.45; color: #6B6B66; margin: 0">No course promotions. Unsubscribe in one click.</p>
+        </div>
+      </div>
+
+      <div style="padding: 128px 160px 112px; display: flex; justify-content: center">
+        <article style="max-width: 680px; display: flex; flex-direction: column; gap: 28px">
+          <div style="display: flex; flex-direction: column; gap: 12px">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #6B6B66">Writing · 19 Aug 2026 · 7 min read</div>
+            <h1 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 2.75rem; line-height: 1.1; letter-spacing: -0.015em; margin: 0">The quiet advantage of a system</h1>
+          </div>
+          <p style="font-size: 1.3125rem; line-height: 1.6; margin: 0; color: #141413">Every year a few thousand students tell me the same thing: they lost momentum. Almost none of them tell me their process failed, because almost none of them had one.</p>
+          <p style="font-size: 1.125rem; line-height: 1.7; margin: 0">I started programming at fifteen, on a shared computer, with a textbook that was already out of date. What carried me was not enthusiasm. Enthusiasm was abundant and cheap; it arrived every Sunday and left by Tuesday. What carried me was a small set of rules I could follow on a bad day — write code before checking messages, finish the exercise even if the solution is ugly, submit something every week whether or not it is ready. None of those rules are clever. Their only virtue is that they do not require me to feel a certain way before they work.</p>
+          <p style="font-size: 1.125rem; line-height: 1.7; margin: 0">Ten years later I watch the same pattern at scale. We have placed more than six thousand developers into jobs, and the students who make it are rarely the most talented ones in the first month. They are the ones who built a container for their effort: a fixed hour, a visible queue of tasks, one person who notices when they disappear. Talent decides how fast you move. A system decides whether you are still moving in month five.</p>
+          <h2 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 1.75rem; line-height: 1.25; margin: 24px 0 0">What changed for beginners</h2>
+          <p style="font-size: 1.125rem; line-height: 1.7; margin: 0">The floor moved. Three years ago a junior developer could get hired on the strength of a tutorial project and a willingness to learn. Today an employer can generate that project in an afternoon, so the project proves nothing on its own. What is scarce now is judgement: knowing which problem is worth solving, reading an unfamiliar codebase without panic, explaining a tradeoff to someone who is not technical, noticing that the requirement itself is wrong.</p>
+          <p style="font-size: 1.125rem; line-height: 1.7; margin: 0">None of that is learned by watching. It is learned by shipping something small, being told plainly what is weak about it, and shipping again. That loop is uncomfortable, which is exactly why motivation cannot be the thing that powers it. Motivation avoids discomfort. A system schedules it.</p>
+          <p style="font-size: 1.125rem; line-height: 1.7; margin: 0">This is also why I am not worried about AI removing entry-level work, and why I am very worried about how most people are preparing for it. The tools raise the value of a developer who can direct them and destroy the value of one who can only produce what they produce. The difference between those two people is not intelligence. It is deliberate practice, arranged so it actually happens.</p>
+          <h2 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 1.75rem; line-height: 1.25; margin: 24px 0 0">How to build one that survives you</h2>
+          <p style="font-size: 1.125rem; line-height: 1.7; margin: 0">A system worth having has four parts, and each one is boring. First, a fixed time. Not a target of hours per week, a specific hour of a specific day, protected the way you protect a job. Second, a visible next action. If opening your laptop requires deciding what to do, you have already spent the willpower you needed for the work. Write tomorrow's first task before you close the machine tonight.</p>
+          <p style="font-size: 1.125rem; line-height: 1.7; margin: 0">Third, a feedback source that is faster than the market. Waiting for interview rejections is a six-month loop; a senior developer who reviews your pull request is a two-day loop. Pay for it, trade for it, or join a cohort that provides it, but do not skip it. Almost every plateau I have seen is someone practising confidently in the wrong direction. Fourth, a record. Not a journal of feelings — a log of what shipped, what broke, and what you learned. The log is what turns a year of scattered effort into a story you can tell a hiring manager in four minutes.</p>
+          <p style="font-size: 1.125rem; line-height: 1.7; margin: 0">Notice that none of these require you to be a certain kind of person. That is the whole point. A good system is indifferent to your mood, portable across jobs, and legible to the next person who wants to copy it. It is also unglamorous, which is why it stays available: everyone wants the transformation, very few want the schedule.</p>
+          <p style="font-size: 1.125rem; line-height: 1.7; margin: 0">We are aiming for ten thousand placements a year by 2030, In Sha' Allah. That number is not a marketing figure to me, it is an operational question: what has to be true, every week, in a hundred and thirty people's calendars, for that to happen? The answer is never more motivation. It is a clearer system, run patiently, for longer than feels reasonable.</p>
+          <p style="font-size: 1.125rem; line-height: 1.7; margin: 0">If you are at the beginning of this, pick one part and install it this week. Not four. One. The rest is easier once the first one holds.</p>
+        </article>
+      </div>
+    </div>
+    </div>
+    <div style="width: 100%; max-width: 1120px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; font-family: 'IBM Plex Mono', monospace; font-size: 0.8125rem; line-height: 1.7; color: #6B6B66">
+      <div style="border-top: 1px solid #E3E0D6; padding-top: 12px">Section rhythm: 128px between sections, 40px label-to-content, 20px above the section hairline.</div>
+      <div style="border-top: 1px solid #E3E0D6; padding-top: 12px">Only one band per screen region. Two adjacent --surface bands are a bug.</div>
+      <div style="border-top: 1px solid #E3E0D6; padding-top: 12px">Article: 680px measure, 18px/1.7 body, 21px lead, H2 at 28px with 24px extra space above.</div>
+    </div>
+  </section>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}"></script>
+</body>
+</html>

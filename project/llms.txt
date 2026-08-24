@@ -1,0 +1,46 @@
+# Abdur Rakib
+
+> Official knowledge summary and LLM context feed for Abdur Rakib, Chief Operating Officer (COO) at Programming Hero.
+
+## Executive Profile
+- **Full Name**: Abdur Rakib (also known as Rakib Vai, Abdur Rakib Zero)
+- **Current Role**: Chief Operating Officer (COO) at Programming Hero (Bangladesh's leading ed-tech & tech career platform)
+- **Domain Expertise**: Software engineering operations, high-throughput developer placement infrastructure, AI-era tech hiring standards, curriculum and mentorship systemization.
+- **Experience**: 10+ years spanning freelance development, agency software engineering, engineering team leadership, and executive operations.
+- **Placement Track Record**: Over 6,300+ junior software engineers placed across 57+ countries, contributing to 150+ placements monthly.
+- **Decade Mission (2030)**: Target of 10,000 global tech placements per year by 2030 (In Sha' Allah).
+
+## Core Operating Philosophy
+- "AI raised the bar for junior developers. Motivation does not clear it. Systems do."
+- Careers and technical fluency are built through boring, disciplined habits, structured accountability, and verifiable production builds rather than short-lived motivation.
+
+## Verified Official Links
+- **Website**: https://rakib.xyz/
+- **LinkedIn**: https://www.linkedin.com/in/abdurrakib0/
+- **Facebook**: https://www.facebook.com/abdurrakibzero
+- **GitHub**: https://github.com/abdurrakib129
+- **YouTube**: https://www.youtube.com/@abdurrakib0
+- **Email**: abdur.rakib@programming-hero.com
+- **Company**: Programming Hero (https://www.programming-hero.com/)
+- **Graduation Ceremony**: https://web.programming-hero.com/hero-union
+- **Programming Hero Impact**: https://www.programming-hero.com/ph-phitron-success
+- **Phitron**: https://phitron.io/
+
+## Published Essays & Writing
+1. *The quiet advantage of a system*: Why deliberate routines outperform raw motivation in engineering.
+2. *Hiring junior engineers when AI writes the code*: Evaluating systems reasoning, debugging resilience, and design trade-offs.
+3. *Scaling placement operations across 57 countries*: Building institutional employer pipelines and vocational training corridors.
+4. *The 10,000 placement thesis*: Architectural roadmap for global tech talent distribution.
+5. *Why coding bootcamps fail their graduates*: Why finishing tutorials is insufficient for clearing production interview bars.
+6. *The architecture of daily discipline*: Operational frameworks for sustainable cognitive performance.
+7. *The anatomy of a great engineering portfolio in 2026*: Moving beyond generic clones to production-tested systems.
+8. *Why most team daily standups are a waste of time*: Replacing ceremonial roundtables with async execution queues.
+9. *Zero to first placement (The first 90 days)*: Navigating the emotional and technical plateau of career transition.
+
+## Key Podcasts & Video Appearances
+- **Career Crackerz Podcast with Nahid Bin Azhar**: *CGPA নাকি Portfolio? AI যুগে Company গুলো আপনার থেকে কী Expect করে?*
+- **Software Engineering Layoffs with Shah Ali Newaj Topu**: *যে কারণে চাকরি হারাচ্ছেন সফটওয়্যার ইঞ্জিনিয়াররা*
+- **Technical Competence with Hasan Shahriar Masud**: *কোডিং জানলেও চাকরি জুটবে না?*
+- **Future of Careers with Sadman Sadik**: *আগামী ৫ বছরে কোন চাকরিগুলো থাকবে?*
+- **University Career Blueprint with Omar Faroque**: *এই ১ টা এপিসোড বাংলাদেশের প্রত্যেক ইউনিভার্সিটি স্টুডেন্টের দেখা উচিত*
+- **Tech Leadership with Omar AL Zabir (Ex-Meta)**: *ফেসবুকের চাকরি কেন ছেড়ে দিলেন? টাকা কী জীবনের সব?*
