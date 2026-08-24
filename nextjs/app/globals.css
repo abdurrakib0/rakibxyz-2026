@@ -566,14 +566,14 @@
 
     /* Architectural Manifesto & Mission Section */
     .statement-section {
-      margin-top: 100px;
-      margin-bottom: 100px;
+      margin-top: 72px;
+      margin-bottom: 72px;
     }
 
     @media (min-width: 768px) {
       .statement-section {
-        margin-top: 140px;
-        margin-bottom: 140px;
+        margin-top: 96px;
+        margin-bottom: 96px;
       }
     }
 
