@@ -74,12 +74,26 @@ export interface Subscriber {
   created_at: string;
 }
 
+export interface Recommendation {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  avatarUrl?: string;
+  content: string;
+  linkedinUrl?: string;
+  relation?: string;
+  date?: string;
+  sortOrder?: number;
+}
+
 export interface DatabaseSchema {
   siteInfo: SiteInfo;
   posts: Post[];
   podcasts: Podcast[];
   experience: ExperienceItem[];
   subscribers?: Subscriber[];
+  recommendations?: Recommendation[];
 }
 
 const dataFilePath = path.join(process.cwd(), 'data', 'site-data.json');
@@ -93,6 +107,7 @@ export function getDatabase(): DatabaseSchema {
     const fileContent = fs.readFileSync(dataFilePath, 'utf-8');
     const data = JSON.parse(fileContent) as DatabaseSchema;
     if (!data.subscribers) data.subscribers = [];
+    if (!data.recommendations) data.recommendations = [];
     return data;
   } catch (error) {
     console.error('Error reading local database:', error);
@@ -190,6 +205,7 @@ export async function getDatabaseAsync(): Promise<DatabaseSchema> {
       podcasts,
       experience,
       subscribers: localDb.subscribers,
+      recommendations: localDb.recommendations || [],
     };
   } catch (error) {
     console.error('Error querying Supabase, falling back to local JSON:', error);
@@ -206,6 +222,145 @@ export async function getPostBySlugAsync(slug: string): Promise<Post | null> {
 export async function getRelatedPostsAsync(currentId: string, limit = 3): Promise<Post[]> {
   const db = await getDatabaseAsync();
   return db.posts.filter((p) => p.id !== currentId && p.published).slice(0, limit);
+}
+
+// ---------------------------------------------------------------------------
+// RECOMMENDATIONS CRUD METHODS
+// ---------------------------------------------------------------------------
+
+export async function getRecommendationsAsync(): Promise<Recommendation[]> {
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('recommendations')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      if (!error && data && data.length > 0) {
+        return data.map((d) => ({
+          id: d.id,
+          name: d.name,
+          role: d.role,
+          company: d.company,
+          avatarUrl: d.avatar_url,
+          content: d.content,
+          linkedinUrl: d.linkedin_url,
+          relation: d.relation,
+          date: d.date,
+          sortOrder: d.sort_order,
+        }));
+      }
+    } catch (err) {
+      console.error('Error fetching recommendations from Supabase:', err);
+    }
+  }
+
+  const localDb = getDatabase();
+  return (localDb.recommendations || []).sort(
+    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+  );
+}
+
+export async function saveRecommendationAsync(item: Recommendation): Promise<{ success: boolean; data?: Recommendation; message?: string }> {
+  if (isSupabaseConfigured() && supabaseAdmin) {
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('recommendations')
+        .insert([{
+          id: item.id,
+          name: item.name,
+          role: item.role,
+          company: item.company,
+          avatar_url: item.avatarUrl,
+          content: item.content,
+          linkedin_url: item.linkedinUrl,
+          relation: item.relation,
+          date: item.date,
+          sort_order: item.sortOrder ?? 0,
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, data: item };
+    } catch (err: any) {
+      console.error('Error saving recommendation to Supabase:', err);
+      return { success: false, message: err.message || 'Failed to save recommendation' };
+    }
+  }
+
+  // Local fallback
+  try {
+    const localDb = getDatabase();
+    if (!localDb.recommendations) localDb.recommendations = [];
+    localDb.recommendations.push(item);
+    saveDatabase(localDb);
+    return { success: true, data: item };
+  } catch (e: any) {
+    console.error('Local recommendation save error:', e);
+    return { success: false, message: e.message || 'Local save error' };
+  }
+}
+
+export async function updateRecommendationAsync(id: string, updates: Partial<Recommendation>): Promise<{ success: boolean; message?: string }> {
+  if (isSupabaseConfigured() && supabaseAdmin) {
+    try {
+      const dbPayload: any = {};
+      if (updates.name !== undefined) dbPayload.name = updates.name;
+      if (updates.role !== undefined) dbPayload.role = updates.role;
+      if (updates.company !== undefined) dbPayload.company = updates.company;
+      if (updates.avatarUrl !== undefined) dbPayload.avatar_url = updates.avatarUrl;
+      if (updates.content !== undefined) dbPayload.content = updates.content;
+      if (updates.linkedinUrl !== undefined) dbPayload.linkedin_url = updates.linkedinUrl;
+      if (updates.relation !== undefined) dbPayload.relation = updates.relation;
+      if (updates.date !== undefined) dbPayload.date = updates.date;
+      if (updates.sortOrder !== undefined) dbPayload.sort_order = updates.sortOrder;
+
+      const { error } = await supabaseAdmin
+        .from('recommendations')
+        .update(dbPayload)
+        .eq('id', id);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (err: any) {
+      console.error('Error updating recommendation in Supabase:', err);
+      return { success: false, message: err.message || 'Failed to update recommendation' };
+    }
+  }
+
+  // Local fallback
+  const localDb = getDatabase();
+  if (localDb.recommendations) {
+    const idx = localDb.recommendations.findIndex((r) => r.id === id);
+    if (idx !== -1) {
+      localDb.recommendations[idx] = { ...localDb.recommendations[idx], ...updates };
+      saveDatabase(localDb);
+      return { success: true };
+    }
+  }
+  return { success: false, message: 'Recommendation not found' };
+}
+
+export async function deleteRecommendationAsync(id: string): Promise<boolean> {
+  if (isSupabaseConfigured() && supabaseAdmin) {
+    try {
+      const { error } = await supabaseAdmin
+        .from('recommendations')
+        .delete()
+        .eq('id', id);
+      if (!error) return true;
+    } catch (err) {
+      console.error('Error deleting recommendation from Supabase:', err);
+    }
+  }
+
+  const localDb = getDatabase();
+  if (localDb.recommendations) {
+    localDb.recommendations = localDb.recommendations.filter((r) => r.id !== id);
+    saveDatabase(localDb);
+    return true;
+  }
+  return false;
 }
 
 // ---------------------------------------------------------------------------

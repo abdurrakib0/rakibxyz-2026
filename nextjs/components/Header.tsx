@@ -80,6 +80,12 @@ export default function Header() {
             Experience
           </Link>
           <Link
+            href="/#recommendations"
+            onClick={(e) => handleNavClick(e, 'recommendations')}
+          >
+            Endorsements
+          </Link>
+          <Link
             href="/#contact"
             onClick={(e) => handleNavClick(e, 'contact')}
           >
@@ -125,6 +131,15 @@ export default function Header() {
                 }}
               >
                 Experience
+              </Link>
+              <Link
+                href="/#recommendations"
+                onClick={(e) => {
+                  closeMobileMenu();
+                  handleNavClick(e, 'recommendations');
+                }}
+              >
+                Endorsements
               </Link>
               <Link
                 href="/#contact"

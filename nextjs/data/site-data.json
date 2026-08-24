@@ -300,5 +300,43 @@
       "email": "lead_developer@example.com",
       "created_at": "2026-08-24T11:59:06.573Z"
     }
+  ],
+  "recommendations": [
+    {
+      "id": "rec_1",
+      "name": "Jhankar Mahbub",
+      "role": "Founder & CEO",
+      "company": "Programming Hero",
+      "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "content": "Abdur Rakib is a rare blend of deep technical architecture and disciplined operational execution. Under his operational leadership, our placement corridor grew into a global engine helping thousands of developers enter the industry. He builds systems that scale predictably.",
+      "linkedinUrl": "https://www.linkedin.com",
+      "relation": "Managed Abdur directly at Programming Hero",
+      "date": "2024",
+      "sortOrder": 1
+    },
+    {
+      "id": "rec_2",
+      "name": "Tanvir Hasan",
+      "role": "VP of Engineering",
+      "company": "Tech Innovations Ltd",
+      "avatarUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      "content": "Working with Rakib on high-throughput talent development opened my eyes to what rigorous engineering training looks like. His focus on feedback loops, deliberate practice, and operational excellence sets him apart as an exceptional tech leader.",
+      "linkedinUrl": "https://www.linkedin.com",
+      "relation": "Worked with Abdur on strategic workforce initiatives",
+      "date": "2023",
+      "sortOrder": 2
+    },
+    {
+      "id": "rec_3",
+      "name": "Farhana Yasmin",
+      "role": "Head of People & Culture",
+      "company": "Global Dev Talent",
+      "avatarUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+      "content": "Rakib has an uncanny ability to identify bottlenecks in complex team operations and solve them with elegance. His mentorship style inspires young engineers to strive for craft and discipline.",
+      "linkedinUrl": "https://www.linkedin.com",
+      "relation": "Collaborated on tech hiring and placement corridors",
+      "date": "2024",
+      "sortOrder": 3
+    }
   ]
 }

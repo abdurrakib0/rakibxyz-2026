@@ -5,6 +5,7 @@ import StatsBand from '@/components/StatsBand';
 import StatementSection from '@/components/StatementSection';
 import PodcastSection from '@/components/PodcastSection';
 import ExperienceSection from '@/components/ExperienceSection';
+import RecommendationsSection from '@/components/RecommendationsSection';
 import NewsletterSection from '@/components/NewsletterSection';
 import WritingSection from '@/components/WritingSection';
 import Footer from '@/components/Footer';
@@ -16,7 +17,7 @@ export const fetchCache = 'force-no-store';
 
 export default async function HomePage() {
   const db = await getDatabaseAsync();
-  const { siteInfo, posts, podcasts, experience } = db;
+  const { siteInfo, posts, podcasts, experience, recommendations } = db;
 
   return (
     <div className="min-h-screen">
@@ -27,6 +28,7 @@ export default async function HomePage() {
         <StatementSection philosophy={siteInfo.philosophy} />
         <PodcastSection podcasts={podcasts} />
         <ExperienceSection experience={experience} />
+        <RecommendationsSection recommendations={recommendations || []} />
         <NewsletterSection />
         <WritingSection posts={posts} />
       </main>

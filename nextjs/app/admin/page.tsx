@@ -9,7 +9,7 @@ export default async function AdminDashboardPage() {
     getDatabaseAsync(),
     getSubscribersAsync(),
   ]);
-  const { posts, podcasts, siteInfo } = db;
+  const { posts, podcasts, siteInfo, recommendations } = db;
 
   return (
     <div className="flex flex-col gap-10">
@@ -19,7 +19,7 @@ export default async function AdminDashboardPage() {
           Dashboard Overview
         </h1>
         <p className="text-[0.9375rem] text-[var(--ink-muted)]">
-          Manage writings, newsletter subscribers, site statistics, YouTube podcast cards, and operational information.
+          Manage writings, LinkedIn endorsements, newsletter subscribers, site statistics, and YouTube podcast cards.
         </p>
       </div>
 
@@ -39,6 +39,21 @@ export default async function AdminDashboardPage() {
 
         <div className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-2">
           <span className="font-mono text-[0.75rem] uppercase tracking-wider text-[var(--ink-muted)]">
+            LinkedIn Endorsements
+          </span>
+          <span className="font-serif text-[2.5rem] text-[var(--ink)] leading-none">
+            {(recommendations || []).length}
+          </span>
+          <Link
+            href="/admin/recommendations"
+            className="font-mono text-[0.75rem] text-[var(--accent)] mt-1 no-underline hover:underline"
+          >
+            Manage Testimonials →
+          </Link>
+        </div>
+
+        <div className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-2">
+          <span className="font-mono text-[0.75rem] uppercase tracking-wider text-[var(--ink-muted)]">
             Subscribers
           </span>
           <span className="font-serif text-[2.5rem] text-[var(--ink)] leading-none">
@@ -50,18 +65,6 @@ export default async function AdminDashboardPage() {
           >
             Manage &amp; Export →
           </Link>
-        </div>
-
-        <div className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-2">
-          <span className="font-mono text-[0.75rem] uppercase tracking-wider text-[var(--ink-muted)]">
-            Podcasts &amp; Videos
-          </span>
-          <span className="font-serif text-[2.5rem] text-[var(--ink)] leading-none">
-            {podcasts.length}
-          </span>
-          <span className="font-mono text-[0.75rem] text-[var(--ink-muted)] mt-1">
-            YouTube modal embedded
-          </span>
         </div>
 
         <div className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-2">
@@ -78,7 +81,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Quick Action Navigation */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Link
           href="/admin/writings"
           className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-3 no-underline hover:border-[var(--ink)] hover:shadow-sm transition-all group"
@@ -95,6 +98,21 @@ export default async function AdminDashboardPage() {
         </Link>
 
         <Link
+          href="/admin/recommendations"
+          className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-3 no-underline hover:border-[var(--ink)] hover:shadow-sm transition-all group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="font-serif text-[1.25rem] text-[var(--ink)] group-hover:text-[var(--accent)] transition-colors">
+              LinkedIn Endorsements
+            </span>
+            <span className="text-[var(--accent)] font-mono text-[1.125rem]">→</span>
+          </div>
+          <p className="text-[0.875rem] text-[var(--ink-muted)] leading-[1.5]">
+            Add and manage testimonials and quotes from industry leaders on LinkedIn.
+          </p>
+        </Link>
+
+        <Link
           href="/admin/subscribers"
           className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-3 no-underline hover:border-[var(--ink)] hover:shadow-sm transition-all group"
         >
@@ -105,37 +123,7 @@ export default async function AdminDashboardPage() {
             <span className="text-[var(--accent)] font-mono text-[1.125rem]">→</span>
           </div>
           <p className="text-[0.875rem] text-[var(--ink-muted)] leading-[1.5]">
-            View real-time email subscribers, search, and export to CSV or Excel (.xls).
-          </p>
-        </Link>
-
-        <Link
-          href="/admin/site-info"
-          className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-3 no-underline hover:border-[var(--ink)] hover:shadow-sm transition-all group"
-        >
-          <div className="flex items-center justify-between">
-            <span className="font-serif text-[1.25rem] text-[var(--ink)] group-hover:text-[var(--accent)] transition-colors">
-              Site Info &amp; Stats
-            </span>
-            <span className="text-[var(--accent)] font-mono text-[1.125rem]">→</span>
-          </div>
-          <p className="text-[0.875rem] text-[var(--ink-muted)] leading-[1.5]">
-            Live-edit Hero headline, lead bio, statistics numbers, and 2030 mission text.
-          </p>
-        </Link>
-
-        <Link
-          href="/admin/podcasts"
-          className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-3 no-underline hover:border-[var(--ink)] hover:shadow-sm transition-all group"
-        >
-          <div className="flex items-center justify-between">
-            <span className="font-serif text-[1.25rem] text-[var(--ink)] group-hover:text-[var(--accent)] transition-colors">
-              Podcasts
-            </span>
-            <span className="text-[var(--accent)] font-mono text-[1.125rem]">→</span>
-          </div>
-          <p className="text-[0.875rem] text-[var(--ink-muted)] leading-[1.5]">
-            Add or reorder YouTube podcast cards, update guest names and titles.
+            View real-time email subscribers, edit emails, and export to CSV or Excel (.xls).
           </p>
         </Link>
       </div>

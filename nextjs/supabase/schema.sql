@@ -64,6 +64,21 @@ CREATE TABLE IF NOT EXISTS subscribers (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 6. RECOMMENDATIONS TABLE (LinkedIn Endorsements & Testimonials)
+CREATE TABLE IF NOT EXISTS recommendations (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    role TEXT NOT NULL,
+    company TEXT NOT NULL,
+    avatar_url TEXT,
+    content TEXT NOT NULL,
+    linkedin_url TEXT,
+    relation TEXT,
+    date TEXT,
+    sort_order INT DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ==============================================================================
@@ -74,12 +89,14 @@ ALTER TABLE podcasts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE site_info ENABLE ROW LEVEL SECURITY;
 ALTER TABLE experience ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscribers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE recommendations ENABLE ROW LEVEL SECURITY;
 
 -- Allow public read access to all content
 CREATE POLICY "Allow public read access on posts" ON posts FOR SELECT USING (true);
 CREATE POLICY "Allow public read access on podcasts" ON podcasts FOR SELECT USING (true);
 CREATE POLICY "Allow public read access on site_info" ON site_info FOR SELECT USING (true);
 CREATE POLICY "Allow public read access on experience" ON experience FOR SELECT USING (true);
+CREATE POLICY "Allow public read access on recommendations" ON recommendations FOR SELECT USING (true);
 
 -- Allow public to insert newsletter subscribers
 CREATE POLICY "Allow public subscribe to newsletter" ON subscribers FOR INSERT WITH CHECK (true);
@@ -90,3 +107,5 @@ CREATE POLICY "Allow full access for all operations on podcasts" ON podcasts FOR
 CREATE POLICY "Allow full access for all operations on site_info" ON site_info FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow full access for all operations on experience" ON experience FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow full access on subscribers" ON subscribers FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow full access on recommendations" ON recommendations FOR ALL USING (true) WITH CHECK (true);
+
