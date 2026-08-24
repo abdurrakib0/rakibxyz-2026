@@ -28,7 +28,7 @@ export default async function HomePage() {
         <StatementSection philosophy={siteInfo.philosophy} />
         <PodcastSection podcasts={podcasts} />
         <ExperienceSection experience={experience} />
-        <RecommendationsSection />
+        <RecommendationsSection recommendations={recommendations || []} />
         <NewsletterSection />
         <WritingSection posts={posts} />
       </main>
