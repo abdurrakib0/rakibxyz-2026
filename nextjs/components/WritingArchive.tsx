@@ -8,6 +8,10 @@ interface WritingArchiveProps {
   posts: Post[];
 }
 
+// Toggle to show/hide thumbnail images in the writing list rows
+// Set to true whenever you want to re-enable thumbnails in the list view
+const SHOW_ROW_THUMBNAILS = false;
+
 export default function WritingArchive({ posts }: WritingArchiveProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -360,9 +364,9 @@ export default function WritingArchive({ posts }: WritingArchiveProps) {
                       <span className="essay-row-readtime">{post.readTime}</span>
                     </div>
 
-                    {/* Middle: Title & Subtitle + Thumbnail */}
+                    {/* Middle: Title & Subtitle + Optional Thumbnail */}
                     <div className="essay-row-content" style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-                      {post.coverImage && (
+                      {SHOW_ROW_THUMBNAILS && post.coverImage && (
                         <div
                           style={{
                             width: '72px',
@@ -432,9 +436,9 @@ export default function WritingArchive({ posts }: WritingArchiveProps) {
                 <span className="essay-row-readtime">{post.readTime}</span>
               </div>
 
-              {/* Middle: Title & Subtitle + Thumbnail */}
+              {/* Middle: Title & Subtitle + Optional Thumbnail */}
               <div className="essay-row-content" style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-                {post.coverImage && (
+                {SHOW_ROW_THUMBNAILS && post.coverImage && (
                   <div
                     style={{
                       width: '72px',
