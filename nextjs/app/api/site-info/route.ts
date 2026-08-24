@@ -43,7 +43,7 @@ export async function PUT(req: NextRequest) {
 
     if (isSupabaseConfigured() && supabaseAdmin) {
       try {
-        await supabaseAdmin.from('site_info').upsert({
+        const { error } = await supabaseAdmin.from('site_info').upsert({
           id: 'default',
           name: updatedSiteInfo.name,
           role: updatedSiteInfo.role,
@@ -57,8 +57,11 @@ export async function PUT(req: NextRequest) {
           social_links: updatedSiteInfo.socialLinks,
           updated_at: new Date().toISOString(),
         });
+        if (error) {
+          console.error('Supabase error updating site-info:', error);
+        }
       } catch (e) {
-        console.error('Supabase error updating site-info:', e);
+        console.error('Supabase exception updating site-info:', e);
       }
     }
 
@@ -70,13 +73,18 @@ export async function PUT(req: NextRequest) {
 
     saveDatabase(db);
 
-    // Invalidate and revalidate all pages so changes appear instantly on frontend
-    revalidatePath('/', 'layout');
-    revalidatePath('/', 'page');
-    revalidatePath('/writing', 'page');
+    try {
+      revalidatePath('/', 'layout');
+    } catch (err) {
+      console.warn('revalidatePath warning:', err);
+    }
 
     return NextResponse.json({ success: true, siteInfo: db.siteInfo });
-  } catch (error) {
-    return NextResponse.json({ success: false, message: 'Failed to update site info' }, { status: 500 });
+  } catch (error: any) {
+    console.error('API PUT site-info error:', error);
+    return NextResponse.json(
+      { success: false, message: error.message || 'Failed to update site info' },
+      { status: 500 }
+    );
   }
 }

@@ -87,14 +87,15 @@ export async function POST(req: NextRequest) {
     db.posts.unshift(newPost);
     saveDatabase(db);
 
-    // Invalidate caches instantly
-    revalidatePath('/', 'layout');
-    revalidatePath('/', 'page');
-    revalidatePath('/writing', 'page');
-    revalidatePath(`/writing/${newPost.slug}`, 'page');
+    // Invalidate caches safely
+    try {
+      revalidatePath('/', 'layout');
+    } catch (err) {
+      console.warn('revalidatePath warning:', err);
+    }
 
     return NextResponse.json({ success: true, post: newPost });
-  } catch (error) {
-    return NextResponse.json({ success: false, message: 'Failed to create post' }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, message: error.message || 'Failed to create post' }, { status: 500 });
   }
 }

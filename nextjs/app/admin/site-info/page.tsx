@@ -8,20 +8,40 @@ export default function AdminSiteInfoPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
+
+  const fetchSiteInfo = async () => {
+    try {
+      const res = await fetch('/api/site-info', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        setSiteInfo(data);
+      }
+    } catch (err) {
+      console.error('Error fetching site info:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetch('/api/site-info')
-      .then((res) => res.json())
-      .then((data) => setSiteInfo(data))
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    fetchSiteInfo();
   }, []);
+
+  const handleStatChange = (idx: number, field: 'number' | 'label', value: string) => {
+    if (!siteInfo) return;
+    const newStats = siteInfo.stats.map((s, i) =>
+      i === idx ? { ...s, [field]: value } : s
+    );
+    setSiteInfo({ ...siteInfo, stats: newStats });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!siteInfo) return;
     setSaving(true);
     setMessage('');
+    setIsError(false);
 
     try {
       const res = await fetch('/api/site-info', {
@@ -30,13 +50,20 @@ export default function AdminSiteInfoPage() {
         body: JSON.stringify(siteInfo),
       });
 
-      if (res.ok) {
+      const data = await res.json();
+      if (res.ok && data.success) {
         setMessage('Site information & statistics updated successfully!');
+        setIsError(false);
+        if (data.siteInfo) {
+          setSiteInfo(data.siteInfo);
+        }
       } else {
-        setMessage('Failed to update site information.');
+        setMessage(data.message || 'Failed to update site information.');
+        setIsError(true);
       }
-    } catch (err) {
-      setMessage('Error updating site information.');
+    } catch (err: any) {
+      setMessage(`Error updating site information: ${err.message || 'Network error'}`);
+      setIsError(true);
     } finally {
       setSaving(false);
     }
@@ -52,7 +79,7 @@ export default function AdminSiteInfoPage() {
       <div className="flex items-center justify-between border-b border-[var(--rule)] pb-6">
         <div>
           <h1 className="font-serif text-[2rem] text-[var(--ink)] font-normal">
-            Site Info & Statistics Manager
+            Site Info &amp; Statistics Manager
           </h1>
           <p className="text-[0.875rem] text-[var(--ink-muted)]">
             Live-edit Hero statement, bio, metrics numbers, and 2030 mission values.
@@ -61,7 +88,13 @@ export default function AdminSiteInfoPage() {
       </div>
 
       {message && (
-        <div className="p-3 bg-green-50 border border-green-200 text-green-800 rounded font-mono text-xs">
+        <div
+          className={`p-3.5 border rounded font-mono text-xs ${
+            isError
+              ? 'bg-red-50 border-red-200 text-red-800'
+              : 'bg-green-50 border-green-200 text-green-800'
+          }`}
+        >
           {message}
         </div>
       )}
@@ -84,7 +117,7 @@ export default function AdminSiteInfoPage() {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="font-mono text-[0.75rem] uppercase text-[var(--ink)]">Role & Company</label>
+              <label className="font-mono text-[0.75rem] uppercase text-[var(--ink)]">Role &amp; Company</label>
               <div className="grid grid-cols-2 gap-2">
                 <input
                   type="text"
@@ -138,22 +171,14 @@ export default function AdminSiteInfoPage() {
                 <input
                   type="text"
                   value={item.number}
-                  onChange={(e) => {
-                    const newStats = [...siteInfo.stats];
-                    newStats[idx].number = e.target.value;
-                    setSiteInfo({ ...siteInfo, stats: newStats });
-                  }}
+                  onChange={(e) => handleStatChange(idx, 'number', e.target.value)}
                   placeholder="e.g. 6,300+"
                   className="bg-[var(--surface)] border border-[var(--rule)] rounded px-2.5 py-1.5 text-[0.875rem] font-bold text-[var(--ink)]"
                 />
                 <input
                   type="text"
                   value={item.label}
-                  onChange={(e) => {
-                    const newStats = [...siteInfo.stats];
-                    newStats[idx].label = e.target.value;
-                    setSiteInfo({ ...siteInfo, stats: newStats });
-                  }}
+                  onChange={(e) => handleStatChange(idx, 'label', e.target.value)}
                   placeholder="Label"
                   className="bg-[var(--surface)] border border-[var(--rule)] rounded px-2.5 py-1.5 text-[0.75rem] text-[var(--ink-muted)]"
                 />
@@ -175,17 +200,17 @@ export default function AdminSiteInfoPage() {
         {/* Section 3: 2030 Mission & Philosophy */}
         <div className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-4">
           <h2 className="font-serif text-[1.25rem] text-[var(--ink)] border-b border-[var(--rule)] pb-2 font-medium">
-            3. Philosophy & 2030 Mission Canvas
+            3. Philosophy &amp; 2030 Mission Canvas
           </h2>
 
           <div className="flex flex-col gap-1">
             <label className="font-mono text-[0.75rem] uppercase text-[var(--ink)]">Philosophy Quote</label>
             <input
               type="text"
-              value={siteInfo.philosophy.quote}
+              value={siteInfo.philosophy?.quote || ''}
               onChange={(e) => setSiteInfo({
                 ...siteInfo,
-                philosophy: { ...siteInfo.philosophy, quote: e.target.value }
+                philosophy: { ...(siteInfo.philosophy || {}), quote: e.target.value } as any
               })}
               className="bg-[var(--bg)] border border-[var(--rule)] rounded px-3 py-2 text-[0.875rem] text-[var(--ink)]"
             />
@@ -196,10 +221,10 @@ export default function AdminSiteInfoPage() {
               <label className="font-mono text-[0.75rem] uppercase text-[var(--ink)]">Decade Target Number</label>
               <input
                 type="text"
-                value={siteInfo.philosophy.decadeTarget}
+                value={siteInfo.philosophy?.decadeTarget || ''}
                 onChange={(e) => setSiteInfo({
                   ...siteInfo,
-                  philosophy: { ...siteInfo.philosophy, decadeTarget: e.target.value }
+                  philosophy: { ...(siteInfo.philosophy || {}), decadeTarget: e.target.value } as any
                 })}
                 className="bg-[var(--bg)] border border-[var(--rule)] rounded px-3 py-2 text-[0.875rem] text-[var(--ink)]"
               />
@@ -208,10 +233,10 @@ export default function AdminSiteInfoPage() {
               <label className="font-mono text-[0.75rem] uppercase text-[var(--ink)]">Decade Target Label</label>
               <input
                 type="text"
-                value={siteInfo.philosophy.decadeTargetLabel}
+                value={siteInfo.philosophy?.decadeTargetLabel || ''}
                 onChange={(e) => setSiteInfo({
                   ...siteInfo,
-                  philosophy: { ...siteInfo.philosophy, decadeTargetLabel: e.target.value }
+                  philosophy: { ...(siteInfo.philosophy || {}), decadeTargetLabel: e.target.value } as any
                 })}
                 className="bg-[var(--bg)] border border-[var(--rule)] rounded px-3 py-2 text-[0.875rem] text-[var(--ink)]"
               />

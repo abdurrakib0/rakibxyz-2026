@@ -73,11 +73,14 @@ export async function POST(req: NextRequest) {
     db.podcasts.unshift(newPodcast);
     saveDatabase(db);
 
-    revalidatePath('/', 'layout');
-    revalidatePath('/', 'page');
+    try {
+      revalidatePath('/', 'layout');
+    } catch (err) {
+      console.warn('revalidatePath warning:', err);
+    }
 
     return NextResponse.json({ success: true, podcast: newPodcast });
-  } catch (error) {
-    return NextResponse.json({ success: false, message: 'Failed to add podcast' }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, message: error.message || 'Failed to add podcast' }, { status: 500 });
   }
 }
