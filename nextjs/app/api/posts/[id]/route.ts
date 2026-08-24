@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { getDatabase, saveDatabase } from '@/lib/data';
+import { getDatabase, saveDatabase, Post } from '@/lib/data';
 import { supabaseAdmin, isSupabaseConfigured } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -11,7 +11,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     if (isSupabaseConfigured() && supabaseAdmin) {
       try {
-        await supabaseAdmin
+        const { error: updateError } = await supabaseAdmin
           .from('posts')
           .update({
             title: updatedData.title,
@@ -25,34 +25,70 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             content: updatedData.content,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', params.id);
+          .or(`id.eq.${params.id},slug.eq.${params.id}`);
+
+        if (updateError) {
+          console.error('Supabase error updating post:', updateError);
+        }
       } catch (e) {
-        console.error('Supabase error updating post:', e);
+        console.error('Supabase exception updating post:', e);
       }
     }
 
     const db = getDatabase();
-    const postIndex = db.posts.findIndex((p) => p.id === params.id);
-    if (postIndex === -1) {
-      return NextResponse.json({ success: false, message: 'Post not found' }, { status: 404 });
-    }
+    let postIndex = db.posts.findIndex(
+      (p) =>
+        String(p.id) === String(params.id) ||
+        p.slug === params.id ||
+        (updatedData.id && String(p.id) === String(updatedData.id)) ||
+        (updatedData.slug && p.slug === updatedData.slug)
+    );
 
-    db.posts[postIndex] = {
-      ...db.posts[postIndex],
-      ...updatedData,
-    };
+    if (postIndex === -1) {
+      // If the post was in Supabase or not found locally, create/upsert it
+      const newPost: Post = {
+        id: updatedData.id || params.id || Date.now().toString(),
+        slug: updatedData.slug || params.id,
+        title: updatedData.title || '',
+        subtitle: updatedData.subtitle || '',
+        date: updatedData.date || '',
+        isoDate: updatedData.isoDate || '',
+        readTime: updatedData.readTime || '6 min read',
+        tag: updatedData.tag || 'Systems & Leadership',
+        coverImage: updatedData.coverImage || '',
+        published: updatedData.published ?? true,
+        content: updatedData.content || '',
+      };
+      db.posts.unshift(newPost);
+      postIndex = 0;
+    } else {
+      db.posts[postIndex] = {
+        ...db.posts[postIndex],
+        ...updatedData,
+      };
+    }
 
     saveDatabase(db);
 
     try {
       revalidatePath('/', 'layout');
+      revalidatePath('/', 'page');
+      revalidatePath('/writing', 'page');
+      const slug = db.posts[postIndex]?.slug;
+      if (slug) {
+        revalidatePath(`/writing/${slug}`, 'page');
+      }
     } catch (err) {
       console.warn('revalidatePath warning:', err);
     }
 
     return NextResponse.json({ success: true, post: db.posts[postIndex] });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message || 'Failed to update post' }, { status: 500 });
+    console.error('API PUT post error:', error);
+    return NextResponse.json(
+      { success: false, message: error.message || 'Failed to update post' },
+      { status: 500 }
+    );
   }
 }
 
@@ -60,30 +96,41 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   try {
     if (isSupabaseConfigured() && supabaseAdmin) {
       try {
-        await supabaseAdmin.from('posts').delete().eq('id', params.id);
+        await supabaseAdmin
+          .from('posts')
+          .delete()
+          .or(`id.eq.${params.id},slug.eq.${params.id}`);
       } catch (e) {
         console.error('Supabase error deleting post:', e);
       }
     }
 
     const db = getDatabase();
-    const initialLength = db.posts.length;
-    db.posts = db.posts.filter((p) => p.id !== params.id);
-
-    if (db.posts.length === initialLength) {
-      return NextResponse.json({ success: false, message: 'Post not found' }, { status: 404 });
-    }
+    const targetPost = db.posts.find(
+      (p) => String(p.id) === String(params.id) || p.slug === params.id
+    );
+    db.posts = db.posts.filter(
+      (p) => String(p.id) !== String(params.id) && p.slug !== params.id
+    );
 
     saveDatabase(db);
 
     try {
       revalidatePath('/', 'layout');
+      revalidatePath('/', 'page');
+      revalidatePath('/writing', 'page');
+      if (targetPost?.slug) {
+        revalidatePath(`/writing/${targetPost.slug}`, 'page');
+      }
     } catch (err) {
       console.warn('revalidatePath warning:', err);
     }
 
     return NextResponse.json({ success: true, message: 'Post deleted' });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message || 'Failed to delete post' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error.message || 'Failed to delete post' },
+      { status: 500 }
+    );
   }
 }
