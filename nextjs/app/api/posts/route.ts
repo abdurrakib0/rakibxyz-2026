@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getDatabase, saveDatabase, Post } from '@/lib/data';
 import { supabaseAdmin, isSupabaseConfigured } from '@/lib/supabase';
 
@@ -85,6 +86,12 @@ export async function POST(req: NextRequest) {
     const db = getDatabase();
     db.posts.unshift(newPost);
     saveDatabase(db);
+
+    // Invalidate caches instantly
+    revalidatePath('/', 'layout');
+    revalidatePath('/', 'page');
+    revalidatePath('/writing', 'page');
+    revalidatePath(`/writing/${newPost.slug}`, 'page');
 
     return NextResponse.json({ success: true, post: newPost });
   } catch (error) {

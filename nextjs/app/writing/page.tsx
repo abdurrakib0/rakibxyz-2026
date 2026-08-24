@@ -7,6 +7,8 @@ import WritingArchive from '@/components/WritingArchive';
 import { getDatabaseAsync } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 export const metadata: Metadata = {
   title: 'Writing & Essays | Abdur Rakib - Systems, Hiring & Engineering',

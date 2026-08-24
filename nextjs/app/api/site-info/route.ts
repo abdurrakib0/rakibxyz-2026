@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getDatabase, saveDatabase } from '@/lib/data';
 import { supabaseAdmin, isSupabaseConfigured } from '@/lib/supabase';
 
@@ -11,7 +12,7 @@ export async function GET() {
         .from('site_info')
         .select('*')
         .eq('id', 'default')
-        .single();
+        .maybeSingle();
 
       if (!error && data) {
         return NextResponse.json({
@@ -68,6 +69,12 @@ export async function PUT(req: NextRequest) {
     };
 
     saveDatabase(db);
+
+    // Invalidate and revalidate all pages so changes appear instantly on frontend
+    revalidatePath('/', 'layout');
+    revalidatePath('/', 'page');
+    revalidatePath('/writing', 'page');
+
     return NextResponse.json({ success: true, siteInfo: db.siteInfo });
   } catch (error) {
     return NextResponse.json({ success: false, message: 'Failed to update site info' }, { status: 500 });

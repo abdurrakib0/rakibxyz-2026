@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getDatabase, saveDatabase } from '@/lib/data';
 import { supabaseAdmin, isSupabaseConfigured } from '@/lib/supabase';
 
@@ -37,6 +38,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     };
 
     saveDatabase(db);
+
+    revalidatePath('/', 'layout');
+    revalidatePath('/', 'page');
+
     return NextResponse.json({ success: true, podcast: db.podcasts[podcastIndex] });
   } catch (error) {
     return NextResponse.json({ success: false, message: 'Failed to update podcast' }, { status: 500 });
@@ -62,6 +67,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     }
 
     saveDatabase(db);
+
+    revalidatePath('/', 'layout');
+    revalidatePath('/', 'page');
+
     return NextResponse.json({ success: true, message: 'Podcast deleted' });
   } catch (error) {
     return NextResponse.json({ success: false, message: 'Failed to delete podcast' }, { status: 500 });

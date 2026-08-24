@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getDatabase, saveDatabase, Podcast } from '@/lib/data';
 import { supabaseAdmin, isSupabaseConfigured } from '@/lib/supabase';
 
@@ -71,6 +72,9 @@ export async function POST(req: NextRequest) {
     const db = getDatabase();
     db.podcasts.unshift(newPodcast);
     saveDatabase(db);
+
+    revalidatePath('/', 'layout');
+    revalidatePath('/', 'page');
 
     return NextResponse.json({ success: true, podcast: newPodcast });
   } catch (error) {

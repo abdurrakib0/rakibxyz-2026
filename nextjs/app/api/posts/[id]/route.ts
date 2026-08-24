@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getDatabase, saveDatabase } from '@/lib/data';
 import { supabaseAdmin, isSupabaseConfigured } from '@/lib/supabase';
 
@@ -41,6 +42,15 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     };
 
     saveDatabase(db);
+
+    const slug = db.posts[postIndex].slug;
+    revalidatePath('/', 'layout');
+    revalidatePath('/', 'page');
+    revalidatePath('/writing', 'page');
+    if (slug) {
+      revalidatePath(`/writing/${slug}`, 'page');
+    }
+
     return NextResponse.json({ success: true, post: db.posts[postIndex] });
   } catch (error) {
     return NextResponse.json({ success: false, message: 'Failed to update post' }, { status: 500 });
@@ -58,6 +68,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     }
 
     const db = getDatabase();
+    const targetPost = db.posts.find((p) => p.id === params.id);
     const initialLength = db.posts.length;
     db.posts = db.posts.filter((p) => p.id !== params.id);
 
@@ -66,6 +77,14 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     }
 
     saveDatabase(db);
+
+    revalidatePath('/', 'layout');
+    revalidatePath('/', 'page');
+    revalidatePath('/writing', 'page');
+    if (targetPost?.slug) {
+      revalidatePath(`/writing/${targetPost.slug}`, 'page');
+    }
+
     return NextResponse.json({ success: true, message: 'Post deleted' });
   } catch (error) {
     return NextResponse.json({ success: false, message: 'Failed to delete post' }, { status: 500 });
