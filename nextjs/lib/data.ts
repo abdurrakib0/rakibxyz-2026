@@ -181,6 +181,17 @@ export async function getDatabaseAsync(): Promise<DatabaseSchema> {
   }
 }
 
+export async function getPostBySlugAsync(slug: string): Promise<Post | null> {
+  const db = await getDatabaseAsync();
+  const found = db.posts.find((p) => p.slug === slug || p.id === slug);
+  return found || null;
+}
+
+export async function getRelatedPostsAsync(currentId: string, limit = 3): Promise<Post[]> {
+  const db = await getDatabaseAsync();
+  return db.posts.filter((p) => p.id !== currentId && p.published).slice(0, limit);
+}
+
 export async function saveNewsletterSubscriber(email: string): Promise<{ success: boolean; message: string }> {
   if (isSupabaseConfigured() && supabaseAdmin) {
     try {

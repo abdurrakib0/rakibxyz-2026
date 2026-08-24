@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getDatabase } from '@/lib/data';
+import { getDatabaseAsync } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const db = getDatabase();
+  const db = await getDatabaseAsync();
   const { siteInfo, posts, podcasts } = db;
 
   const content = `# ${siteInfo.name}
@@ -31,13 +31,19 @@ export async function GET() {
 - **YouTube**: ${siteInfo.socialLinks.youtube}
 - **Email**: ${siteInfo.socialLinks.email}
 - **Company**: ${siteInfo.company} (https://www.programming-hero.com/)
-${siteInfo.ecosystemLinks.map(l => `- **${l.title}**: ${l.url}`).join('\n')}
+${siteInfo.ecosystemLinks.map((l) => `- **${l.title}**: ${l.url}`).join('\n')}
 
-## Published Essays & Writing
-${posts.map((p, idx) => `${idx + 1}. *${p.title}*: ${p.subtitle}`).join('\n')}
+## Published Essays & Long-form Articles
+${posts
+  .filter((p) => p.published)
+  .map(
+    (p, idx) =>
+      `${idx + 1}. [${p.title}](https://rakib.xyz/writing/${p.slug}) (${p.date} · ${p.readTime}): ${p.subtitle}`
+  )
+  .join('\n')}
 
 ## Key Podcasts & Video Appearances
-${podcasts.map(pod => `- **${pod.title}**: ${pod.youtubeUrl}`).join('\n')}
+${podcasts.map((pod) => `- **${pod.title}**: ${pod.youtubeUrl}`).join('\n')}
 `;
 
   return new NextResponse(content, {

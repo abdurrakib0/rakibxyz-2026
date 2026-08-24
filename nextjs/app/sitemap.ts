@@ -1,10 +1,10 @@
 import { MetadataRoute } from 'next';
-import { getDatabase } from '@/lib/data';
+import { getDatabaseAsync } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const db = getDatabase();
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const db = await getDatabaseAsync();
   const baseUrl = 'https://rakib.xyz';
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -40,5 +40,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  return staticRoutes;
+  const essayRoutes: MetadataRoute.Sitemap = db.posts
+    .filter((p) => p.published)
+    .map((p) => ({
+      url: `${baseUrl}/writing/${p.slug}`,
+      lastModified: p.isoDate ? new Date(p.isoDate) : new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.85,
+    }));
+
+  return [...staticRoutes, ...essayRoutes];
 }
