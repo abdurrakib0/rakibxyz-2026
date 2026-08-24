@@ -15,6 +15,27 @@ export default function RecommendationsSection() {
       script.defer = true;
       document.body.appendChild(script);
     }
+
+    // Aggressively remove any SociableKIT branding backlinks injected dynamically
+    const removeBranding = () => {
+      const elements = document.querySelectorAll(
+        '.sk-ww-linkedin-recommendations a[href*="sociablekit.com"], .sk-branding, .sk_branding, .sk-watermark, [class*="branding"]'
+      );
+      elements.forEach((el) => {
+        if (el.tagName === 'A' && (el as HTMLAnchorElement).href.includes('sociablekit.com')) {
+          el.remove();
+        }
+      });
+    };
+
+    removeBranding();
+    const interval = setInterval(removeBranding, 400);
+    const timeout = setTimeout(() => clearInterval(interval), 10000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
   }, []);
 
   return (

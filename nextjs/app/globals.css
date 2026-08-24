@@ -1882,12 +1882,14 @@
 
     .sk-ww-linkedin-recommendations,
     .sk_linkedin_recommendations {
-      font-family: var(--font-body) !important;
+      font-family: "Anthropic Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
       background: transparent !important;
       width: 100% !important;
     }
 
     .sk-ww-linkedin-recommendations * {
+      font-family: "Anthropic Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+      font-style: normal !important;
       box-sizing: border-box !important;
     }
 
@@ -1915,6 +1917,7 @@
       border-radius: var(--radius-lg) !important;
       box-shadow: none !important;
       color: var(--ink) !important;
+      font-style: normal !important;
       transition: border-color 0.2s ease !important;
     }
 
@@ -1929,9 +1932,10 @@
     .sk-ww-linkedin-recommendations .sk_reviewer_name,
     .sk-ww-linkedin-recommendations [class*="name"],
     .sk-ww-linkedin-recommendations [class*="author"] {
-      font-family: var(--font-display) !important;
-      font-weight: 500 !important;
-      font-size: 1.125rem !important;
+      font-family: "Anthropic Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+      font-weight: 600 !important;
+      font-style: normal !important;
+      font-size: 1.0625rem !important;
       color: var(--ink) !important;
       line-height: 1.3 !important;
     }
@@ -1945,6 +1949,7 @@
     .sk-ww-linkedin-recommendations [class*="role"] {
       font-family: var(--font-mono) !important;
       font-size: 0.75rem !important;
+      font-style: normal !important;
       color: var(--ink-muted) !important;
       letter-spacing: 0.02em !important;
     }
@@ -1958,9 +1963,9 @@
     .sk-ww-linkedin-recommendations [class*="message"],
     .sk-ww-linkedin-recommendations [class*="text"],
     .sk-ww-linkedin-recommendations [class*="content"] {
-      font-family: var(--font-display) !important;
-      font-style: italic !important;
-      font-size: 1rem !important;
+      font-family: "Anthropic Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+      font-style: normal !important;
+      font-size: 0.9375rem !important;
       line-height: 1.65 !important;
       color: var(--ink) !important;
     }
@@ -1971,6 +1976,7 @@
     .sk-ww-linkedin-recommendations button {
       font-family: var(--font-mono) !important;
       font-size: 0.8125rem !important;
+      font-style: normal !important;
       background: var(--ink) !important;
       color: var(--bg) !important;
       border: 1px solid var(--ink) !important;
@@ -1992,10 +1998,32 @@
     .sk-ww-linkedin-recommendations a {
       color: var(--accent) !important;
       text-decoration: none !important;
+      font-style: normal !important;
       border-bottom: 1px solid transparent !important;
     }
 
     .sk-ww-linkedin-recommendations a:hover {
       color: var(--ink) !important;
+    }
+
+    /* Hide SociableKIT Branding / Watermark / Promotional Backlinks */
+    .sk-ww-linkedin-recommendations .sk-branding,
+    .sk-ww-linkedin-recommendations .sk_branding,
+    .sk-ww-linkedin-recommendations .sk-watermark,
+    .sk-ww-linkedin-recommendations .sk_watermark,
+    .sk-ww-linkedin-recommendations [class*="branding"],
+    .sk-ww-linkedin-recommendations [class*="watermark"],
+    .sk-ww-linkedin-recommendations a[href*="sociablekit.com"],
+    .sk-ww-linkedin-recommendations a[href*="tutorials/embed-linkedin-feed-website"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      height: 0 !important;
+      width: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      pointer-events: none !important;
+      position: absolute !important;
+      overflow: hidden !important;
     }
 
