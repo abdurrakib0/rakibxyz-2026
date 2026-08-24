@@ -1869,4 +1869,133 @@
     .essay-row-arrow {
       transition: transform 0.2s ease;
     }
-  
+
+    /* ==========================================================================
+       LinkedIn Recommendations Widget Design System Alignment
+       ========================================================================== */
+    .linkedin-widget-wrapper {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+    }
+
+    .sk-ww-linkedin-recommendations,
+    .sk_linkedin_recommendations {
+      font-family: var(--font-body) !important;
+      background: transparent !important;
+      width: 100% !important;
+    }
+
+    .sk-ww-linkedin-recommendations * {
+      box-sizing: border-box !important;
+    }
+
+    /* Container & Layout */
+    .sk-ww-linkedin-recommendations .sk-layout-grid,
+    .sk-ww-linkedin-recommendations .sk-layout-masonry,
+    .sk-ww-linkedin-recommendations .sk-layout-carousel,
+    .sk-ww-linkedin-recommendations .sk-feed,
+    .sk-ww-linkedin-recommendations .sk_feed {
+      background: transparent !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    /* Individual Recommendation Cards */
+    .sk-ww-linkedin-recommendations .sk-card,
+    .sk-ww-linkedin-recommendations .sk-card-item,
+    .sk-ww-linkedin-recommendations .sk_reviews_item,
+    .sk-ww-linkedin-recommendations .sk-recommendation-item,
+    .sk-ww-linkedin-recommendations .sk-rec-item,
+    .sk-ww-linkedin-recommendations [class*="card"],
+    .sk-ww-linkedin-recommendations [class*="item"] {
+      background: var(--surface) !important;
+      border: 1px solid var(--rule) !important;
+      border-radius: var(--radius-lg) !important;
+      box-shadow: none !important;
+      color: var(--ink) !important;
+      transition: border-color 0.2s ease !important;
+    }
+
+    .sk-ww-linkedin-recommendations .sk-card:hover,
+    .sk-ww-linkedin-recommendations [class*="card"]:hover {
+      border-color: var(--ink-muted) !important;
+    }
+
+    /* Recommender Name */
+    .sk-ww-linkedin-recommendations .sk-name,
+    .sk-ww-linkedin-recommendations .sk-user-name,
+    .sk-ww-linkedin-recommendations .sk_reviewer_name,
+    .sk-ww-linkedin-recommendations [class*="name"],
+    .sk-ww-linkedin-recommendations [class*="author"] {
+      font-family: var(--font-display) !important;
+      font-weight: 500 !important;
+      font-size: 1.125rem !important;
+      color: var(--ink) !important;
+      line-height: 1.3 !important;
+    }
+
+    /* Recommender Designation / Role */
+    .sk-ww-linkedin-recommendations .sk-user-job-title,
+    .sk-ww-linkedin-recommendations .sk-title,
+    .sk-ww-linkedin-recommendations .sk_reviewer_title,
+    .sk-ww-linkedin-recommendations [class*="title"],
+    .sk-ww-linkedin-recommendations [class*="subtitle"],
+    .sk-ww-linkedin-recommendations [class*="role"] {
+      font-family: var(--font-mono) !important;
+      font-size: 0.75rem !important;
+      color: var(--ink-muted) !important;
+      letter-spacing: 0.02em !important;
+    }
+
+    /* Recommendation Message / Quote Body */
+    .sk-ww-linkedin-recommendations .sk-message,
+    .sk-ww-linkedin-recommendations .sk-review-text,
+    .sk-ww-linkedin-recommendations .sk_review_text,
+    .sk-ww-linkedin-recommendations .sk-text,
+    .sk-ww-linkedin-recommendations .sk-desc,
+    .sk-ww-linkedin-recommendations [class*="message"],
+    .sk-ww-linkedin-recommendations [class*="text"],
+    .sk-ww-linkedin-recommendations [class*="content"] {
+      font-family: var(--font-display) !important;
+      font-style: italic !important;
+      font-size: 1rem !important;
+      line-height: 1.65 !important;
+      color: var(--ink) !important;
+    }
+
+    /* Action Buttons & Pagination */
+    .sk-ww-linkedin-recommendations .sk-btn,
+    .sk-ww-linkedin-recommendations .sk-load-more-btn,
+    .sk-ww-linkedin-recommendations button {
+      font-family: var(--font-mono) !important;
+      font-size: 0.8125rem !important;
+      background: var(--ink) !important;
+      color: var(--bg) !important;
+      border: 1px solid var(--ink) !important;
+      border-radius: var(--radius) !important;
+      padding: 10px 20px !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .sk-ww-linkedin-recommendations .sk-btn:hover,
+    .sk-ww-linkedin-recommendations .sk-load-more-btn:hover,
+    .sk-ww-linkedin-recommendations button:hover {
+      background: var(--accent) !important;
+      border-color: var(--accent) !important;
+      color: var(--bg) !important;
+    }
+
+    /* Links */
+    .sk-ww-linkedin-recommendations a {
+      color: var(--accent) !important;
+      text-decoration: none !important;
+      border-bottom: 1px solid transparent !important;
+    }
+
+    .sk-ww-linkedin-recommendations a:hover {
+      color: var(--ink) !important;
+    }
+

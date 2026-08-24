@@ -2,15 +2,10 @@
 
 import React, { useEffect } from 'react';
 import Script from 'next/script';
-import { Recommendation } from '@/lib/data';
 
-interface RecommendationsSectionProps {
-  recommendations?: Recommendation[];
-}
-
-export default function RecommendationsSection({ recommendations }: RecommendationsSectionProps) {
+export default function RecommendationsSection() {
   useEffect(() => {
-    // Ensure script triggers when component mounts
+    // Ensure script triggers when component mounts or route updates
     const existing = document.querySelector(
       'script[src="https://widgets.sociablekit.com/linkedin-recommendations/widget.js"]'
     );
@@ -23,20 +18,38 @@ export default function RecommendationsSection({ recommendations }: Recommendati
   }, []);
 
   return (
-    <section id="recommendations" className="container my-16 md:my-24">
-      {/* Section Header */}
-      <div className="section-header mb-8">
+    <section id="recommendations" className="container">
+      {/* Section Header matching site design system */}
+      <div className="section-header">
         <div className="section-header-title-group">
           <span className="section-label">04 / Endorsements</span>
           <h2 className="section-title">What Industry Leaders Say</h2>
-          <p className="font-serif text-[1.0625rem] text-[var(--ink-muted)] max-w-2xl mt-2 leading-relaxed">
-            Live recommendations and kind words from founders, engineering leaders, and colleagues on LinkedIn.
-          </p>
         </div>
+        <a
+          href="https://www.linkedin.com/in/abdurrakib0"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-playlist-link"
+        >
+          <span>View on LinkedIn</span>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M4.5 11.5L11.5 4.5" />
+            <path d="M5.5 4.5H11.5V10.5" />
+          </svg>
+        </a>
       </div>
 
       {/* SociableKIT LinkedIn Recommendations Live Widget */}
-      <div className="w-full bg-[var(--surface)] border border-[var(--rule)] p-4 sm:p-6 rounded-[var(--radius-lg)] overflow-hidden min-h-[300px]">
+      <div className="linkedin-widget-wrapper">
         <div className="sk-ww-linkedin-recommendations" data-embed-id="25708007"></div>
       </div>
 
