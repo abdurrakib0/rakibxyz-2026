@@ -230,67 +230,73 @@
   "experience": [
     {
       "id": "1",
-      "period": "2023 — Present",
+      "period": "2020 — Present",
       "role": "Chief Operating Officer",
-      "company": "Programming Hero",
+      "company": "Programming Hero & Phitron",
       "details": [
-        "Directing operational execution across curriculum, mentorship, placement, and institutional partnerships.",
-        "Contributing to 150+ tech job placements every month (6,300+ overall across 57+ countries, Alhamdulillah).",
-        "Targeting 10,000 yearly tech placements by 2030 (In Sha' Allah)."
+        "5,500+ job placements across 57 countries",
+        "Scaled team from 13 to 130+ in 5 years",
+        "1,400+ junior developers trained annually",
+        "Built transparent OKR systems and servant leadership culture"
       ]
     },
     {
       "id": "2",
-      "period": "2022 — 2023",
-      "role": "Head of Operations",
-      "company": "Programming Hero",
+      "period": "2024 — Present",
+      "role": "Strategic Advisor",
+      "company": "Exprovia (Web Agency)",
       "details": [
-        "Scaled student success operations from 400 to 1,400+ learners per cohort.",
-        "Introduced the structured daily standup model for junior developers.",
-        "Reduced time-to-first-placement by 22%."
+        "350+ projects delivered across 20+ countries",
+        "4.9★ rating on Fiverr & Upwork",
+        "Scaling team 15 → 100 members over 3 years",
+        "Building global software development wing"
       ]
     },
     {
       "id": "3",
-      "period": "2021 — 2022",
-      "role": "Operations & Curriculum Lead",
-      "company": "Programming Hero",
+      "period": "2022 — 2023",
+      "role": "Strategic Assistant to COO",
+      "company": "Brain Station 23",
       "details": [
-        "Shipped the first job-placement track.",
-        "Introduced weekly cohort reviews.",
-        "Wrote the curriculum QA checklist still in use."
+        "Led Dubai & Japan market expansion",
+        "Strategic initiatives for executive team & board",
+        "Tracked strategic performance and market reports",
+        "Coordinated international growth partnerships"
       ]
     },
     {
       "id": "4",
       "period": "2020 — 2021",
-      "role": "Software Engineer",
-      "company": "Product studio, Dhaka",
+      "role": "Technical Project Manager",
+      "company": "MetLife Bangladesh (via Brain Station 23)",
       "details": [
-        "Built client dashboards in React and Node.",
-        "Owned release process for three products.",
-        "Mentored two interns into full-time roles."
+        "Led digital transformation with bKash integration",
+        "Developed eKYC system for trust and safety",
+        "Built customer portal and payment systems"
       ]
     },
     {
       "id": "5",
-      "period": "2018 — 2020",
-      "role": "Junior Developer",
-      "company": "Software agency, Dhaka",
+      "period": "Feb — Jun 2020",
+      "role": "Product Manager",
+      "company": "Sheba.xyz (Service Marketplace)",
       "details": [
-        "Maintained PHP and JavaScript codebases.",
-        "Learned to read a system before changing it.",
-        "First exposure to hiring from the other side."
+        "Managed Bondhu Fintech product",
+        "Reduced mobile topup failure from 7-8% to <1%",
+        "Implemented eKYC for customer trust and fraud prevention",
+        "17% GMV growth during COVID-19 pandemic"
       ]
     },
     {
       "id": "6",
-      "period": "2015 — 2018",
-      "role": "Freelance developer",
-      "company": "Self-directed",
+      "period": "2018 — 2020",
+      "role": "Software Project Coordinator & Engineer",
+      "company": "Brain Station 23 (Engineering)",
       "details": [
-        "Delivered 40+ client projects across web and mobile.",
-        "Built the habit of shipping every week."
+        "ACI Fosholi: 70K+ active users - agritech platform",
+        "Esho Shikhi: 33K users in 3 months - EdTech pioneer",
+        "Lazz Pharma digitalization: online delivery & e-pharma system",
+        "Led 2-12 developer teams on 3+ concurrent projects"
       ]
     }
   ],
