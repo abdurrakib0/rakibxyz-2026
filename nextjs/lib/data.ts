@@ -177,12 +177,13 @@ export async function getDatabaseAsync(): Promise<DatabaseSchema> {
 
     const siteInfo: SiteInfo = siteInfoRes.data
       ? {
-          name: siteInfoRes.data.name,
-          role: siteInfoRes.data.role,
-          company: siteInfoRes.data.company,
-          heroHeadline: siteInfoRes.data.hero_headline,
-          heroBio: siteInfoRes.data.hero_bio,
-          statsCaption: siteInfoRes.data.stats_caption,
+          name: siteInfoRes.data.name || localDb.siteInfo.name,
+          role: siteInfoRes.data.role || localDb.siteInfo.role,
+          company: siteInfoRes.data.company || localDb.siteInfo.company,
+          avatarUrl: siteInfoRes.data.avatar_url || localDb.siteInfo.avatarUrl || '/img/Hero image.png',
+          heroHeadline: siteInfoRes.data.hero_headline || localDb.siteInfo.heroHeadline,
+          heroBio: siteInfoRes.data.hero_bio || localDb.siteInfo.heroBio,
+          statsCaption: siteInfoRes.data.stats_caption || localDb.siteInfo.statsCaption,
           stats: siteInfoRes.data.stats || localDb.siteInfo.stats,
           philosophy: siteInfoRes.data.philosophy || localDb.siteInfo.philosophy,
           ecosystemLinks: siteInfoRes.data.ecosystem_links || localDb.siteInfo.ecosystemLinks,

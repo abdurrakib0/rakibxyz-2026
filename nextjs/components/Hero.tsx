@@ -27,6 +27,10 @@ export default function Hero({ siteInfo }: HeroProps) {
     }
   };
 
+  const headline = siteInfo.heroHeadline?.includes('<br')
+    ? siteInfo.heroHeadline
+    : (siteInfo.heroHeadline || 'Careers are built by <em>systems</em>, not motivation.').replace(/built\s+by/i, 'built <br>by');
+
   return (
     <section id="home" className="hero-section container">
       <div className="hero-grid">
@@ -34,7 +38,7 @@ export default function Hero({ siteInfo }: HeroProps) {
           {/* Main Editorial Statement */}
           <h1 
             className="hero-h1"
-            dangerouslySetInnerHTML={{ __html: siteInfo.heroHeadline }}
+            dangerouslySetInnerHTML={{ __html: headline }}
           />
           
           {/* Executive Lead Paragraph */}
