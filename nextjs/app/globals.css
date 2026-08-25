@@ -68,6 +68,11 @@
       border-bottom-color: var(--ink);
     }
 
+    aside a, aside a:hover, aside button {
+      border-bottom: none !important;
+      text-decoration: none !important;
+    }
+
     input, button {
       font: inherit;
     }

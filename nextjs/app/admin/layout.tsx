@@ -206,11 +206,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-3.5 py-3 rounded-[var(--radius)] no-underline transition-all group ${
                     active
-                      ? 'bg-[var(--ink)] text-[var(--bg)] font-medium shadow-sm'
-                      : 'text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--bg)]/80'
+                      ? '!bg-[var(--ink)] !text-[var(--bg)] font-medium shadow-sm hover:!bg-[var(--ink)] hover:!text-[var(--bg)] cursor-default'
+                      : '!text-[var(--ink-muted)] hover:!text-[var(--ink)] hover:!bg-[var(--bg)]/90'
                   }`}
                 >
-                  <span className={`${active ? 'text-[var(--accent)]' : 'text-[var(--ink-muted)] group-hover:text-[var(--ink)]'} transition-colors`}>
+                  <span className={`${active ? '!text-[var(--accent)]' : '!text-[var(--ink-muted)] group-hover:!text-[var(--ink)]'} transition-colors`}>
                     {item.icon}
                   </span>
                   <span className="tracking-tight">{item.name}</span>
