@@ -22,6 +22,7 @@ export interface SiteInfo {
   name: string;
   role: string;
   company: string;
+  avatarUrl?: string;
   heroHeadline: string;
   heroBio: string;
   statsCaption: string;
