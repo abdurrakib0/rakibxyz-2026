@@ -61,9 +61,9 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: '/img/Hero%20image.png',
-    shortcut: '/img/Hero%20image.png',
-    apple: '/img/Hero%20image.png',
+    icon: '/img/Abdur%20Rakib%20Vaiya%202.JPG',
+    shortcut: '/img/Abdur%20Rakib%20Vaiya%202.JPG',
+    apple: '/img/Abdur%20Rakib%20Vaiya%202.JPG',
   },
   openGraph: {
     siteName: 'Abdur Rakib',
