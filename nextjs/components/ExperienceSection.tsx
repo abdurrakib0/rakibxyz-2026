@@ -24,7 +24,7 @@ const getRoleCategory = (role: string, company: string): string => {
   return 'Engineering & Delivery';
 };
 
-// Helper to highlight key executive numbers and milestones
+// Highlight key metrics cleanly with bold text (no background box)
 const formatBulletText = (text: string) => {
   const metricPattern = /(\d+[\d,]*\+?|\d+\.\d+★|\d+ → \d+|\d+ to \d+\+?|Dubai & Japan|bKash|eKYC|<1%|17% GMV|70K\+|33K|57 countries|20\+ countries)/g;
   const parts = text.split(metricPattern);
@@ -32,7 +32,7 @@ const formatBulletText = (text: string) => {
   return parts.map((part, i) => {
     if (part.match(metricPattern)) {
       return (
-        <strong key={i} className="font-medium text-[var(--ink)] bg-[var(--bg)] px-1 py-0.5 rounded border border-[var(--rule)]/60">
+        <strong key={i} className="font-semibold text-[var(--ink)]">
           {part}
         </strong>
       );
@@ -52,20 +52,20 @@ export default function ExperienceSection({ experience }: ExperienceProps) {
         </div>
       </div>
 
-      {/* Vertical Executive Timeline Container */}
-      <div className="relative pl-6 sm:pl-10 md:pl-12 border-l border-[var(--rule)] ml-2 sm:ml-4 space-y-12 sm:space-y-16">
+      {/* Seamless Editorial Timeline (No Heavy Boxes) */}
+      <div className="relative pl-6 sm:pl-10 md:pl-12 border-l border-[var(--rule)] ml-2 sm:ml-4 space-y-10 sm:space-y-14">
         {experience.map((item) => {
           const isPresent = item.period.toLowerCase().includes('present');
           const category = getRoleCategory(item.role, item.company);
 
           return (
-            <div key={item.id} className="relative group">
+            <div key={item.id} className="relative group border-b border-[var(--rule)]/60 pb-10 sm:pb-14 last:border-b-0 last:pb-0">
               {/* Timeline Node Indicator */}
               <div
                 className={`absolute -left-[31px] sm:-left-[47px] md:-left-[55px] top-1.5 w-3.5 h-3.5 rounded-full border-2 transition-all duration-300 ${
                   isPresent
                     ? 'bg-emerald-500 border-[var(--bg)] ring-4 ring-emerald-500/20 group-hover:scale-125'
-                    : 'bg-[var(--surface)] border-[var(--ink-muted)] group-hover:border-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:scale-110'
+                    : 'bg-[var(--bg)] border-[var(--ink-muted)] group-hover:border-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:scale-110'
                 }`}
               >
                 {isPresent && (
@@ -73,49 +73,53 @@ export default function ExperienceSection({ experience }: ExperienceProps) {
                 )}
               </div>
 
-              {/* Main Content Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 items-start">
-                {/* Left Column: Period & Category Badge (4 Cols) */}
-                <div className="md:col-span-4 flex flex-col gap-1.5">
+              {/* Editorial Two-Column Flow */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-8 items-start">
+                {/* Left Column: Period, Active Status & Category (4 Cols) */}
+                <div className="md:col-span-4 flex flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`font-mono text-[0.8125rem] font-medium tracking-wide ${
-                        isPresent ? 'text-[var(--accent)] font-semibold' : 'text-[var(--ink-muted)]'
+                      className={`font-mono text-[0.875rem] tracking-wide ${
+                        isPresent ? 'text-[var(--accent)] font-semibold' : 'text-[var(--ink)] font-medium'
                       }`}
                     >
                       {item.period}
                     </span>
                     {isPresent && (
-                      <span className="font-mono text-[0.625rem] uppercase tracking-wider text-emerald-600 bg-emerald-500/10 px-1.5 py-0.5 rounded font-bold">
+                      <span className="font-mono text-[0.625rem] uppercase tracking-wider text-emerald-700 bg-emerald-500/10 px-2 py-0.5 rounded-full font-bold">
                         Active
                       </span>
                     )}
                   </div>
-                  <span className="font-mono text-[0.6875rem] uppercase tracking-wider text-[var(--ink-muted)] opacity-80">
+                  <span className="font-mono text-[0.6875rem] uppercase tracking-wider text-[var(--ink-muted)] mt-0.5">
                     {category}
                   </span>
                 </div>
 
-                {/* Right Column: Role, Company & Bullet Achievements (8 Cols) */}
-                <div className="md:col-span-8 flex flex-col gap-3 bg-[var(--surface)] p-5 sm:p-6 rounded-[var(--radius-lg)] border border-[var(--rule)] transition-all duration-200 group-hover:border-[var(--ink-muted)]/80 group-hover:shadow-sm">
+                {/* Right Column: Role Title, Company & Clean Bullet Achievements (8 Cols) */}
+                <div className="md:col-span-8 flex flex-col gap-3">
                   <div>
-                    <h3 className="font-serif text-[1.1875rem] sm:text-[1.25rem] text-[var(--ink)] font-medium leading-snug group-hover:text-[var(--accent)] transition-colors">
+                    <h3 className="font-serif text-[1.25rem] sm:text-[1.375rem] text-[var(--ink)] font-normal leading-snug group-hover:text-[var(--accent)] transition-colors">
                       {item.role}
                     </h3>
-                    <span className="font-mono text-[0.75rem] text-[var(--ink-muted)] block mt-0.5">
+                    <p className="font-mono text-[0.8125rem] text-[var(--ink-muted)] mt-0.5">
                       {item.company}
-                    </span>
+                    </p>
                   </div>
 
-                  {/* Bullet achievements with highlighted metrics */}
-                  <ul className="space-y-2 mt-1 pt-3 border-t border-[var(--rule)]/60">
+                  {/* Bullet achievements with clean bold metrics (no background badges) */}
+                  <ul className="space-y-2 mt-1">
                     {item.details.map((detail, idx) => (
                       <li
                         key={idx}
-                        className="font-serif text-[0.875rem] sm:text-[0.9375rem] text-[var(--ink-muted)] leading-relaxed flex items-start gap-2.5"
+                        className="font-serif text-[0.9375rem] sm:text-[1rem] text-[var(--ink-muted)] leading-relaxed flex items-start gap-3"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] opacity-60 mt-2 shrink-0" />
-                        <span>{formatBulletText(detail)}</span>
+                        <span className="text-[var(--accent)] font-mono text-[0.875rem] leading-none mt-1 select-none">
+                          —
+                        </span>
+                        <span className="text-[var(--ink-muted)]">
+                          {formatBulletText(detail)}
+                        </span>
                       </li>
                     ))}
                   </ul>
