@@ -76,7 +76,7 @@ export default function Hero({ siteInfo }: HeroProps) {
         {/* Portrait Image */}
         <div className="portrait-box" aria-label="Portrait Photograph of Abdur Rakib">
           <img 
-            src="/img/hero%20img%202.png" 
+            src="/img/Hero%20image.png" 
             alt="Abdur Rakib Portrait" 
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             loading="eager"
