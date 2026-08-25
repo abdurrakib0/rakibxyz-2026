@@ -42,8 +42,8 @@ export default function StatementSection({ philosophy }: StatementSectionProps) 
             </div>
           </div>
 
-          {/* Right: Decade Objective Canvas with Vertical Hairline */}
-          <div className="lg:col-span-5 lg:border-l lg:border-[var(--rule)] lg:pl-12 flex flex-col gap-6 lg:pt-2">
+          {/* Right: Decade Objective Canvas (Box on mobile, vertical hairline on desktop) */}
+          <div className="lg:col-span-5 bg-[var(--surface)] lg:bg-transparent border border-[var(--rule)] lg:border-0 lg:border-l lg:border-[var(--rule)] p-6 sm:p-7 lg:p-0 lg:pl-12 rounded-[var(--radius-lg)] lg:rounded-none flex flex-col gap-6 lg:pt-2 mt-4 lg:mt-0">
             <div className="flex items-center justify-between gap-4">
               <span className="font-mono text-[0.75rem] uppercase tracking-widest text-[var(--ink-muted)]">
                 Decade Objective
