@@ -11,11 +11,8 @@ export default function ExperienceSection({ experience }: ExperienceProps) {
       {/* Section Header */}
       <div className="section-header">
         <div className="section-header-title-group">
-          <span className="section-label">Core Functionality / Experience</span>
-          <h2 className="section-title">Experience &amp; Impact</h2>
-          <p className="font-mono text-[0.8125rem] text-[var(--ink-muted)] mt-1">
-            Developer → PM → Strategic Leader → COO
-          </p>
+          <span className="section-label">Experience</span>
+          <h2 className="section-title">Ten years, one direction</h2>
         </div>
       </div>
 
