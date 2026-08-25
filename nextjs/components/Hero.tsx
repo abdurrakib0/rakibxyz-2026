@@ -65,7 +65,7 @@ export default function Hero({ siteInfo }: HeroProps) {
               onClick={(e) => scrollToSection(e, 'podcast')}
               className="btn-hero-secondary"
             >
-              <span>Watch Keynotes</span>
+              <span>Watch Podcast</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="5 3 19 12 5 21 5 3" />
               </svg>
@@ -76,7 +76,7 @@ export default function Hero({ siteInfo }: HeroProps) {
         {/* Portrait Image */}
         <div className="portrait-box" aria-label="Portrait Photograph of Abdur Rakib">
           <img 
-            src={siteInfo.avatarUrl || "/img/Hero%20image.png"} 
+            src="/img/hero%20img%202.png" 
             alt="Abdur Rakib Portrait" 
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             loading="eager"

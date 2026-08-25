@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { SiteInfo } from '@/lib/data';
 
 interface FooterProps {
@@ -8,6 +8,32 @@ interface FooterProps {
 }
 
 export default function Footer({ siteInfo }: FooterProps) {
+  const [currentDateTime, setCurrentDateTime] = useState<string>('');
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      // Format: Tuesday, 25 August · 1:41:00 PM (Dhaka, UTC+6)
+      const options: Intl.DateTimeFormatOptions = {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Dhaka',
+      };
+      const formatted = new Intl.DateTimeFormat('en-US', options).format(now);
+      setCurrentDateTime(`${formatted} (Dhaka, UTC+6)`);
+    };
+
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <footer id="contact" className="site-footer">
       <div className="container footer-inner">
@@ -126,10 +152,18 @@ export default function Footer({ siteInfo }: FooterProps) {
         {/* Footer Bottom Bar */}
         <div className="footer-bottom-bar">
           <div className="footer-copyright">
-            © 2026 Abdur Rakib. Built with a quiet, editorial design system. All rights reserved.
+            © 2026 Abdur Rakib · Made with love by{' '}
+            <a
+              href="https://www.linkedin.com/in/najmol-hasan/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[var(--ink)] hover:text-[var(--accent)] transition-colors underline decoration-[var(--rule)] hover:decoration-[var(--accent)] underline-offset-2"
+            >
+              Najmol Hasan
+            </a>
           </div>
           <div className="footer-timezone">
-            Dhaka, Bangladesh (UTC+6) · Systems &amp; Scale
+            {currentDateTime || 'Tuesday, 25 August 2026 (Dhaka, UTC+6)'}
           </div>
         </div>
       </div>
