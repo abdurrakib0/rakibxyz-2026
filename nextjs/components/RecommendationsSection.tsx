@@ -1,11 +1,33 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import Script from 'next/script';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function RecommendationsSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [shouldLoadWidget, setShouldLoadWidget] = useState(false);
+
   useEffect(() => {
-    // Ensure script triggers when component mounts or route updates
+    // Only load third-party widget when user scrolls near the section (zero initial render impact)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setShouldLoadWidget(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!shouldLoadLoadScript(shouldLoadWidget)) return;
+
     const existing = document.querySelector(
       'script[src="https://widgets.sociablekit.com/linkedin-recommendations/widget.js"]'
     );
@@ -15,31 +37,10 @@ export default function RecommendationsSection() {
       script.defer = true;
       document.body.appendChild(script);
     }
-
-    // Aggressively remove any SociableKIT branding backlinks injected dynamically
-    const removeBranding = () => {
-      const elements = document.querySelectorAll(
-        '.sk-ww-linkedin-recommendations a[href*="sociablekit.com"], .sk-branding, .sk_branding, .sk-watermark, [class*="branding"]'
-      );
-      elements.forEach((el) => {
-        if (el.tagName === 'A' && (el as HTMLAnchorElement).href.includes('sociablekit.com')) {
-          el.remove();
-        }
-      });
-    };
-
-    removeBranding();
-    const interval = setInterval(removeBranding, 400);
-    const timeout = setTimeout(() => clearInterval(interval), 10000);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, []);
+  }, [shouldLoadWidget]);
 
   return (
-    <section id="recommendations" className="container">
+    <section ref={sectionRef} id="recommendations" className="container">
       {/* Section Header matching site design system */}
       <div className="section-header">
         <div className="section-header-title-group">
@@ -70,14 +71,19 @@ export default function RecommendationsSection() {
       </div>
 
       {/* SociableKIT LinkedIn Recommendations Live Widget */}
-      <div className="linkedin-widget-wrapper">
-        <div className="sk-ww-linkedin-recommendations" data-embed-id="25708007"></div>
+      <div className="linkedin-widget-wrapper min-h-[220px]">
+        {shouldLoadWidget ? (
+          <div className="sk-ww-linkedin-recommendations" data-embed-id="25708007"></div>
+        ) : (
+          <div className="w-full py-12 flex items-center justify-center font-mono text-[0.8125rem] text-[var(--ink-muted)] opacity-60">
+            Loading endorsements...
+          </div>
+        )}
       </div>
-
-      <Script
-        src="https://widgets.sociablekit.com/linkedin-recommendations/widget.js"
-        strategy="lazyOnload"
-      />
     </section>
   );
+}
+
+function shouldLoadLoadScript(shouldLoad: boolean) {
+  return shouldLoad && typeof window !== 'undefined';
 }

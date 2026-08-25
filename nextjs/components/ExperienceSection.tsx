@@ -69,7 +69,7 @@ export default function ExperienceSection({ experience }: ExperienceProps) {
                 }`}
               >
                 {isPresent && (
-                  <span className="absolute -inset-1 rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                  <span className="absolute -inset-1 rounded-full bg-emerald-400 opacity-75 animate-ping will-change-transform transform-gpu" />
                 )}
               </div>
 
