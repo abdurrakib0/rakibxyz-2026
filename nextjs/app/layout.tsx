@@ -1,6 +1,34 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+import { Newsreader, Inter, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import JsonLd from '@/components/JsonLd';
+
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+  variable: '--font-display',
+  adjustFontFallback: false,
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-body',
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  weight: ['400', '500'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-mono',
+});
+
+export const viewport: Viewport = {
+  themeColor: '#FAF9F5',
+  width: 'device-width',
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://rakib.xyz'),
@@ -18,14 +46,24 @@ export const metadata: Metadata = {
     'Bangladesh Tech Leaders',
   ],
   authors: [{ name: 'Abdur Rakib' }],
+  alternates: {
+    canonical: 'https://rakib.xyz',
+  },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
   icons: {
-    icon: '/img/Abdur%20Rakib%20Vaiya%202.JPG',
-    shortcut: '/img/Abdur%20Rakib%20Vaiya%202.JPG',
-    apple: '/img/Abdur%20Rakib%20Vaiya%202.JPG',
+    icon: '/img/Hero%20image.png',
+    shortcut: '/img/Hero%20image.png',
+    apple: '/img/Hero%20image.png',
   },
   openGraph: {
     siteName: 'Abdur Rakib',
@@ -37,7 +75,9 @@ export const metadata: Metadata = {
       'COO at Programming Hero. Building operational systems for tech talent and scaling global placement infrastructure across 57+ countries.',
     images: [
       {
-        url: '/img/Abdur%20Rakib%20Vaiya%202.JPG',
+        url: '/img/Hero%20image.png',
+        width: 1200,
+        height: 630,
         alt: 'Abdur Rakib Portrait',
       },
     ],
@@ -48,7 +88,7 @@ export const metadata: Metadata = {
     title: 'Abdur Rakib | Systems, Hiring & Tech Placements',
     description:
       'COO at Programming Hero. Building operational systems for tech talent and scaling global placement infrastructure.',
-    images: ['/img/Abdur%20Rakib%20Vaiya%202.JPG'],
+    images: ['/img/Hero%20image.png'],
   },
 };
 
@@ -58,19 +98,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" prefix="og: https://ogp.me/ns#">
+    <html lang="en" className={`${newsreader.variable} ${inter.variable} ${ibmPlexMono.variable}`} prefix="og: https://ogp.me/ns#">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://widgets.sociablekit.com" />
         <link rel="dns-prefetch" href="https://widgets.sociablekit.com" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
-          rel="stylesheet"
-        />
         <JsonLd />
       </head>
-      <body>{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

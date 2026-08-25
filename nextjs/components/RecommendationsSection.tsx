@@ -76,7 +76,7 @@ export default function RecommendationsSection() {
 
       <Script
         src="https://widgets.sociablekit.com/linkedin-recommendations/widget.js"
-        strategy="afterInteractive"
+        strategy="lazyOnload"
       />
     </section>
   );

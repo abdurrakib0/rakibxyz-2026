@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { SiteInfo } from '@/lib/data';
 
 interface HeroProps {
@@ -73,14 +74,17 @@ export default function Hero({ siteInfo }: HeroProps) {
           </div>
         </div>
         
-        {/* Portrait Image */}
-        <div className="portrait-box" aria-label="Portrait Photograph of Abdur Rakib">
-          <img 
-            src="/img/Hero%20image.png" 
-            alt="Abdur Rakib Portrait" 
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            loading="eager"
-            decoding="async"
+        {/* Portrait Image with High Priority Next.js Image Optimization */}
+        <div className="portrait-box relative overflow-hidden" aria-label="Portrait Photograph of Abdur Rakib">
+          <Image 
+            src="/img/Hero image.png" 
+            alt="Abdur Rakib - Chief Operating Officer at Programming Hero" 
+            width={520}
+            height={520}
+            priority={true}
+            quality={85}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 440px, 480px"
+            className="w-full h-full object-cover object-center"
           />
         </div>
       </div>

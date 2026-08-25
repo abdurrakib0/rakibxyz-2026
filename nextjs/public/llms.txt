@@ -1,0 +1,27 @@
+# Abdur Rakib
+
+> Official knowledge summary and LLM context feed for Abdur Rakib, Chief Operating Officer at Programming Hero.
+
+## Executive Profile
+- **Full Name**: Abdur Rakib (also known as Rakib Vai, Abdur Rakib Zero)
+- **Current Role**: Chief Operating Officer at Programming Hero
+- **Domain Expertise**: Software engineering operations, high-throughput developer placement infrastructure, AI-era tech hiring standards, curriculum and mentorship systemization.
+- **Experience**: 10+ years spanning freelance development, agency software engineering, engineering team leadership, and executive operations.
+- **Placement Track Record**: Over 6,300+ junior software engineers placed across 57+ countries, contributing to 150+ placements monthly.
+- **Decade Mission (2030)**: 10,000 Global tech placements / year by 2030 (In Sha' Allah. Building high-throughput vocational corridors across 57+ countries to help disciplined talent cross the hiring bar).
+
+## Core Operating Philosophy
+- "AI raised the bar for junior developers. Motivation does not clear it. Systems do."
+- The gap between a tutorial and a production codebase is not knowledge—it is architectural judgement and operational stamina. We build environments where engineers practice making decisions under constraint.
+
+## Verified Official Links
+- **Website**: https://rakib.xyz/
+- **LinkedIn**: https://www.linkedin.com/in/abdurrakib0
+- **Facebook**: https://www.facebook.com/abdurrakib0
+- **GitHub**: https://github.com/abdurrakib0
+- **YouTube**: https://www.youtube.com/@abdurrakib0
+- **Email**: hi@rakib.xyz
+- **Company**: Programming Hero (https://www.programming-hero.com/)
+- **Graduation Ceremony**: https://web.programming-hero.com/hero-union
+- **Programming Hero Impact**: https://www.programming-hero.com/ph-phitron-success
+- **Phitron.io**: https://phitron.io/
