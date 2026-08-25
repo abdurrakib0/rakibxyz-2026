@@ -18,8 +18,10 @@ const config: Config = {
       },
       fontFamily: {
         display: ["var(--font-display)", "Newsreader", "Georgia", "serif"],
+        serif: ["var(--font-display)", "Newsreader", "Georgia", "serif"],
         body: ["var(--font-body)", "Inter", "-apple-system", "sans-serif"],
-        mono: ["var(--font-mono)", "JetBrains Mono", "monospace"],
+        sans: ["var(--font-body)", "Inter", "-apple-system", "sans-serif"],
+        mono: ["var(--font-mono)", "IBM Plex Mono", "monospace"],
       },
     },
   },
