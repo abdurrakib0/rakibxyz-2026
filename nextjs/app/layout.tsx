@@ -32,20 +32,35 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://rakib.xyz'),
-  title: 'Abdur Rakib | COO, Programming Hero - Systems, Hiring & Tech Placements',
+  title: {
+    default: 'Abdur Rakib | COO, Programming Hero — Systems, Hiring & Tech Placements',
+    template: '%s | Abdur Rakib',
+  },
   description:
-    'Official website of Abdur Rakib, COO at Programming Hero. Engineering high-throughput tech placement systems, developer hiring pipelines, and global ed-tech infrastructure.',
+    'Official website of Abdur Rakib, Chief Operating Officer at Programming Hero. Engineering high-throughput tech placement systems, developer hiring pipelines, and global ed-tech infrastructure across 57+ countries.',
   keywords: [
     'Abdur Rakib',
+    'Abdur Rakib COO',
+    'Rakib Vai Programming Hero',
+    'Abdur Rakib Zero',
     'Programming Hero',
-    'COO',
-    'Tech Job Placement',
+    'Phitron',
+    'Tech Job Placement Bangladesh',
     'Software Engineering Systems',
-    'AI Developer Hiring',
+    'AI Developer Hiring Standards',
+    'Junior Developer Placement',
+    'High Throughput Vocational Training',
     'Career Crackerz',
-    'Bangladesh Tech Leaders',
+    'Bangladesh Tech Leadership',
   ],
-  authors: [{ name: 'Abdur Rakib' }],
+  authors: [{ name: 'Abdur Rakib', url: 'https://rakib.xyz' }],
+  creator: 'Abdur Rakib',
+  publisher: 'Abdur Rakib',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   alternates: {
     canonical: 'https://rakib.xyz',
   },
@@ -70,25 +85,26 @@ export const metadata: Metadata = {
     type: 'profile',
     locale: 'en_US',
     url: 'https://rakib.xyz/',
-    title: 'Abdur Rakib | Systems, Hiring & Tech Placements',
+    title: 'Abdur Rakib | COO, Programming Hero — Systems, Hiring & Tech Placements',
     description:
-      'COO at Programming Hero. Building operational systems for tech talent and scaling global placement infrastructure across 57+ countries.',
+      'Chief Operating Officer at Programming Hero. Building operational systems for tech talent and scaling global placement infrastructure across 57+ countries.',
     images: [
       {
-        url: '/img/Hero%20image.png',
+        url: 'https://rakib.xyz/img/Abdur%20Rakib%20Vaiya%202.JPG',
         width: 1200,
         height: 630,
-        alt: 'Abdur Rakib Portrait',
+        alt: 'Abdur Rakib — Chief Operating Officer at Programming Hero',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
     site: '@abdurrakib0',
+    creator: '@abdurrakib0',
     title: 'Abdur Rakib | Systems, Hiring & Tech Placements',
     description:
       'COO at Programming Hero. Building operational systems for tech talent and scaling global placement infrastructure.',
-    images: ['/img/Hero%20image.png'],
+    images: ['https://rakib.xyz/img/Abdur%20Rakib%20Vaiya%202.JPG'],
   },
 };
 
