@@ -126,7 +126,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] flex flex-col md:flex-row text-[var(--ink)] antialiased">
+    <div className="min-h-screen md:h-screen md:overflow-hidden bg-[var(--bg)] flex flex-col md:flex-row text-[var(--ink)] antialiased">
       {/* Mobile Top Header */}
       <header className="md:hidden flex items-center justify-between px-6 py-4 bg-[var(--surface)] border-b border-[var(--rule)] sticky top-0 z-50">
         <div className="flex items-center gap-3">
@@ -168,11 +168,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </button>
       </header>
 
-      {/* Sidebar Navigation */}
+      {/* Sidebar Navigation (Fixed & Non-scrolling) */}
       <aside
         className={`${
           mobileMenuOpen ? 'flex' : 'hidden'
-        } md:flex w-full md:w-72 bg-[var(--surface)] border-b md:border-b-0 md:border-r border-[var(--rule)] p-6 md:p-7 flex-col justify-between md:sticky md:top-0 md:h-screen shrink-0 z-40 transition-all`}
+        } md:flex w-full md:w-72 bg-[var(--surface)] border-b md:border-b-0 md:border-r border-[var(--rule)] p-6 md:p-7 flex-col justify-between md:h-screen md:overflow-y-auto shrink-0 z-40`}
       >
         <div className="flex flex-col gap-8">
           {/* Brand Header */}
@@ -249,8 +249,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content Viewport */}
-      <main className="flex-1 p-6 sm:p-8 md:p-10 lg:p-12 max-w-6xl w-full overflow-y-auto">
-        {children}
+      <main className="flex-1 p-6 sm:p-8 md:p-10 lg:p-12 w-full md:h-screen md:overflow-y-auto">
+        <div className="max-w-6xl mx-auto">
+          {children}
+        </div>
       </main>
     </div>
   );
