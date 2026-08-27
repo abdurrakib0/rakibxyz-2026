@@ -26,7 +26,7 @@ export default async function HomePage() {
         <Hero siteInfo={siteInfo} />
         <StatsBand stats={siteInfo.stats} caption={siteInfo.statsCaption} />
         <StatementSection philosophy={siteInfo.philosophy} />
-        <RecommendationsSection />
+        <RecommendationsSection recommendations={recommendations} />
         <PodcastSection podcasts={podcasts} />
         <ExperienceSection experience={experience} />
         <NewsletterSection />
