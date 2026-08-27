@@ -11,8 +11,8 @@ export default function RecommendationsSection({
   recommendations = [],
 }: RecommendationsSectionProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   // Drag to scroll state
   const isDragging = useRef(false);
@@ -21,18 +21,57 @@ export default function RecommendationsSection({
 
   const items = recommendations || [];
 
-  const checkScroll = useCallback(() => {
+  // Calculate active index on scroll
+  const handleScroll = useCallback(() => {
     if (!scrollContainerRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-    setCanScrollLeft(scrollLeft > 15);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 15);
+    const el = scrollContainerRef.current;
+    const card = el.firstElementChild as HTMLElement;
+    if (!card) return;
+
+    const cardWidth = card.offsetWidth + 24; // width + gap (gap-6 is 24px)
+    const index = Math.round(el.scrollLeft / cardWidth);
+    setActiveIndex(Math.min(Math.max(0, index), items.length - 1));
+  }, [items.length]);
+
+  // Scroll to a specific card index
+  const scrollToIndex = useCallback((index: number) => {
+    if (!scrollContainerRef.current) return;
+    const el = scrollContainerRef.current;
+    const card = el.firstElementChild as HTMLElement;
+    if (!card) return;
+
+    const cardWidth = card.offsetWidth + 24;
+    el.scrollTo({
+      left: index * cardWidth,
+      behavior: 'smooth',
+    });
+    setActiveIndex(index);
   }, []);
 
+  const handlePrev = () => {
+    const newIdx = activeIndex === 0 ? items.length - 1 : activeIndex - 1;
+    scrollToIndex(newIdx);
+  };
+
+  const handleNext = () => {
+    const newIdx = activeIndex >= items.length - 1 ? 0 : activeIndex + 1;
+    scrollToIndex(newIdx);
+  };
+
+  // Auto-scroll effect: every 4.5 seconds advance to next slide unless paused
   useEffect(() => {
-    checkScroll();
-    window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
-  }, [checkScroll, items]);
+    if (items.length <= 1 || isPaused) return;
+
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = prev >= items.length - 1 ? 0 : prev + 1;
+        scrollToIndex(next);
+        return next;
+      });
+    }, 4500);
+
+    return () => clearInterval(interval);
+  }, [items.length, isPaused, scrollToIndex]);
 
   // Horizontal mouse-wheel scroll support
   useEffect(() => {
@@ -40,10 +79,9 @@ export default function RecommendationsSection({
     if (!el) return;
 
     const onWheel = (e: WheelEvent) => {
-      // If vertical delta dominates and can scroll horizontally, redirect to horizontal scroll
       if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
         if (
-          (e.deltaY > 0 && el.scrollLeft < el.scrollHeight) ||
+          (e.deltaY > 0 && el.scrollLeft < el.scrollWidth - el.clientWidth) ||
           (e.deltaY < 0 && el.scrollLeft > 0)
         ) {
           el.scrollBy({ left: e.deltaY * 1.2, behavior: 'auto' });
@@ -76,17 +114,19 @@ export default function RecommendationsSection({
     isDragging.current = false;
   };
 
-  const handleScroll = (direction: 'left' | 'right') => {
-    if (!scrollContainerRef.current) return;
-    const scrollAmount = 420;
-    scrollContainerRef.current.scrollBy({
-      left: direction === 'left' ? -scrollAmount : scrollAmount,
-      behavior: 'smooth',
-    });
-  };
+  if (!items || items.length === 0) {
+    return null;
+  }
 
   return (
-    <section id="recommendations" className="container space-y-8">
+    <section
+      id="recommendations"
+      className="container space-y-8"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={() => setIsPaused(true)}
+      onTouchEnd={() => setIsPaused(false)}
+    >
       {/* Section Header */}
       <div className="section-header">
         <div className="section-header-title-group">
@@ -98,10 +138,9 @@ export default function RecommendationsSection({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
             <button
-              onClick={() => handleScroll('left')}
-              disabled={!canScrollLeft}
-              className="w-9 h-9 rounded-full border border-[var(--rule)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--ink)] hover:bg-[var(--bg)] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-              aria-label="Previous endorsements"
+              onClick={handlePrev}
+              className="w-9 h-9 rounded-full border border-[var(--rule)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--ink)] hover:bg-[var(--bg)] flex items-center justify-center cursor-pointer transition-colors"
+              aria-label="Previous recommendation"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12" />
@@ -109,10 +148,9 @@ export default function RecommendationsSection({
               </svg>
             </button>
             <button
-              onClick={() => handleScroll('right')}
-              disabled={!canScrollRight}
-              className="w-9 h-9 rounded-full border border-[var(--rule)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--ink)] hover:bg-[var(--bg)] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-              aria-label="Next endorsements"
+              onClick={handleNext}
+              className="w-9 h-9 rounded-full border border-[var(--rule)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--ink)] hover:bg-[var(--bg)] flex items-center justify-center cursor-pointer transition-colors"
+              aria-label="Next recommendation"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12" />
@@ -149,7 +187,7 @@ export default function RecommendationsSection({
       <div className="relative">
         <div
           ref={scrollContainerRef}
-          onScroll={checkScroll}
+          onScroll={handleScroll}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUpOrLeave}
@@ -226,6 +264,24 @@ export default function RecommendationsSection({
             </article>
           ))}
         </div>
+
+        {/* Animated Dots Pagination */}
+        {items.length > 1 && (
+          <div className="flex items-center justify-center gap-2 pt-6">
+            {items.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => scrollToIndex(idx)}
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer border-0 p-0 ${
+                  activeIndex === idx
+                    ? 'w-7 bg-[var(--accent)] shadow-2xs'
+                    : 'w-2 bg-[var(--rule)] hover:bg-[var(--ink-muted)]'
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
