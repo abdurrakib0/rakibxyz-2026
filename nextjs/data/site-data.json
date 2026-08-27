@@ -46,6 +46,14 @@
       "youtube": "https://www.youtube.com/@abdurrakib0",
       "email": "abdur.rakib@programming-hero.com"
     },
+    "socialMetrics": {
+      "linkedinFollowers": "35,000+",
+      "linkedinLabel": "Followers & Connections",
+      "youtubeSubscribers": "25,000+",
+      "youtubeLabel": "Subscribers",
+      "facebookFollowers": "50,000+",
+      "facebookLabel": "Followers"
+    },
     "ecosystemLinks": [
       {
         "title": "Programming Hero",

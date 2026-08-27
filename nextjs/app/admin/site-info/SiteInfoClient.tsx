@@ -245,6 +245,102 @@ export default function SiteInfoClient({ initialSiteInfo }: SiteInfoClientProps)
           </div>
         </div>
 
+        {/* Where I Share - Follower & Subscriber Metrics */}
+        <div className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-4 shadow-2xs">
+          <h2 className="font-serif text-[1.25rem] text-[var(--ink)] border-b border-[var(--rule)] pb-3">
+            Where I Share - Followers &amp; Audience Metrics
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {/* LinkedIn */}
+            <div className="flex flex-col gap-2 p-4 bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)]">
+              <div className="flex items-center gap-2 font-mono text-[0.75rem] text-[#0A66C2] font-semibold">
+                <span>LinkedIn</span>
+              </div>
+              <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink-muted)]">Follower Count</label>
+              <input
+                type="text"
+                value={siteInfo.socialMetrics?.linkedinFollowers || '35,000+'}
+                onChange={(e) => setSiteInfo({
+                  ...siteInfo,
+                  socialMetrics: { ...(siteInfo.socialMetrics || {}), linkedinFollowers: e.target.value }
+                })}
+                placeholder="e.g. 35,000+"
+                className="bg-[var(--surface)] border border-[var(--rule)] rounded px-3 py-2 text-[0.875rem] font-mono text-[var(--ink)]"
+              />
+              <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink-muted)]">Label</label>
+              <input
+                type="text"
+                value={siteInfo.socialMetrics?.linkedinLabel || 'Followers & Connections'}
+                onChange={(e) => setSiteInfo({
+                  ...siteInfo,
+                  socialMetrics: { ...(siteInfo.socialMetrics || {}), linkedinLabel: e.target.value }
+                })}
+                placeholder="Followers & Connections"
+                className="bg-[var(--surface)] border border-[var(--rule)] rounded px-3 py-2 text-[0.75rem] text-[var(--ink)]"
+              />
+            </div>
+
+            {/* YouTube */}
+            <div className="flex flex-col gap-2 p-4 bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)]">
+              <div className="flex items-center gap-2 font-mono text-[0.75rem] text-[#FF0000] font-semibold">
+                <span>YouTube</span>
+              </div>
+              <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink-muted)]">Subscriber Count</label>
+              <input
+                type="text"
+                value={siteInfo.socialMetrics?.youtubeSubscribers || '25,000+'}
+                onChange={(e) => setSiteInfo({
+                  ...siteInfo,
+                  socialMetrics: { ...(siteInfo.socialMetrics || {}), youtubeSubscribers: e.target.value }
+                })}
+                placeholder="e.g. 25,000+"
+                className="bg-[var(--surface)] border border-[var(--rule)] rounded px-3 py-2 text-[0.875rem] font-mono text-[var(--ink)]"
+              />
+              <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink-muted)]">Label</label>
+              <input
+                type="text"
+                value={siteInfo.socialMetrics?.youtubeLabel || 'Subscribers'}
+                onChange={(e) => setSiteInfo({
+                  ...siteInfo,
+                  socialMetrics: { ...(siteInfo.socialMetrics || {}), youtubeLabel: e.target.value }
+                })}
+                placeholder="Subscribers"
+                className="bg-[var(--surface)] border border-[var(--rule)] rounded px-3 py-2 text-[0.75rem] text-[var(--ink)]"
+              />
+            </div>
+
+            {/* Facebook */}
+            <div className="flex flex-col gap-2 p-4 bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)]">
+              <div className="flex items-center gap-2 font-mono text-[0.75rem] text-[#1877F2] font-semibold">
+                <span>Facebook</span>
+              </div>
+              <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink-muted)]">Follower Count</label>
+              <input
+                type="text"
+                value={siteInfo.socialMetrics?.facebookFollowers || '50,000+'}
+                onChange={(e) => setSiteInfo({
+                  ...siteInfo,
+                  socialMetrics: { ...(siteInfo.socialMetrics || {}), facebookFollowers: e.target.value }
+                })}
+                placeholder="e.g. 50,000+"
+                className="bg-[var(--surface)] border border-[var(--rule)] rounded px-3 py-2 text-[0.875rem] font-mono text-[var(--ink)]"
+              />
+              <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink-muted)]">Label</label>
+              <input
+                type="text"
+                value={siteInfo.socialMetrics?.facebookLabel || 'Followers'}
+                onChange={(e) => setSiteInfo({
+                  ...siteInfo,
+                  socialMetrics: { ...(siteInfo.socialMetrics || {}), facebookLabel: e.target.value }
+                })}
+                placeholder="Followers"
+                className="bg-[var(--surface)] border border-[var(--rule)] rounded px-3 py-2 text-[0.75rem] text-[var(--ink)]"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Philosophy & Decade Vision */}
         <div className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-4 shadow-2xs">
           <h2 className="font-serif text-[1.25rem] text-[var(--ink)] border-b border-[var(--rule)] pb-3">

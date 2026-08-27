@@ -6,6 +6,7 @@ import StatementSection from '@/components/StatementSection';
 import PodcastSection from '@/components/PodcastSection';
 import ExperienceSection from '@/components/ExperienceSection';
 import RecommendationsSection from '@/components/RecommendationsSection';
+import WhereIShareSection from '@/components/WhereIShareSection';
 import NewsletterSection from '@/components/NewsletterSection';
 import WritingSection from '@/components/WritingSection';
 import Footer from '@/components/Footer';
@@ -27,6 +28,7 @@ export default async function HomePage() {
         <StatsBand stats={siteInfo.stats} caption={siteInfo.statsCaption} />
         <StatementSection philosophy={siteInfo.philosophy} />
         <RecommendationsSection recommendations={recommendations} />
+        <WhereIShareSection siteInfo={siteInfo} />
         <PodcastSection podcasts={podcasts} />
         <ExperienceSection experience={experience} />
         <NewsletterSection />

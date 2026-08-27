@@ -18,6 +18,15 @@ export interface Philosophy {
   targetRate: string;
 }
 
+export interface SocialMetrics {
+  linkedinFollowers?: string;
+  linkedinLabel?: string;
+  youtubeSubscribers?: string;
+  youtubeLabel?: string;
+  facebookFollowers?: string;
+  facebookLabel?: string;
+}
+
 export interface SiteInfo {
   name: string;
   role: string;
@@ -36,6 +45,7 @@ export interface SiteInfo {
     youtube: string;
     email: string;
   };
+  socialMetrics?: SocialMetrics;
 }
 
 export interface Post {
