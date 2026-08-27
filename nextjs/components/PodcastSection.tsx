@@ -30,24 +30,56 @@ export default function PodcastSection({ podcasts }: PodcastSectionProps) {
 
   return (
     <>
-      <section id="podcast" className="container space-y-16 md:space-y-20">
-        {/* Part 1: Career Crackerz Podcast */}
-        <div className="flex flex-col gap-6 md:gap-8">
-          <div className="section-header">
-            <div className="section-header-title-group">
-              <span className="section-label">Show 01 / Career &amp; Tech Systems</span>
-              <h2 className="section-title">Career Crackerz Podcast</h2>
+      <section id="podcast" className="container space-y-12 md:space-y-16">
+        {/* Main Section Header */}
+        <div className="section-header">
+          <div className="section-header-title-group">
+            <span className="section-label">Media &amp; Conversations</span>
+            <h2 className="section-title">Podcast</h2>
+          </div>
+          <a
+            href="https://www.youtube.com/@abdurrakib0"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-playlist-link"
+          >
+            <span>Watch more</span>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </a>
+        </div>
+
+        {/* 1. Career Crackerz Podcast Sub-section */}
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center justify-between border-b border-[var(--rule)] pb-4">
+            <div className="flex items-center gap-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent)]" />
+              <h3 className="font-serif text-[1.5rem] sm:text-[1.75rem] text-[var(--ink)] font-normal tracking-tight">
+                Career Crackerz Podcast
+              </h3>
             </div>
             <a
               href="https://www.youtube.com/@abdurrakib0"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-playlist-link"
+              className="btn-playlist-link !py-1.5 !px-3 text-[0.75rem]"
             >
               <span>Watch more</span>
               <svg
-                width="14"
-                height="14"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -62,8 +94,9 @@ export default function PodcastSection({ podcasts }: PodcastSectionProps) {
             </a>
           </div>
 
+          {/* 3 Video Cards */}
           <div className="podcast-grid">
-            {careerCrackerzList.map((item) => (
+            {careerCrackerzList.slice(0, 3).map((item) => (
               <article
                 key={item.id}
                 className="podcast-card"
@@ -122,23 +155,25 @@ export default function PodcastSection({ podcasts }: PodcastSectionProps) {
           </div>
         </div>
 
-        {/* Part 2: Borderless Bangladeshi */}
-        <div className="flex flex-col gap-6 md:gap-8 pt-10 md:pt-14 border-t border-[var(--rule)]">
-          <div className="section-header">
-            <div className="section-header-title-group">
-              <span className="section-label">Show 02 / Global Diaspora &amp; Leadership</span>
-              <h2 className="section-title">Borderless Bangladeshi</h2>
+        {/* 2. Borderless Bangladeshi Sub-section */}
+        <div className="flex flex-col gap-6 pt-4">
+          <div className="flex items-center justify-between border-b border-[var(--rule)] pb-4">
+            <div className="flex items-center gap-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-700" />
+              <h3 className="font-serif text-[1.5rem] sm:text-[1.75rem] text-[var(--ink)] font-normal tracking-tight">
+                Borderless Bangladeshi
+              </h3>
             </div>
             <a
               href="https://www.youtube.com/@abdurrakib0"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-playlist-link"
+              className="btn-playlist-link !py-1.5 !px-3 text-[0.75rem]"
             >
               <span>Watch more</span>
               <svg
-                width="14"
-                height="14"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -153,8 +188,9 @@ export default function PodcastSection({ podcasts }: PodcastSectionProps) {
             </a>
           </div>
 
+          {/* 3 Video Cards */}
           <div className="podcast-grid">
-            {borderlessBangladeshiList.map((item) => (
+            {borderlessBangladeshiList.slice(0, 3).map((item) => (
               <article
                 key={item.id}
                 className="podcast-card"
