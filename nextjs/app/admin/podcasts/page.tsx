@@ -99,6 +99,37 @@ export default function AdminPodcastsPage() {
     }
   };
 
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSyncYouTube = async () => {
+    const channelId = prompt(
+      'Enter your YouTube Channel ID (starts with UC...):',
+      ''
+    );
+    if (channelId === null) return;
+
+    setSyncing(true);
+    setMessage('Connecting to YouTube and fetching latest video episodes...');
+
+    try {
+      const url = channelId
+        ? `/api/sync/youtube?channelId=${encodeURIComponent(channelId.trim())}`
+        : '/api/sync/youtube';
+      const res = await fetch(url);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setMessage(`✓ ${data.message}`);
+        fetchPodcasts();
+      } else {
+        setMessage(`⚠ ${data.message || 'Failed to sync with YouTube.'}`);
+      }
+    } catch (err: any) {
+      setMessage(`⚠ Error connecting to YouTube: ${err.message}`);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   if (loading) {
     return <div className="font-mono text-sm text-[var(--ink-muted)]">Loading podcasts...</div>;
   }
@@ -106,22 +137,33 @@ export default function AdminPodcastsPage() {
   return (
     <div className="flex flex-col gap-8">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--rule)] pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--rule)] pb-6">
         <div>
           <h1 className="font-serif text-[2rem] text-[var(--ink)] font-normal">
             Podcasts &amp; Videos Manager
           </h1>
           <p className="text-[0.875rem] text-[var(--ink-muted)]">
-            Manage YouTube podcast cards and in-site video modal playback.
+            Manage YouTube podcast cards for Career Crackerz &amp; Borderless Bangladeshi.
           </p>
         </div>
 
-        <button
-          onClick={handleCreateNew}
-          className="bg-[var(--accent)] text-white px-5 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem] hover:bg-[var(--ink)] transition-colors cursor-pointer"
-        >
-          + Add YouTube Episode
-        </button>
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            onClick={handleSyncYouTube}
+            disabled={syncing}
+            className="border border-[var(--rule)] bg-[var(--surface)] hover:border-[var(--ink)] text-[var(--ink)] px-4 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem] transition-colors cursor-pointer flex items-center gap-2 font-medium"
+          >
+            <span>{syncing ? '⏳' : '⚡'}</span>
+            <span>{syncing ? 'Syncing...' : 'Sync from YouTube'}</span>
+          </button>
+
+          <button
+            onClick={handleCreateNew}
+            className="bg-[var(--accent)] text-white px-5 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem] hover:bg-[var(--ink)] transition-colors cursor-pointer font-medium"
+          >
+            + Add Episode
+          </button>
+        </div>
       </div>
 
       {message && (
