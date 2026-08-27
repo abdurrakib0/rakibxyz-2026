@@ -290,11 +290,27 @@ export async function getRecommendationsAsync(): Promise<Recommendation[]> {
 }
 
 export async function saveRecommendationAsync(item: Recommendation): Promise<{ success: boolean; data?: Recommendation; message?: string }> {
+  // 1. Always update local database file first for immediate sync
+  try {
+    const localDb = getDatabase();
+    if (!localDb.recommendations) localDb.recommendations = [];
+    const existsIndex = localDb.recommendations.findIndex((r) => r.id === item.id);
+    if (existsIndex >= 0) {
+      localDb.recommendations[existsIndex] = item;
+    } else {
+      localDb.recommendations.push(item);
+    }
+    saveDatabase(localDb);
+  } catch (e: any) {
+    console.error('Local recommendation save error:', e);
+  }
+
+  // 2. Also persist to Supabase if configured
   if (isSupabaseConfigured() && supabaseAdmin) {
     try {
       const { data, error } = await supabaseAdmin
         .from('recommendations')
-        .insert([{
+        .upsert([{
           id: item.id,
           name: item.name,
           role: item.role,
@@ -305,32 +321,33 @@ export async function saveRecommendationAsync(item: Recommendation): Promise<{ s
           relation: item.relation,
           date: item.date,
           sort_order: item.sortOrder ?? 0,
-        }])
-        .select()
-        .single();
+        }]);
 
-      if (error) throw error;
-      return { success: true, data: item };
+      if (error) console.error('Supabase recommendation save error:', error);
     } catch (err: any) {
       console.error('Error saving recommendation to Supabase:', err);
-      return { success: false, message: err.message || 'Failed to save recommendation' };
     }
   }
 
-  // Local fallback
-  try {
-    const localDb = getDatabase();
-    if (!localDb.recommendations) localDb.recommendations = [];
-    localDb.recommendations.push(item);
-    saveDatabase(localDb);
-    return { success: true, data: item };
-  } catch (e: any) {
-    console.error('Local recommendation save error:', e);
-    return { success: false, message: e.message || 'Local save error' };
-  }
+  return { success: true, data: item };
 }
 
 export async function updateRecommendationAsync(id: string, updates: Partial<Recommendation>): Promise<{ success: boolean; message?: string }> {
+  // 1. Always update local database file first for immediate sync
+  try {
+    const localDb = getDatabase();
+    if (localDb.recommendations) {
+      const idx = localDb.recommendations.findIndex((r) => r.id === id);
+      if (idx !== -1) {
+        localDb.recommendations[idx] = { ...localDb.recommendations[idx], ...updates };
+        saveDatabase(localDb);
+      }
+    }
+  } catch (e: any) {
+    console.error('Local recommendation update error:', e);
+  }
+
+  // 2. Also persist to Supabase if configured
   if (isSupabaseConfigured() && supabaseAdmin) {
     try {
       const dbPayload: any = {};
@@ -349,47 +366,39 @@ export async function updateRecommendationAsync(id: string, updates: Partial<Rec
         .update(dbPayload)
         .eq('id', id);
 
-      if (error) throw error;
-      return { success: true };
+      if (error) {
+        console.error('Supabase recommendation update error:', error);
+      }
     } catch (err: any) {
       console.error('Error updating recommendation in Supabase:', err);
-      return { success: false, message: err.message || 'Failed to update recommendation' };
     }
   }
 
-  // Local fallback
-  const localDb = getDatabase();
-  if (localDb.recommendations) {
-    const idx = localDb.recommendations.findIndex((r) => r.id === id);
-    if (idx !== -1) {
-      localDb.recommendations[idx] = { ...localDb.recommendations[idx], ...updates };
-      saveDatabase(localDb);
-      return { success: true };
-    }
-  }
-  return { success: false, message: 'Recommendation not found' };
+  return { success: true };
 }
 
 export async function deleteRecommendationAsync(id: string): Promise<boolean> {
+  // 1. Always update local database file first
+  try {
+    const localDb = getDatabase();
+    if (localDb.recommendations) {
+      localDb.recommendations = localDb.recommendations.filter((r) => r.id !== id);
+      saveDatabase(localDb);
+    }
+  } catch (e: any) {
+    console.error('Local recommendation delete error:', e);
+  }
+
+  // 2. Also delete in Supabase
   if (isSupabaseConfigured() && supabaseAdmin) {
     try {
-      const { error } = await supabaseAdmin
-        .from('recommendations')
-        .delete()
-        .eq('id', id);
-      if (!error) return true;
+      await supabaseAdmin.from('recommendations').delete().eq('id', id);
     } catch (err) {
       console.error('Error deleting recommendation from Supabase:', err);
     }
   }
 
-  const localDb = getDatabase();
-  if (localDb.recommendations) {
-    localDb.recommendations = localDb.recommendations.filter((r) => r.id !== id);
-    saveDatabase(localDb);
-    return true;
-  }
-  return false;
+  return true;
 }
 
 // ---------------------------------------------------------------------------

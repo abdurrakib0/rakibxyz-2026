@@ -7,66 +7,8 @@ interface RecommendationsSectionProps {
   recommendations?: Recommendation[];
 }
 
-const defaultRecommendations: Recommendation[] = [
-  {
-    id: 'rec_1',
-    name: 'Jhankar Mahbub',
-    role: 'Chief Executive Officer @ Programming Hero | Developer | Education Entrepreneur | Workforce Transformation in the AI Era',
-    company: 'Programming Hero',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    content:
-      'Rakib is always pumped to take challenges with minimum or no guidelines. He puts significant effort to understand each and everyone’s personality of his team. I found him strategic and hard-working to dissect technical challenges then match them with each team members’ skills and personality. He has many more secrets (I asked him to teach me all of his secrets. He smiled) to balance the team dynamics and project goals. I wish him success.',
-    linkedinUrl: 'https://www.linkedin.com/in/jhankar-mahbub/',
-    date: 'October 05, 2021',
-  },
-  {
-    id: 'rec_2',
-    name: 'Tanvir Hasan',
-    role: 'VP of Engineering @ Tech Innovations | Systems Architect | AI & Distributed Infrastructure',
-    company: 'Tech Innovations Ltd',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    content:
-      'Working with Rakib on high-throughput talent development opened my eyes to what rigorous engineering training looks like. His focus on feedback loops, deliberate practice, and operational excellence sets him apart as an exceptional tech leader.',
-    linkedinUrl: 'https://www.linkedin.com/in/abdurrakib0/',
-    date: 'November 18, 2023',
-  },
-  {
-    id: 'rec_3',
-    name: 'Farhana Yasmin',
-    role: 'Head of People & Culture @ Global Dev Talent | Workforce Strategy & Talent Acquisition',
-    company: 'Global Dev Talent',
-    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-    content:
-      'Rakib has an uncanny ability to identify bottlenecks in complex team operations and solve them with elegance. His mentorship style inspires young engineers to strive for craft, systems thinking, and discipline.',
-    linkedinUrl: 'https://www.linkedin.com/in/abdurrakib0/',
-    date: 'March 12, 2024',
-  },
-  {
-    id: 'rec_4',
-    name: 'Arifur Rahman',
-    role: 'Lead Architect @ CloudScale Systems | Cloud Infrastructure, Microservices & Reliability',
-    company: 'CloudScale Systems',
-    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-    content:
-      'Rakib approaches every technical and managerial challenge with incredible clarity. His ability to align distributed teams toward quantifiable milestones made working alongside him a privilege.',
-    linkedinUrl: 'https://www.linkedin.com/in/abdurrakib0/',
-    date: 'August 24, 2023',
-  },
-  {
-    id: 'rec_5',
-    name: 'Mahmudul Karim',
-    role: 'Chief Technology Officer @ NextGen Ventures | Scaling Tech Teams & Product Innovation',
-    company: 'NextGen Ventures',
-    avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
-    content:
-      'A leader who leads by example. Abdur Rakib has built an unparalleled operational model for tech workforce development. His dedication to craft, systems thinking, and execution speed is truly world-class.',
-    linkedinUrl: 'https://www.linkedin.com/in/abdurrakib0/',
-    date: 'January 15, 2024',
-  },
-];
-
 export default function RecommendationsSection({
-  recommendations = defaultRecommendations,
+  recommendations = [],
 }: RecommendationsSectionProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -77,7 +19,7 @@ export default function RecommendationsSection({
   const startX = useRef(0);
   const scrollLeftStart = useRef(0);
 
-  const items = recommendations && recommendations.length > 0 ? recommendations : defaultRecommendations;
+  const items = recommendations || [];
 
   const checkScroll = useCallback(() => {
     if (!scrollContainerRef.current) return;
