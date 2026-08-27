@@ -35,7 +35,7 @@ export default function AdminRecommendationsPage() {
 
   const handleCreateNew = () => {
     const newItem: Recommendation = {
-      id: '',
+      id: `rec_${Date.now()}`,
       name: '',
       role: '',
       company: '',
@@ -43,7 +43,7 @@ export default function AdminRecommendationsPage() {
       content: '',
       linkedinUrl: '',
       relation: '',
-      date: new Date().getFullYear().toString(),
+      date: new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }),
       sortOrder: recommendations.length + 1,
     };
     setEditingItem(newItem);
@@ -87,7 +87,7 @@ export default function AdminRecommendationsPage() {
     if (!editingItem) return;
 
     if (!editingItem.name.trim() || !editingItem.role.trim() || !editingItem.content.trim()) {
-      alert('Please fill in Name, Role, and Recommendation Content.');
+      alert('Please fill in Name, Role/Headline, and Recommendation Content.');
       return;
     }
 
@@ -119,222 +119,209 @@ export default function AdminRecommendationsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 pb-12">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--rule)] pb-6">
         <div>
           <h1 className="font-serif text-[2rem] text-[var(--ink)] font-normal tracking-tight">
-            LinkedIn Endorsements & Recommendations
+            LinkedIn Endorsements &amp; Recommendations
           </h1>
-          <p className="font-mono text-[0.8125rem] text-[var(--ink-muted)] mt-1">
-            Manage testimonials displayed in the &ldquo;What Industry Leaders Say&rdquo; section
+          <p className="text-[0.875rem] text-[var(--ink-muted)] mt-1">
+            Manage testimonials displayed in the &ldquo;What Industry Leaders Say&rdquo; horizontal carousel.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={fetchRecommendations}
             disabled={loading}
-            className="border border-[var(--rule)] bg-[var(--surface)] hover:bg-[var(--bg)] px-3 py-2 rounded-[var(--radius)] font-mono text-[0.75rem] text-[var(--ink)] cursor-pointer transition-colors"
+            className="border border-[var(--rule)] bg-[var(--surface)] hover:bg-[var(--bg)] px-3.5 py-2.5 rounded-[var(--radius)] font-mono text-[0.75rem] text-[var(--ink)] cursor-pointer transition-colors"
           >
             ↻ Refresh
           </button>
           <button
             onClick={handleCreateNew}
-            className="bg-[var(--ink)] hover:bg-[var(--accent)] text-[var(--bg)] px-4 py-2 rounded-[var(--radius)] font-mono text-[0.75rem] cursor-pointer transition-colors flex items-center gap-1.5"
+            className="bg-[var(--accent)] hover:bg-[var(--ink)] text-white px-4.5 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem] cursor-pointer transition-colors flex items-center gap-1.5 font-medium shadow-2xs"
           >
-            <span>+ Add Recommendation</span>
+            <span>+ Add Endorsement</span>
           </button>
         </div>
       </div>
 
       {statusMessage && (
-        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem]">
-          ✓ {statusMessage}
+        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-[var(--radius)] font-mono text-[0.8125rem] flex items-center gap-2">
+          <span>✓</span>
+          <span>{statusMessage}</span>
         </div>
       )}
 
-      {/* Editor Modal / Form */}
+      {/* Editor Modal Dialog Overlay */}
       {editingItem && (
-        <div className="bg-[var(--surface)] border-2 border-[var(--ink)] p-6 rounded-[var(--radius-lg)]">
-          <div className="flex items-center justify-between border-b border-[var(--rule)] pb-4 mb-6">
-            <h2 className="font-serif text-[1.25rem] text-[var(--ink)]">
-              {isNew ? 'Add New Recommendation' : `Edit Recommendation: ${editingItem.name}`}
-            </h2>
-            <button
-              onClick={() => setEditingItem(null)}
-              className="text-[var(--ink-muted)] hover:text-[var(--ink)] font-mono text-[0.8125rem] bg-transparent border-0 cursor-pointer"
-            >
-              ✕ Close
-            </button>
-          </div>
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 md:p-6 overflow-y-auto">
+          <div className="bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius-lg)] max-w-2xl w-full p-6 md:p-8 my-auto shadow-2xl flex flex-col gap-6">
+            <div className="flex items-center justify-between border-b border-[var(--rule)] pb-4">
+              <h2 className="font-serif text-[1.5rem] text-[var(--ink)] font-normal">
+                {isNew ? 'Add LinkedIn Endorsement' : `Edit Endorsement: ${editingItem.name}`}
+              </h2>
+              <button
+                onClick={() => setEditingItem(null)}
+                className="w-8 h-8 rounded-full bg-[var(--surface)] border border-[var(--rule)] flex items-center justify-center text-[var(--ink)] hover:bg-[var(--ink)] hover:text-white cursor-pointer transition-colors"
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
 
-          <form onSubmit={handleSave} className="flex flex-col gap-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Name */}
-              <div>
-                <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider block mb-1">
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editingItem.name}
-                  onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
-                  placeholder="e.g. Jhankar Mahbub"
-                  className="w-full bg-white border border-[var(--rule)] rounded-[var(--radius)] p-2.5 font-mono text-[0.8125rem] text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
-                />
+            <form onSubmit={handleSave} className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Name */}
+                <div className="flex flex-col gap-1">
+                  <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider font-medium">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editingItem.name}
+                    onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                    placeholder="e.g. Jhankar Mahbub"
+                    className="w-full bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius)] px-3.5 py-2 text-[0.875rem] text-[var(--ink)] focus:outline-none focus:border-[var(--accent)]"
+                  />
+                </div>
+
+                {/* Date */}
+                <div className="flex flex-col gap-1">
+                  <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider font-medium">
+                    Date Published
+                  </label>
+                  <input
+                    type="text"
+                    value={editingItem.date || ''}
+                    onChange={(e) => setEditingItem({ ...editingItem, date: e.target.value })}
+                    placeholder="e.g. October 05, 2021"
+                    className="w-full bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius)] px-3.5 py-2 text-[0.875rem] text-[var(--ink)] focus:outline-none focus:border-[var(--accent)] font-mono"
+                  />
+                </div>
               </div>
 
-              {/* Role / Job Title */}
-              <div>
-                <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider block mb-1">
-                  Role / Designation *
+              {/* Headline / Designation */}
+              <div className="flex flex-col gap-1">
+                <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider font-medium">
+                  Headline / Designation (shown in bold) *
                 </label>
                 <input
                   type="text"
                   required
                   value={editingItem.role}
                   onChange={(e) => setEditingItem({ ...editingItem, role: e.target.value })}
-                  placeholder="e.g. Founder & CEO"
-                  className="w-full bg-white border border-[var(--rule)] rounded-[var(--radius)] p-2.5 font-mono text-[0.8125rem] text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
+                  placeholder="e.g. Chief Executive Officer @ Programming Hero | Developer | Education Entrepreneur"
+                  className="w-full bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius)] px-3.5 py-2 text-[0.875rem] text-[var(--ink)] focus:outline-none focus:border-[var(--accent)]"
                 />
               </div>
 
-              {/* Company */}
-              <div>
-                <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider block mb-1">
-                  Company / Organization
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Avatar Image URL */}
+                <div className="flex flex-col gap-1">
+                  <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider font-medium">
+                    Avatar Photo URL (Optional)
+                  </label>
+                  <input
+                    type="url"
+                    value={editingItem.avatarUrl || ''}
+                    onChange={(e) => setEditingItem({ ...editingItem, avatarUrl: e.target.value })}
+                    placeholder="https://images.unsplash.com/..."
+                    className="w-full bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius)] px-3.5 py-2 text-[0.8125rem] text-[var(--ink)] focus:outline-none focus:border-[var(--accent)] font-mono"
+                  />
+                </div>
+
+                {/* LinkedIn URL */}
+                <div className="flex flex-col gap-1">
+                  <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider font-medium">
+                    LinkedIn Profile URL
+                  </label>
+                  <input
+                    type="url"
+                    value={editingItem.linkedinUrl || ''}
+                    onChange={(e) => setEditingItem({ ...editingItem, linkedinUrl: e.target.value })}
+                    placeholder="https://linkedin.com/in/..."
+                    className="w-full bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius)] px-3.5 py-2 text-[0.8125rem] text-[var(--ink)] focus:outline-none focus:border-[var(--accent)] font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Recommendation Content */}
+              <div className="flex flex-col gap-1">
+                <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider font-medium">
+                  Endorsement Statement / Quote *
                 </label>
-                <input
-                  type="text"
-                  value={editingItem.company}
-                  onChange={(e) => setEditingItem({ ...editingItem, company: e.target.value })}
-                  placeholder="e.g. Programming Hero"
-                  className="w-full bg-white border border-[var(--rule)] rounded-[var(--radius)] p-2.5 font-mono text-[0.8125rem] text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
+                <textarea
+                  required
+                  rows={6}
+                  value={editingItem.content}
+                  onChange={(e) => setEditingItem({ ...editingItem, content: e.target.value })}
+                  placeholder="Paste the full LinkedIn recommendation statement here..."
+                  className="w-full bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius)] p-3.5 text-[0.9375rem] text-[var(--ink)] leading-relaxed focus:outline-none focus:border-[var(--accent)] font-sans"
                 />
               </div>
 
-              {/* Avatar Image URL */}
-              <div>
-                <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider block mb-1">
-                  Avatar Photo URL (Optional)
-                </label>
-                <input
-                  type="url"
-                  value={editingItem.avatarUrl || ''}
-                  onChange={(e) => setEditingItem({ ...editingItem, avatarUrl: e.target.value })}
-                  placeholder="https://... (or leave empty for initials fallback)"
-                  className="w-full bg-white border border-[var(--rule)] rounded-[var(--radius)] p-2.5 font-mono text-[0.8125rem] text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
-                />
+              {/* Submit & Cancel Actions */}
+              <div className="flex items-center justify-end gap-3 border-t border-[var(--rule)] pt-4 mt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingItem(null)}
+                  className="px-4 py-2 border border-[var(--rule)] rounded font-mono text-[0.8125rem] cursor-pointer hover:bg-[var(--surface)]"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={saveStatus === 'saving'}
+                  className={`px-6 py-2.5 rounded font-mono text-[0.8125rem] transition-all duration-200 cursor-pointer flex items-center gap-1.5 font-medium ${
+                    saveStatus === 'saving'
+                      ? 'bg-[var(--ink)] text-white opacity-80 cursor-wait'
+                      : saveStatus === 'success'
+                      ? 'bg-emerald-600 text-white'
+                      : saveStatus === 'error'
+                      ? 'bg-red-600 text-white'
+                      : 'bg-[var(--ink)] hover:bg-[var(--accent)] text-white'
+                  }`}
+                >
+                  {saveStatus === 'saving'
+                    ? 'Saving...'
+                    : isNew
+                    ? 'Save Endorsement'
+                    : 'Update Endorsement'}
+                </button>
               </div>
-
-              {/* LinkedIn URL */}
-              <div>
-                <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider block mb-1">
-                  LinkedIn Profile URL
-                </label>
-                <input
-                  type="url"
-                  value={editingItem.linkedinUrl || ''}
-                  onChange={(e) => setEditingItem({ ...editingItem, linkedinUrl: e.target.value })}
-                  placeholder="https://linkedin.com/in/..."
-                  className="w-full bg-white border border-[var(--rule)] rounded-[var(--radius)] p-2.5 font-mono text-[0.8125rem] text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
-                />
-              </div>
-
-              {/* Relationship */}
-              <div>
-                <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider block mb-1">
-                  Relationship / Context
-                </label>
-                <input
-                  type="text"
-                  value={editingItem.relation || ''}
-                  onChange={(e) => setEditingItem({ ...editingItem, relation: e.target.value })}
-                  placeholder="e.g. Managed Abdur directly at Programming Hero"
-                  className="w-full bg-white border border-[var(--rule)] rounded-[var(--radius)] p-2.5 font-mono text-[0.8125rem] text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
-                />
-              </div>
-
-              {/* Date */}
-              <div>
-                <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider block mb-1">
-                  Date / Year
-                </label>
-                <input
-                  type="text"
-                  value={editingItem.date || ''}
-                  onChange={(e) => setEditingItem({ ...editingItem, date: e.target.value })}
-                  placeholder="e.g. 2024 or Oct 2023"
-                  className="w-full bg-white border border-[var(--rule)] rounded-[var(--radius)] p-2.5 font-mono text-[0.8125rem] text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
-                />
-              </div>
-
-              {/* Sort Order */}
-              <div>
-                <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider block mb-1">
-                  Display Sort Order
-                </label>
-                <input
-                  type="number"
-                  value={editingItem.sortOrder ?? 0}
-                  onChange={(e) => setEditingItem({ ...editingItem, sortOrder: Number(e.target.value) })}
-                  className="w-full bg-white border border-[var(--rule)] rounded-[var(--radius)] p-2.5 font-mono text-[0.8125rem] text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
-                />
-              </div>
-            </div>
-
-            {/* Recommendation Content */}
-            <div>
-              <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider block mb-1">
-                Recommendation Text / Quote *
-              </label>
-              <textarea
-                required
-                rows={5}
-                value={editingItem.content}
-                onChange={(e) => setEditingItem({ ...editingItem, content: e.target.value })}
-                placeholder="Paste the full LinkedIn recommendation here..."
-                className="w-full bg-white border border-[var(--rule)] rounded-[var(--radius)] p-3 font-serif text-[0.9375rem] text-[var(--ink)] leading-relaxed focus:outline-none focus:border-[var(--ink)]"
-              />
-            </div>
-
-            {/* Submit & Cancel */}
-            <div className="flex items-center gap-3 pt-2">
-              <button
-                type="submit"
-                disabled={saveStatus === 'saving'}
-                className="bg-[var(--ink)] hover:bg-[var(--accent)] text-[var(--bg)] px-5 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem] cursor-pointer transition-colors"
-              >
-                {saveStatus === 'saving' ? 'Saving...' : isNew ? 'Save Recommendation' : 'Update Recommendation'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setEditingItem(null)}
-                className="border border-[var(--rule)] hover:bg-[var(--bg)] px-4 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem] text-[var(--ink-muted)] cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       )}
 
       {/* Recommendations Cards Grid */}
       <div className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center font-mono text-[0.875rem] text-[var(--ink-muted)]">
-            Loading recommendations...
+          <div className="p-12 text-center font-mono text-[0.875rem] text-[var(--ink-muted)]">
+            Loading endorsements...
           </div>
         ) : recommendations.length === 0 ? (
-          <div className="p-8 text-center font-mono text-[0.875rem] text-[var(--ink-muted)]">
-            No recommendations added yet. Click &ldquo;+ Add Recommendation&rdquo; to add your first endorsement.
+          <div className="p-12 text-center font-mono text-[0.875rem] text-[var(--ink-muted)] flex flex-col items-center gap-3">
+            <span>No endorsements found.</span>
+            <button
+              onClick={handleCreateNew}
+              className="bg-[var(--accent)] text-white px-4 py-2 rounded text-xs font-mono"
+            >
+              + Add First Endorsement
+            </button>
           </div>
         ) : (
           <div className="divide-y divide-[var(--rule)]">
             {recommendations.map((item, idx) => (
-              <div key={item.id} className="p-6 hover:bg-[var(--bg)] transition-colors flex flex-col md:flex-row md:items-start justify-between gap-6">
+              <div
+                key={item.id}
+                className="p-6 hover:bg-[var(--bg)] transition-colors flex flex-col md:flex-row md:items-start justify-between gap-6"
+              >
                 <div className="flex items-start gap-4 flex-1">
                   <span className="font-mono text-[0.75rem] text-[var(--ink-muted)] w-6 pt-1">
                     #{idx + 1}
@@ -344,7 +331,7 @@ export default function AdminRecommendationsPage() {
                     <img
                       src={item.avatarUrl}
                       alt={item.name}
-                      className="w-12 h-12 rounded-full object-cover border border-[var(--rule)] bg-white"
+                      className="w-12 h-12 rounded-full object-cover border border-[var(--rule)] bg-white shrink-0"
                       onError={(e) => {
                         (e.target as HTMLElement).style.display = 'none';
                       }}
@@ -359,48 +346,50 @@ export default function AdminRecommendationsPage() {
                     </div>
                   )}
 
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-serif text-[1.125rem] text-[var(--ink)] font-medium">
+                      <h3 className="font-serif text-[1.125rem] text-[var(--ink)] font-semibold">
                         {item.name}
                       </h3>
+                      {item.date && (
+                        <span className="text-[0.75rem] text-[var(--ink-muted)] font-mono">
+                          · {item.date}
+                        </span>
+                      )}
                       {item.linkedinUrl && (
                         <a
                           href={item.linkedinUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[#0A66C2] text-xs font-mono no-underline hover:underline inline-flex items-center gap-0.5"
+                          className="text-[#0A66C2] text-xs font-mono no-underline hover:underline inline-flex items-center gap-0.5 ml-1"
                         >
                           <span>LinkedIn</span>
                           <span>↗</span>
                         </a>
                       )}
                     </div>
-                    <p className="font-mono text-[0.75rem] text-[var(--ink-muted)] mt-0.5">
-                      {item.role} {item.company ? `at ${item.company}` : ''}
+
+                    <p className="text-[0.8125rem] font-semibold text-[var(--ink)] mt-1 line-clamp-2">
+                      {item.role}
                     </p>
 
-                    {item.relation && (
-                      <span className="inline-block mt-2 font-mono text-[0.6875rem] text-[var(--ink-muted)] bg-white px-2 py-0.5 rounded border border-[var(--rule)]">
-                        {item.relation}
-                      </span>
-                    )}
-
-                    <p className="font-serif text-[0.9375rem] text-[var(--ink)] mt-3 italic leading-relaxed whitespace-pre-line bg-white/60 p-3.5 rounded border border-[var(--rule)]">
+                    <p className="text-[0.875rem] text-[var(--ink)]/90 mt-2.5 leading-relaxed whitespace-pre-line bg-[var(--surface)] p-3.5 rounded border border-[var(--rule)] line-clamp-3">
                       &ldquo;{item.content}&rdquo;
                     </p>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2 self-end md:self-start">
+                <div className="flex items-center gap-2 self-end md:self-start shrink-0">
                   <button
+                    type="button"
                     onClick={() => handleEdit(item)}
-                    className="border border-[var(--rule)] bg-white hover:bg-[var(--bg)] px-3 py-1.5 rounded font-mono text-[0.75rem] text-[var(--ink)] cursor-pointer transition-colors"
+                    className="border border-[var(--rule)] bg-[var(--bg)] hover:border-[var(--ink)] px-3.5 py-1.5 rounded font-mono text-[0.75rem] text-[var(--ink)] cursor-pointer transition-colors font-medium shadow-2xs"
                   >
                     Edit
                   </button>
                   <button
+                    type="button"
                     onClick={() => handleDelete(item.id, item.name)}
                     disabled={deletingId === item.id}
                     className="border border-red-200 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded font-mono text-[0.75rem] text-red-700 cursor-pointer transition-colors"
