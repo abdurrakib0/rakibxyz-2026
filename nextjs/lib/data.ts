@@ -58,6 +58,7 @@ export interface Podcast {
   guest: string;
   date: string;
   tag: string;
+  show?: string;
   youtubeUrl: string;
 }
 
@@ -165,14 +166,24 @@ export async function getDatabaseAsync(): Promise<DatabaseSchema> {
       : localDb.posts;
 
     const podcasts: Podcast[] = podcastsRes.data && podcastsRes.data.length > 0
-      ? podcastsRes.data.map((p) => ({
-          id: p.id,
-          title: p.title,
-          guest: p.guest,
-          date: p.date,
-          tag: p.tag || 'Tech & Career',
-          youtubeUrl: p.youtube_url,
-        }))
+      ? podcastsRes.data.map((p) => {
+          const localPod = localDb.podcasts.find((lp) => lp.id === p.id);
+          const isBorderless =
+            p.title?.includes('Omar') ||
+            p.guest?.includes('Omar') ||
+            (p.tag && p.tag.toLowerCase().includes('borderless')) ||
+            localPod?.show === 'Borderless Bangladeshi';
+
+          return {
+            id: p.id,
+            title: p.title,
+            guest: p.guest,
+            date: p.date,
+            tag: p.tag || 'Tech & Career',
+            show: p.show || (isBorderless ? 'Borderless Bangladeshi' : 'Career Crackerz'),
+            youtubeUrl: p.youtube_url,
+          };
+        })
       : localDb.podcasts;
 
     const siteInfo: SiteInfo = siteInfoRes.data

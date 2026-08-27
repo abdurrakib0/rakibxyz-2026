@@ -192,7 +192,19 @@ export default function AdminPodcastsPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                <div className="flex flex-col gap-1">
+                  <label className="font-mono text-[0.75rem] uppercase text-[var(--ink)]">Show / Series</label>
+                  <select
+                    value={editingPodcast.show || 'Career Crackerz'}
+                    onChange={(e) => setEditingPodcast({ ...editingPodcast, show: e.target.value })}
+                    className="bg-[var(--surface)] border border-[var(--rule)] rounded px-3 py-2 text-[0.875rem] text-[var(--ink)] focus:outline-none focus:border-[var(--accent)] font-mono"
+                  >
+                    <option value="Career Crackerz">Career Crackerz</option>
+                    <option value="Borderless Bangladeshi">Borderless Bangladeshi</option>
+                  </select>
+                </div>
+
                 <div className="flex flex-col gap-1">
                   <label className="font-mono text-[0.75rem] uppercase text-[var(--ink)]">Guest Name</label>
                   <input
@@ -285,6 +297,11 @@ export default function AdminPodcastsPage() {
                 alt={pod.title}
                 className="w-full h-full object-cover"
               />
+              <span className={`absolute top-2 left-2 font-mono text-[0.625rem] px-2 py-0.5 rounded shadow-sm text-white font-medium ${
+                pod.show === 'Borderless Bangladeshi' ? 'bg-blue-900/90' : 'bg-black/80'
+              }`}>
+                {pod.show || 'Career Crackerz'}
+              </span>
             </div>
 
             <div className="p-4 flex flex-col gap-2 flex-1 justify-between">
