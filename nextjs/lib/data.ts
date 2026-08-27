@@ -137,11 +137,12 @@ export async function getDatabaseAsync(): Promise<DatabaseSchema> {
   }
 
   try {
-    const [postsRes, podcastsRes, siteInfoRes, expRes] = await Promise.all([
+    const [postsRes, podcastsRes, siteInfoRes, expRes, recsRes] = await Promise.all([
       supabase.from('posts').select('*').order('created_at', { ascending: false }),
       supabase.from('podcasts').select('*').order('created_at', { ascending: false }),
       supabase.from('site_info').select('*').eq('id', 'default').single(),
       supabase.from('experience').select('*').order('sort_order', { ascending: true }),
+      supabase.from('recommendations').select('*').order('sort_order', { ascending: true }),
     ]);
 
     const localDb = getDatabase();
@@ -212,13 +213,28 @@ export async function getDatabaseAsync(): Promise<DatabaseSchema> {
         }))
       : localDb.experience;
 
+    const recommendations: Recommendation[] = recsRes?.data && recsRes.data.length > 0
+      ? recsRes.data.map((d) => ({
+          id: d.id,
+          name: d.name,
+          role: d.role,
+          company: d.company,
+          avatarUrl: d.avatar_url,
+          content: d.content,
+          linkedinUrl: d.linkedin_url,
+          relation: d.relation,
+          date: d.date,
+          sortOrder: d.sort_order,
+        }))
+      : (localDb.recommendations || []);
+
     return {
       siteInfo,
       posts,
       podcasts,
       experience,
       subscribers: localDb.subscribers,
-      recommendations: localDb.recommendations || [],
+      recommendations,
     };
   } catch (error) {
     console.error('Error querying Supabase, falling back to local JSON:', error);
