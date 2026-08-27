@@ -248,9 +248,6 @@ export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps
           <span className="section-label">05 / Channels</span>
           <h2 className="section-title">Where I Share</h2>
         </div>
-        <p className="text-[0.9375rem] text-[var(--ink-muted)] max-w-md hidden md:block">
-          Publishing engineering insights, podcast episodes, and career frameworks across three primary platforms.
-        </p>
       </div>
 
       {/* Cards */}
