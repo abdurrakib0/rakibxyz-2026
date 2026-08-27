@@ -16,10 +16,12 @@ export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps
       url: socialLinks?.linkedin || 'https://www.linkedin.com/in/abdurrakib0/',
       count: socialMetrics?.linkedinFollowers || '35,000+',
       countLabel: socialMetrics?.linkedinLabel || 'Followers & Connections',
+      focusArea: 'Engineering Leadership & Career Systems',
       description:
-        'Long-form essays on engineering leadership, junior-to-senior hiring filters, and high-throughput career systems.',
+        'Long-form essays on high-throughput software architecture, junior-to-senior hiring filters, and repeatable engineering leadership frameworks.',
       actionText: 'Connect on LinkedIn',
       brandColor: '#0A66C2',
+      glowColor: 'rgba(10, 102, 194, 0.12)',
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
           <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
@@ -33,10 +35,12 @@ export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps
       url: socialLinks?.youtube || 'https://www.youtube.com/@abdurrakib0',
       count: socialMetrics?.youtubeSubscribers || '25,000+',
       countLabel: socialMetrics?.youtubeLabel || 'Subscribers',
+      focusArea: 'Podcasts, Keynotes & Developer Roadmaps',
       description:
-        'Host of Career Crackerz & Borderless Bangladeshi podcasts, keynote speeches, and step-by-step developer growth masterclasses.',
+        'Host of Career Crackerz & Borderless Bangladeshi podcasts, keynote masterclasses, and step-by-step developer career breakdowns.',
       actionText: 'Subscribe on YouTube',
       brandColor: '#FF0000',
+      glowColor: 'rgba(255, 0, 0, 0.12)',
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
           <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
@@ -50,10 +54,12 @@ export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps
       url: socialLinks?.facebook || 'https://www.facebook.com/abdurrakibzero',
       count: socialMetrics?.facebookFollowers || '50,000+',
       countLabel: socialMetrics?.facebookLabel || 'Followers',
+      focusArea: 'Community Mentorship & Real-time AMA',
       description:
-        'Daily thoughts on tech entrepreneurship, live Q&A sessions, ecosystem milestones, and community engagement.',
+        'Daily engineering insights, live Q&A sessions, ecosystem milestones, and direct mentorship conversations with aspiring builders.',
       actionText: 'Follow on Facebook',
       brandColor: '#1877F2',
+      glowColor: 'rgba(24, 119, 242, 0.12)',
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
           <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -80,44 +86,72 @@ export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps
         {channels.map((ch) => (
           <article
             key={ch.id}
-            className="group relative bg-[var(--surface)] border border-[var(--rule)] rounded-[20px] p-6 sm:p-7 flex flex-col justify-between gap-6 transition-all duration-300 hover:border-[var(--ink)]/40 hover:shadow-sm"
+            className="group relative bg-[var(--surface)] border border-[var(--rule)] rounded-[22px] p-6 sm:p-8 flex flex-col justify-between gap-6 transition-all duration-300 hover:border-[var(--ink)]/40 hover:-translate-y-1 hover:shadow-lg overflow-hidden"
           >
-            {/* Top Row: Icon, Name & Handle */}
-            <div className="flex flex-col gap-5">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-12 h-12 rounded-[14px] flex items-center justify-center transition-transform duration-300 group-hover:scale-105 shrink-0"
-                  style={{
-                    backgroundColor: `${ch.brandColor}12`,
-                    color: ch.brandColor,
-                  }}
-                >
-                  {ch.icon}
+            {/* Subtle Brand Ambient Glow */}
+            <div
+              className="absolute -top-24 -right-24 w-52 h-52 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+              style={{ backgroundColor: ch.glowColor }}
+            />
+
+            {/* Background Watermark Monogram */}
+            <div
+              className="absolute -bottom-8 -right-8 w-36 h-36 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-300 pointer-events-none"
+              style={{ color: ch.brandColor }}
+            >
+              {ch.icon}
+            </div>
+
+            {/* Top Row: Icon, Identity & Channel Focus */}
+            <div className="flex flex-col gap-6 relative z-10">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3.5">
+                  <div
+                    className="w-13 h-13 rounded-[16px] flex items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-2xs shrink-0"
+                    style={{
+                      backgroundColor: `${ch.brandColor}12`,
+                      color: ch.brandColor,
+                    }}
+                  >
+                    {ch.icon}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-[1.1875rem] text-[var(--ink)] leading-tight tracking-tight">
+                      {ch.name}
+                    </h3>
+                    <span className="font-mono text-[0.8125rem] text-[var(--ink-muted)] block mt-0.5">
+                      {ch.handle}
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-[1.125rem] text-[var(--ink)] leading-tight tracking-tight">
-                    {ch.name}
-                  </h3>
-                  <span className="font-mono text-[0.8125rem] text-[var(--ink-muted)] block mt-0.5">
-                    {ch.handle}
-                  </span>
+
+                <div className="flex items-center gap-1.5 font-mono text-[0.6875rem] text-[var(--ink-muted)] shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="font-medium">Active</span>
                 </div>
               </div>
 
-              {/* Follower / Subscriber Big Metric Counter */}
-              <div className="bg-[var(--bg)] border border-[var(--rule)] rounded-[14px] p-4 flex flex-col gap-0.5">
-                <span className="font-serif text-[2rem] text-[var(--ink)] font-normal leading-none tracking-tight">
-                  {ch.count}
-                </span>
-                <span className="font-mono text-[0.75rem] uppercase tracking-wider text-[var(--ink-muted)] mt-1 font-medium">
+              {/* Big Metric Card */}
+              <div className="bg-[var(--bg)]/90 backdrop-blur-xs border border-[var(--rule)] rounded-[16px] p-4.5 flex flex-col gap-1 transition-colors group-hover:border-[var(--rule)]">
+                <div className="flex items-baseline gap-2">
+                  <span className="font-serif text-[2.25rem] text-[var(--ink)] font-normal leading-none tracking-tight">
+                    {ch.count}
+                  </span>
+                </div>
+                <span className="font-mono text-[0.75rem] uppercase tracking-wider text-[var(--ink-muted)] font-medium mt-1">
                   {ch.countLabel}
                 </span>
               </div>
 
-              {/* Description */}
-              <p className="text-[0.875rem] text-[var(--ink)]/85 leading-relaxed m-0">
-                {ch.description}
-              </p>
+              {/* Focus Area & Description */}
+              <div className="flex flex-col gap-2">
+                <span className="font-mono text-[0.6875rem] uppercase tracking-wider text-[var(--accent)] font-semibold">
+                  {ch.focusArea}
+                </span>
+                <p className="text-[0.875rem] text-[var(--ink)]/85 leading-relaxed m-0">
+                  {ch.description}
+                </p>
+              </div>
             </div>
 
             {/* Action Link Button */}
@@ -125,10 +159,10 @@ export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps
               href={ch.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between w-full px-4 py-3 rounded-[12px] bg-[var(--bg)] border border-[var(--rule)] text-[var(--ink)] no-underline font-mono text-[0.8125rem] font-medium transition-all duration-200 group-hover:bg-[var(--ink)] group-hover:text-[var(--bg)] group-hover:border-[var(--ink)]"
+              className="relative z-10 flex items-center justify-between w-full px-4.5 py-3.5 rounded-[14px] bg-[var(--bg)] border border-[var(--rule)] text-[var(--ink)] no-underline font-mono text-[0.8125rem] font-medium transition-all duration-200 group-hover:bg-[var(--ink)] group-hover:text-[var(--bg)] group-hover:border-[var(--ink)] shadow-2xs cursor-pointer"
             >
               <span>{ch.actionText}</span>
-              <span className="text-base group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
+              <span className="text-base group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200">
                 ↗
               </span>
             </a>

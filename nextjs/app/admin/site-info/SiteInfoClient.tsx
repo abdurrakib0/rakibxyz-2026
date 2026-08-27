@@ -16,6 +16,32 @@ export default function SiteInfoClient({ initialSiteInfo }: SiteInfoClientProps)
   const [isError, setIsError] = useState(false);
   const [draftStatus, setDraftStatus] = useState('');
   const [hasSavedDraft, setHasSavedDraft] = useState(false);
+  const [isSyncingSocial, setIsSyncingSocial] = useState(false);
+
+  const handleSyncSocialStats = async () => {
+    setIsSyncingSocial(true);
+    setMessage('');
+    try {
+      const res = await fetch('/api/sync/social', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.metrics) {
+          setSiteInfo((prev) => ({
+            ...prev,
+            socialMetrics: data.metrics,
+          }));
+        }
+        setMessage('Live follower and subscriber counts synced successfully!');
+        setTimeout(() => setMessage(''), 4000);
+      } else {
+        setMessage(data.message || 'Sync failed.');
+      }
+    } catch (e) {
+      setMessage('Error syncing live social stats.');
+    } finally {
+      setIsSyncingSocial(false);
+    }
+  };
 
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -247,9 +273,19 @@ export default function SiteInfoClient({ initialSiteInfo }: SiteInfoClientProps)
 
         {/* Where I Share - Follower & Subscriber Metrics */}
         <div className="bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-6 flex flex-col gap-4 shadow-2xs">
-          <h2 className="font-serif text-[1.25rem] text-[var(--ink)] border-b border-[var(--rule)] pb-3">
-            Where I Share - Followers &amp; Audience Metrics
-          </h2>
+          <div className="flex items-center justify-between border-b border-[var(--rule)] pb-3 flex-wrap gap-2">
+            <h2 className="font-serif text-[1.25rem] text-[var(--ink)]">
+              Where I Share - Followers &amp; Audience Metrics
+            </h2>
+            <button
+              type="button"
+              onClick={handleSyncSocialStats}
+              disabled={isSyncingSocial}
+              className="bg-[var(--bg)] border border-[var(--rule)] hover:border-[var(--ink)] text-[var(--ink)] px-3.5 py-1.5 rounded font-mono text-[0.75rem] cursor-pointer transition-colors flex items-center gap-1.5 font-medium"
+            >
+              <span>{isSyncingSocial ? '⏳ Syncing...' : '↻ Auto-Sync Live Stats'}</span>
+            </button>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {/* LinkedIn */}
