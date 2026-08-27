@@ -134,57 +134,56 @@ export default function RecommendationsSection({
           <h2 className="section-title">What Industry Leaders Say</h2>
         </div>
 
-        {/* Header Controls: Arrow buttons + LinkedIn link */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={handlePrev}
-              className="w-9 h-9 rounded-full border border-[var(--rule)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--ink)] hover:bg-[var(--bg)] flex items-center justify-center cursor-pointer transition-colors"
-              aria-label="Previous recommendation"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12" />
-                <polyline points="12 19 5 12 12 5" />
-              </svg>
-            </button>
-            <button
-              onClick={handleNext}
-              className="w-9 h-9 rounded-full border border-[var(--rule)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--ink)] hover:bg-[var(--bg)] flex items-center justify-center cursor-pointer transition-colors"
-              aria-label="Next recommendation"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </button>
-          </div>
-
-          <a
-            href="https://www.linkedin.com/in/abdurrakib0"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-playlist-link"
+        <a
+          href="https://www.linkedin.com/in/abdurrakib0"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-playlist-link"
+        >
+          <span>View on LinkedIn</span>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <span>View on LinkedIn</span>
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M4.5 11.5L11.5 4.5" />
-              <path d="M5.5 4.5H11.5V10.5" />
-            </svg>
-          </a>
-        </div>
+            <path d="M4.5 11.5L11.5 4.5" />
+            <path d="M5.5 4.5H11.5V10.5" />
+          </svg>
+        </a>
       </div>
 
-      {/* Horizontal Scroll Track */}
-      <div className="relative">
+      {/* Horizontal Scroll Carousel Wrapper with Centered Left/Right Arrows */}
+      <div className="relative group px-1">
+        {/* Left Floating Arrow Button */}
+        <button
+          onClick={handlePrev}
+          className="absolute -left-3 sm:-left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-[var(--rule)] bg-[var(--surface)]/95 backdrop-blur-md shadow-md text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--bg)] hover:border-[var(--ink)] flex items-center justify-center cursor-pointer transition-all duration-200"
+          aria-label="Previous recommendation"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+        </button>
+
+        {/* Right Floating Arrow Button */}
+        <button
+          onClick={handleNext}
+          className="absolute -right-3 sm:-right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-[var(--rule)] bg-[var(--surface)]/95 backdrop-blur-md shadow-md text-[var(--ink)] hover:bg-[var(--ink)] hover:text-[var(--bg)] hover:border-[var(--ink)] flex items-center justify-center cursor-pointer transition-all duration-200"
+          aria-label="Next recommendation"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </button>
+
+        {/* Horizontal Track */}
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
