@@ -51,13 +51,15 @@ export default function AdminPodcastsPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this podcast card?')) return;
+    // Instant optimistic update
+    setPodcasts((prev) => prev.filter((p) => p.id !== id));
+    setMessage('Podcast deleted successfully');
+    setTimeout(() => setMessage(''), 3000);
+
     try {
-      const res = await fetch(`/api/podcasts/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        setPodcasts(podcasts.filter((p) => p.id !== id));
-      }
+      await fetch(`/api/podcasts/${id}`, { method: 'DELETE' });
     } catch (err) {
-      alert('Failed to delete podcast');
+      console.error('Failed to delete podcast:', err);
     }
   };
 
@@ -65,37 +67,31 @@ export default function AdminPodcastsPage() {
     e.preventDefault();
     if (!editingPodcast) return;
 
-    setSaveStatus('saving');
-    setMessage('');
+    const savedPodcast = { ...editingPodcast };
+
+    // Instant optimistic update
+    if (isNew) {
+      setPodcasts((prev) => [savedPodcast, ...prev]);
+      setMessage('Podcast added successfully!');
+    } else {
+      setPodcasts((prev) => prev.map((p) => (p.id === savedPodcast.id ? savedPodcast : p)));
+      setMessage('Podcast updated successfully!');
+    }
+
+    setEditingPodcast(null);
+    setSaveStatus('idle');
+    setTimeout(() => setMessage(''), 3000);
 
     try {
-      const url = isNew ? '/api/podcasts' : `/api/podcasts/${editingPodcast.id}`;
+      const url = isNew ? '/api/podcasts' : `/api/podcasts/${savedPodcast.id}`;
       const method = isNew ? 'POST' : 'PUT';
-
-      const res = await fetch(url, {
+      await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingPodcast),
+        body: JSON.stringify(savedPodcast),
       });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setSaveStatus('success');
-        setMessage('Podcast saved successfully!');
-        setTimeout(() => {
-          setEditingPodcast(null);
-          setSaveStatus('idle');
-          fetchPodcasts();
-        }, 1200);
-      } else {
-        setSaveStatus('error');
-        setMessage(data.message || 'Failed to save podcast.');
-        setTimeout(() => setSaveStatus('idle'), 3500);
-      }
     } catch (err: any) {
-      setSaveStatus('error');
-      setMessage(`Error saving podcast: ${err.message || 'Network error'}`);
-      setTimeout(() => setSaveStatus('idle'), 3500);
+      console.error('Error saving podcast:', err);
     }
   };
 

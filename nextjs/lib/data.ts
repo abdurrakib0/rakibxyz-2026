@@ -137,12 +137,19 @@ export async function getDatabaseAsync(): Promise<DatabaseSchema> {
   }
 
   try {
-    const [postsRes, podcastsRes, siteInfoRes, expRes, recsRes] = await Promise.all([
-      supabase.from('posts').select('*').order('created_at', { ascending: false }),
-      supabase.from('podcasts').select('*').order('created_at', { ascending: false }),
-      supabase.from('site_info').select('*').eq('id', 'default').single(),
-      supabase.from('experience').select('*').order('sort_order', { ascending: true }),
-      supabase.from('recommendations').select('*').order('sort_order', { ascending: true }),
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Supabase query timeout')), 1500)
+    );
+
+    const [postsRes, podcastsRes, siteInfoRes, expRes, recsRes] = await Promise.race([
+      Promise.all([
+        supabase.from('posts').select('*').order('created_at', { ascending: false }),
+        supabase.from('podcasts').select('*').order('created_at', { ascending: false }),
+        supabase.from('site_info').select('*').eq('id', 'default').single(),
+        supabase.from('experience').select('*').order('sort_order', { ascending: true }),
+        supabase.from('recommendations').select('*').order('sort_order', { ascending: true }),
+      ]),
+      timeoutPromise,
     ]);
 
     const localDb = getDatabase();

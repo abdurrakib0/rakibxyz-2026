@@ -62,23 +62,17 @@ export default function AdminRecommendationsPage() {
       return;
     }
 
-    setDeletingId(id);
+    // Instant optimistic update
+    setRecommendations((prev) => prev.filter((r) => r.id !== id));
+    setStatusMessage(`Successfully deleted recommendation from ${name}`);
+    setTimeout(() => setStatusMessage(''), 3500);
+
     try {
-      const res = await fetch(`/api/recommendations?id=${encodeURIComponent(id)}`, {
+      await fetch(`/api/recommendations?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
       });
-      const data = await res.json();
-      if (data.success) {
-        setRecommendations((prev) => prev.filter((r) => r.id !== id));
-        setStatusMessage(`Successfully deleted recommendation from ${name}`);
-        setTimeout(() => setStatusMessage(''), 4000);
-      } else {
-        alert(data.message || 'Failed to delete recommendation');
-      }
     } catch (err) {
-      alert('Error deleting recommendation');
-    } finally {
-      setDeletingId(null);
+      console.error('Error deleting recommendation:', err);
     }
   };
 
@@ -91,30 +85,30 @@ export default function AdminRecommendationsPage() {
       return;
     }
 
-    setSaveStatus('saving');
+    const savedItem = { ...editingItem };
+
+    // Instant optimistic update in 0ms
+    if (isNew) {
+      setRecommendations((prev) => [...prev, savedItem]);
+      setStatusMessage('New endorsement added!');
+    } else {
+      setRecommendations((prev) => prev.map((r) => (r.id === savedItem.id ? savedItem : r)));
+      setStatusMessage('Endorsement updated successfully!');
+    }
+
+    setEditingItem(null);
+    setSaveStatus('idle');
+    setTimeout(() => setStatusMessage(''), 3500);
 
     try {
       const method = isNew ? 'POST' : 'PATCH';
-      const res = await fetch('/api/recommendations', {
+      await fetch('/api/recommendations', {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingItem),
+        body: JSON.stringify(savedItem),
       });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setSaveStatus('success');
-        setStatusMessage(isNew ? 'New recommendation added!' : 'Recommendation updated successfully!');
-        setTimeout(() => setStatusMessage(''), 4000);
-        setEditingItem(null);
-        fetchRecommendations();
-      } else {
-        setSaveStatus('error');
-        alert(data.message || 'Failed to save recommendation');
-      }
     } catch (err) {
-      setSaveStatus('error');
-      alert('Network error while saving recommendation');
+      console.error('Error saving recommendation:', err);
     }
   };
 
