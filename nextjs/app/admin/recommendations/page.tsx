@@ -220,18 +220,32 @@ export default function AdminRecommendationsPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Avatar Image URL */}
+                {/* Avatar Image URL with Live Preview */}
                 <div className="flex flex-col gap-1">
                   <label className="font-mono text-[0.75rem] text-[var(--ink)] uppercase tracking-wider font-medium">
                     Avatar Photo URL (Optional)
                   </label>
-                  <input
-                    type="url"
-                    value={editingItem.avatarUrl || ''}
-                    onChange={(e) => setEditingItem({ ...editingItem, avatarUrl: e.target.value })}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius)] px-3.5 py-2 text-[0.8125rem] text-[var(--ink)] focus:outline-none focus:border-[var(--accent)] font-mono"
-                  />
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="url"
+                      value={editingItem.avatarUrl || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, avatarUrl: e.target.value })}
+                      placeholder="https://images.unsplash.com/..."
+                      className="w-full bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius)] px-3.5 py-2 text-[0.8125rem] text-[var(--ink)] focus:outline-none focus:border-[var(--accent)] font-mono"
+                    />
+                    {editingItem.avatarUrl ? (
+                      <div className="w-10 h-10 rounded-full overflow-hidden border border-[var(--rule)] shrink-0 bg-white">
+                        <img
+                          src={editingItem.avatarUrl}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.opacity = '0.3';
+                          }}
+                        />
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
 
                 {/* LinkedIn URL */}

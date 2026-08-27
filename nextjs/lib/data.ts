@@ -213,7 +213,8 @@ export async function getDatabaseAsync(): Promise<DatabaseSchema> {
         }))
       : localDb.experience;
 
-    const recommendations: Recommendation[] = recsRes?.data && recsRes.data.length > 0
+    // Merge Supabase recommendations with localDb recommendations seamlessly
+    const dbRecs: Recommendation[] = (recsRes?.data && recsRes.data.length > 0)
       ? recsRes.data.map((d) => ({
           id: d.id,
           name: d.name,
@@ -226,7 +227,21 @@ export async function getDatabaseAsync(): Promise<DatabaseSchema> {
           date: d.date,
           sortOrder: d.sort_order,
         }))
-      : (localDb.recommendations || []);
+      : [];
+
+    const localRecs: Recommendation[] = localDb.recommendations || [];
+    
+    // Combine both, matching by ID
+    const mergedMap = new Map<string, Recommendation>();
+    for (const r of localRecs) {
+      mergedMap.set(r.id, r);
+    }
+    for (const r of dbRecs) {
+      mergedMap.set(r.id, r);
+    }
+    const recommendations = Array.from(mergedMap.values()).sort(
+      (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+    );
 
     return {
       siteInfo,
@@ -258,6 +273,11 @@ export async function getRelatedPostsAsync(currentId: string, limit = 3): Promis
 // ---------------------------------------------------------------------------
 
 export async function getRecommendationsAsync(): Promise<Recommendation[]> {
+  const localDb = getDatabase();
+  const localList = (localDb.recommendations || []).sort(
+    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+  );
+
   if (isSupabaseConfigured() && supabase) {
     try {
       const { data, error } = await supabase
@@ -265,7 +285,7 @@ export async function getRecommendationsAsync(): Promise<Recommendation[]> {
         .select('*')
         .order('sort_order', { ascending: true });
       if (!error && data && data.length > 0) {
-        return data.map((d) => ({
+        const dbList: Recommendation[] = data.map((d) => ({
           id: d.id,
           name: d.name,
           role: d.role,
@@ -277,16 +297,24 @@ export async function getRecommendationsAsync(): Promise<Recommendation[]> {
           date: d.date,
           sortOrder: d.sort_order,
         }));
+
+        const combined = new Map<string, Recommendation>();
+        for (const lr of localList) {
+          combined.set(lr.id, lr);
+        }
+        for (const dr of dbList) {
+          combined.set(dr.id, dr);
+        }
+        return Array.from(combined.values()).sort(
+          (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+        );
       }
     } catch (err) {
       console.error('Error fetching recommendations from Supabase:', err);
     }
   }
 
-  const localDb = getDatabase();
-  return (localDb.recommendations || []).sort(
-    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
-  );
+  return localList;
 }
 
 export async function saveRecommendationAsync(item: Recommendation): Promise<{ success: boolean; data?: Recommendation; message?: string }> {
@@ -308,20 +336,20 @@ export async function saveRecommendationAsync(item: Recommendation): Promise<{ s
   // 2. Also persist to Supabase if configured
   if (isSupabaseConfigured() && supabaseAdmin) {
     try {
-      const { data, error } = await supabaseAdmin
+      const { error } = await supabaseAdmin
         .from('recommendations')
         .upsert([{
           id: item.id,
           name: item.name,
           role: item.role,
           company: item.company,
-          avatar_url: item.avatarUrl,
+          avatar_url: item.avatarUrl || '',
           content: item.content,
-          linkedin_url: item.linkedinUrl,
-          relation: item.relation,
-          date: item.date,
+          linkedin_url: item.linkedinUrl || '',
+          relation: item.relation || '',
+          date: item.date || '',
           sort_order: item.sortOrder ?? 0,
-        }]);
+        }], { onConflict: 'id' });
 
       if (error) console.error('Supabase recommendation save error:', error);
     } catch (err: any) {
@@ -334,40 +362,59 @@ export async function saveRecommendationAsync(item: Recommendation): Promise<{ s
 
 export async function updateRecommendationAsync(id: string, updates: Partial<Recommendation>): Promise<{ success: boolean; message?: string }> {
   // 1. Always update local database file first for immediate sync
+  let fullRecord: Recommendation | null = null;
   try {
     const localDb = getDatabase();
-    if (localDb.recommendations) {
-      const idx = localDb.recommendations.findIndex((r) => r.id === id);
-      if (idx !== -1) {
-        localDb.recommendations[idx] = { ...localDb.recommendations[idx], ...updates };
-        saveDatabase(localDb);
-      }
+    if (!localDb.recommendations) localDb.recommendations = [];
+    const idx = localDb.recommendations.findIndex((r) => r.id === id);
+    if (idx !== -1) {
+      localDb.recommendations[idx] = { ...localDb.recommendations[idx], ...updates };
+      fullRecord = localDb.recommendations[idx];
+      saveDatabase(localDb);
+    } else {
+      const newItem: Recommendation = {
+        id,
+        name: updates.name || '',
+        role: updates.role || '',
+        company: updates.company || '',
+        avatarUrl: updates.avatarUrl || '',
+        content: updates.content || '',
+        linkedinUrl: updates.linkedinUrl || '',
+        relation: updates.relation || '',
+        date: updates.date || '',
+        sortOrder: updates.sortOrder ?? 0,
+        ...updates,
+      };
+      localDb.recommendations.push(newItem);
+      fullRecord = newItem;
+      saveDatabase(localDb);
     }
   } catch (e: any) {
     console.error('Local recommendation update error:', e);
   }
 
   // 2. Also persist to Supabase if configured
-  if (isSupabaseConfigured() && supabaseAdmin) {
+  if (isSupabaseConfigured() && supabaseAdmin && fullRecord) {
     try {
-      const dbPayload: any = {};
-      if (updates.name !== undefined) dbPayload.name = updates.name;
-      if (updates.role !== undefined) dbPayload.role = updates.role;
-      if (updates.company !== undefined) dbPayload.company = updates.company;
-      if (updates.avatarUrl !== undefined) dbPayload.avatar_url = updates.avatarUrl;
-      if (updates.content !== undefined) dbPayload.content = updates.content;
-      if (updates.linkedinUrl !== undefined) dbPayload.linkedin_url = updates.linkedinUrl;
-      if (updates.relation !== undefined) dbPayload.relation = updates.relation;
-      if (updates.date !== undefined) dbPayload.date = updates.date;
-      if (updates.sortOrder !== undefined) dbPayload.sort_order = updates.sortOrder;
+      const dbPayload = {
+        id: fullRecord.id,
+        name: fullRecord.name,
+        role: fullRecord.role,
+        company: fullRecord.company,
+        avatar_url: fullRecord.avatarUrl || '',
+        content: fullRecord.content,
+        linkedin_url: fullRecord.linkedinUrl || '',
+        relation: fullRecord.relation || '',
+        date: fullRecord.date || '',
+        sort_order: fullRecord.sortOrder ?? 0,
+      };
 
       const { error } = await supabaseAdmin
         .from('recommendations')
-        .update(dbPayload)
-        .eq('id', id);
+        .upsert([dbPayload], { onConflict: 'id' });
 
       if (error) {
-        console.error('Supabase recommendation update error:', error);
+        console.error('Supabase recommendation upsert error:', error);
       }
     } catch (err: any) {
       console.error('Error updating recommendation in Supabase:', err);

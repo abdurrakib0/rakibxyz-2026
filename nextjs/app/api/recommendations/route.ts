@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import {
   getRecommendationsAsync,
   saveRecommendationAsync,
@@ -24,17 +25,17 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, role, company, avatarUrl, content, linkedinUrl, relation, date, sortOrder } = body;
+    const { id, name, role, company, avatarUrl, content, linkedinUrl, relation, date, sortOrder } = body;
 
     if (!name || !role || !content) {
       return NextResponse.json(
-        { success: false, message: 'Name, role, and recommendation content are required.' },
+        { success: false, message: 'Name, role/headline, and recommendation content are required.' },
         { status: 400 }
       );
     }
 
     const newRecommendation: Recommendation = {
-      id: `rec_${Date.now()}`,
+      id: id || `rec_${Date.now()}`,
       name: name.trim(),
       role: role.trim(),
       company: (company || '').trim(),
@@ -53,6 +54,11 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    try {
+      revalidatePath('/');
+      revalidatePath('/admin/recommendations');
+    } catch (e) {}
 
     return NextResponse.json({ success: true, recommendation: result.data });
   } catch (error: any) {
@@ -83,6 +89,11 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    try {
+      revalidatePath('/');
+      revalidatePath('/admin/recommendations');
+    } catch (e) {}
+
     return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json(
@@ -90,6 +101,10 @@ export async function PATCH(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function PUT(req: NextRequest) {
+  return PATCH(req);
 }
 
 export async function DELETE(req: NextRequest) {
@@ -105,6 +120,12 @@ export async function DELETE(req: NextRequest) {
     }
 
     const success = await deleteRecommendationAsync(id);
+
+    try {
+      revalidatePath('/');
+      revalidatePath('/admin/recommendations');
+    } catch (e) {}
+
     return NextResponse.json({ success });
   } catch (error: any) {
     return NextResponse.json(
