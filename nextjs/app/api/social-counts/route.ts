@@ -1,57 +1,46 @@
 import { NextResponse } from 'next/server';
+import { Innertube } from 'youtubei.js';
+import { getDatabase } from '@/lib/data';
 
-// Cache response for 1 hour — revalidates automatically on next request after expiry
+// Cache for 1 hour server-side
 export const revalidate = 3600;
 
 export async function GET() {
-  const apiKey = process.env.YOUTUBE_API_KEY;
+  const db = getDatabase();
+  const fallback = db.siteInfo.socialMetrics?.youtubeSubscribers || '25,000+';
 
-  const result = {
-    youtube: null as string | null,
-    youtubeRaw: null as number | null,
-    cached: false,
-    updatedAt: new Date().toISOString(),
-    apiKeyMissing: !apiKey,
-  };
-
-  if (!apiKey) {
-    return NextResponse.json(result, {
-      headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' },
-    });
-  }
+  let youtubeCount: string | null = null;
 
   try {
-    // Fetch YouTube channel stats by channel handle
-    const ytRes = await fetch(
-      `https://www.googleapis.com/youtube/v3/channels?part=statistics&forHandle=abdurrakib0&key=${apiKey}`,
-      { next: { revalidate: 3600 } }
-    );
+    const yt = await Innertube.create({ generate_session_locally: true });
+    const channel = await yt.getChannel('@abdurrakib0');
 
-    if (ytRes.ok) {
-      const ytData = await ytRes.json();
-      const stats = ytData?.items?.[0]?.statistics;
+    const subText: string =
+      (channel as any)?.metadata?.subscriber_count_text ||
+      (channel as any)?.header?.subscriber_count?.text ||
+      (channel as any)?.header?.author?.subscriber_count?.text ||
+      '';
 
-      if (stats?.subscriberCount) {
-        const count = parseInt(stats.subscriberCount, 10);
-        result.youtubeRaw = count;
-
-        // Format nicely: 25400 → "25.4K", 1200000 → "1.2M"
-        if (count >= 1_000_000) {
-          result.youtube = (count / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M+';
-        } else if (count >= 1_000) {
-          result.youtube = (count / 1_000).toFixed(1).replace(/\.0$/, '') + 'K+';
-        } else {
-          result.youtube = count.toLocaleString() + '+';
-        }
-      }
-    } else {
-      console.error('YouTube API error:', ytRes.status, await ytRes.text());
+    if (subText) {
+      // "25.4K subscribers" → "25.4K+"
+      const cleaned = subText.replace(/\s*subscribers?/i, '').trim();
+      if (cleaned) youtubeCount = cleaned + '+';
     }
   } catch (err) {
-    console.error('YouTube fetch error:', err);
+    console.warn('[social-counts] youtubei.js error, using fallback:', err);
+    // Graceful fallback — use admin-set value
+    youtubeCount = fallback;
   }
 
-  return NextResponse.json(result, {
-    headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' },
-  });
+  return NextResponse.json(
+    {
+      youtube: youtubeCount || fallback,
+      youtubeRaw: null,
+      apiKeyMissing: false, // youtubei.js never needs an API key
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' },
+    }
+  );
 }
