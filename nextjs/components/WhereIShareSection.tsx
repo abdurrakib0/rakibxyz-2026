@@ -7,6 +7,7 @@ interface WhereIShareSectionProps {
   siteInfo: SiteInfo;
 }
 
+/* ── Icons ─────────────────────────────────────────── */
 function LinkedInIcon({ size = 18 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -31,7 +32,7 @@ function FacebookIcon({ size = 18 }: { size?: number }) {
   );
 }
 
-/* Count-up on scroll into view */
+/* ── Count-up animation on scroll ──────────────────── */
 function useCountUp(target: string, inView: boolean) {
   const [display, setDisplay] = useState('—');
 
@@ -40,11 +41,10 @@ function useCountUp(target: string, inView: boolean) {
     const numericStr = target.replace(/[^0-9]/g, '');
     const suffix = target.replace(/[0-9,]/g, '');
     const end = parseInt(numericStr, 10);
-
     if (isNaN(end)) { setDisplay(target); return; }
 
-    const duration = 1200;
     const steps = 45;
+    const duration = 1200;
     let current = 0;
     const inc = end / steps;
     const id = setInterval(() => {
@@ -56,25 +56,46 @@ function useCountUp(target: string, inView: boolean) {
         setDisplay(Math.floor(current).toLocaleString() + suffix);
       }
     }, duration / steps);
-
     return () => clearInterval(id);
   }, [inView, target]);
 
   return display;
 }
 
-function ChannelCard({
-  name,
-  handle,
-  url,
-  count,
-  countLabel,
-  description,
-  actionText,
-  brandColor,
-  icon,
-  iconSmall,
-}: {
+/* ── Fetch live YouTube subscriber count ────────────
+   - Hits /api/social-counts which caches for 1 hour server-side
+   - Client refreshes every 30 min for long-open tabs
+   - Falls back silently if no API key is set
+───────────────────────────────────────────────────── */
+function useLiveCounts() {
+  const [youtubeLive, setYoutubeLive] = useState<string | null>(null);
+  const [isLive, setIsLive] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchCounts = async () => {
+      try {
+        const res = await fetch('/api/social-counts');
+        if (!res.ok || cancelled) return;
+        const data = await res.json();
+        if (data.youtube && !data.apiKeyMissing && !cancelled) {
+          setYoutubeLive(data.youtube);
+          setIsLive(true);
+        }
+      } catch (_) { /* silent fallback */ }
+    };
+
+    fetchCounts();
+    const interval = setInterval(fetchCounts, 30 * 60 * 1000); // every 30 min
+    return () => { cancelled = true; clearInterval(interval); };
+  }, []);
+
+  return { youtubeLive, isLive };
+}
+
+/* ── Individual Channel Card ────────────────────────── */
+interface ChannelCardProps {
   name: string;
   handle: string;
   url: string;
@@ -83,9 +104,16 @@ function ChannelCard({
   description: string;
   actionText: string;
   brandColor: string;
+  isApiLive?: boolean;
   icon: React.ReactNode;
   iconSmall: React.ReactNode;
-}) {
+}
+
+function ChannelCard({
+  name, handle, url, count, countLabel,
+  description, actionText, brandColor, isApiLive,
+  icon, iconSmall,
+}: ChannelCardProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
   const animated = useCountUp(count, inView);
@@ -104,42 +132,42 @@ function ChannelCard({
   return (
     <div
       ref={ref}
-      className="group relative flex flex-col bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] transition-all duration-250 hover:border-[var(--ink)]/30 hover:shadow-sm overflow-hidden"
+      className="group flex flex-col bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] overflow-hidden transition-all duration-250 hover:border-[var(--ink)]/30 hover:shadow-sm"
     >
-      {/* Thin accent rule at top — only the brand icon color as a 2px line */}
-      <div className="h-[2px] w-full shrink-0" style={{ backgroundColor: brandColor }} />
+      {/* Brand colour top strip — 2px only */}
+      <div className="h-[2px] shrink-0" style={{ backgroundColor: brandColor }} />
 
-      {/* Body */}
+      {/* Card body */}
       <div className="flex flex-col gap-5 p-6 flex-1">
 
-        {/* Platform identity */}
+        {/* Platform identity row */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5">
-            {/* Icon — brand color only here */}
-            <span className="shrink-0" style={{ color: brandColor }}>
-              {icon}
-            </span>
+            <span className="shrink-0" style={{ color: brandColor }}>{icon}</span>
             <div>
               <h3 className="font-semibold text-[var(--ink)] text-[0.9375rem] leading-tight">
                 {name}
               </h3>
-              <span className="font-mono text-[0.75rem] text-[var(--ink-muted)] block leading-tight mt-0.5">
+              <span className="font-mono text-[0.75rem] text-[var(--ink-muted)] block mt-0.5">
                 {handle}
               </span>
             </div>
           </div>
 
-          {/* Minimal live indicator — no brand color, just site palette */}
-          <span className="flex items-center gap-1.5 font-mono text-[0.625rem] uppercase tracking-wider text-[var(--ink-muted)] border border-[var(--rule)] rounded-full px-2 py-0.5">
-            <span className="w-1 h-1 rounded-full bg-[var(--ink-muted)] opacity-60" />
-            Live
+          {/* Live badge — uses API live indicator for YouTube, static for others */}
+          <span className="flex items-center gap-1.5 font-mono text-[0.625rem] uppercase tracking-wider text-[var(--ink-muted)] border border-[var(--rule)] rounded-full px-2 py-0.5 shrink-0">
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${isApiLive ? 'animate-pulse' : ''}`}
+              style={{ backgroundColor: isApiLive ? brandColor : 'var(--ink-muted)', opacity: isApiLive ? 1 : 0.5 }}
+            />
+            {isApiLive ? 'Live API' : 'Live'}
           </span>
         </div>
 
         {/* Divider */}
         <div className="h-px bg-[var(--rule)]" />
 
-        {/* Metric — all in site ink, no brand color on numbers */}
+        {/* Metric */}
         <div>
           <span className="block font-serif text-[2.75rem] text-[var(--ink)] font-normal leading-none tracking-tight tabular-nums">
             {animated}
@@ -155,7 +183,7 @@ function ChannelCard({
         </p>
       </div>
 
-      {/* CTA — sits flush at the bottom, uses site accent not brand color */}
+      {/* CTA — flush bottom */}
       <div className="px-6 pb-6">
         <a
           href={url}
@@ -163,25 +191,17 @@ function ChannelCard({
           rel="noopener noreferrer"
           className="flex items-center gap-2 w-full py-2.5 px-4 rounded border border-[var(--rule)] bg-[var(--bg)] text-[var(--ink)] no-underline font-mono text-[0.8125rem] font-medium transition-all duration-200 hover:bg-[var(--ink)] hover:text-[var(--bg)] hover:border-[var(--ink)] group/btn"
         >
-          {/* Small brand icon on the button */}
           <span
-            className="shrink-0 transition-colors duration-200 group-hover/btn:text-[var(--bg)]"
+            className="shrink-0 transition-colors duration-200 group-hover/btn:!text-[var(--bg)]"
             style={{ color: brandColor }}
           >
             {iconSmall}
           </span>
           <span className="flex-1">{actionText}</span>
-          {/* Arrow */}
           <svg
-            width="13"
-            height="13"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="shrink-0 opacity-50 group-hover/btn:opacity-100 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-all duration-200"
+            width="12" height="12" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+            className="shrink-0 opacity-40 group-hover/btn:opacity-100 transition-all duration-200"
             aria-hidden
           >
             <path d="M7 17L17 7M7 7h10v10" />
@@ -192,12 +212,13 @@ function ChannelCard({
   );
 }
 
+/* ── Main Section ───────────────────────────────────── */
 export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps) {
   const { socialLinks, socialMetrics } = siteInfo;
+  const { youtubeLive, isLive } = useLiveCounts();
 
-  const channels = [
+  const channels: ChannelCardProps[] = [
     {
-      id: 'linkedin',
       name: 'LinkedIn',
       handle: '@abdurrakib0',
       url: socialLinks?.linkedin || 'https://www.linkedin.com/in/abdurrakib0/',
@@ -209,13 +230,14 @@ export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps
       brandColor: '#0A66C2',
       icon: <LinkedInIcon size={22} />,
       iconSmall: <LinkedInIcon size={14} />,
+      isApiLive: false,
     },
     {
-      id: 'youtube',
       name: 'YouTube',
       handle: '@abdurrakib0',
       url: socialLinks?.youtube || 'https://www.youtube.com/@abdurrakib0',
-      count: socialMetrics?.youtubeSubscribers || '25,000+',
+      // Live API count takes priority; falls back to admin-set value
+      count: youtubeLive || socialMetrics?.youtubeSubscribers || '25,000+',
       countLabel: socialMetrics?.youtubeLabel || 'Subscribers',
       description:
         'Host of Career Crackerz & Borderless Bangladeshi — podcast conversations, keynotes, and step-by-step developer growth masterclasses.',
@@ -223,9 +245,9 @@ export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps
       brandColor: '#CC0000',
       icon: <YouTubeIcon size={22} />,
       iconSmall: <YouTubeIcon size={14} />,
+      isApiLive: isLive,
     },
     {
-      id: 'facebook',
       name: 'Facebook',
       handle: '@abdurrakibzero',
       url: socialLinks?.facebook || 'https://www.facebook.com/abdurrakibzero',
@@ -237,12 +259,12 @@ export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps
       brandColor: '#1877F2',
       icon: <FacebookIcon size={22} />,
       iconSmall: <FacebookIcon size={14} />,
+      isApiLive: false,
     },
   ];
 
   return (
     <section id="where-i-share" className="container space-y-8">
-      {/* Section Header */}
       <div className="section-header">
         <div className="section-header-title-group">
           <span className="section-label">05 / Channels</span>
@@ -250,10 +272,9 @@ export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps
         </div>
       </div>
 
-      {/* Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {channels.map((ch) => (
-          <ChannelCard key={ch.id} {...ch} />
+          <ChannelCard key={ch.name} {...ch} />
         ))}
       </div>
     </section>
