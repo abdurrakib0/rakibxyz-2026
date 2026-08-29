@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import type { PlaylistVideo } from '@/app/api/playlists/route';
+import type { PlaylistVideo } from '@/lib/youtube-playlists';
 
 interface PodcastSectionProps {
   careerCrackerz: PlaylistVideo[];

@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // youtubei.js uses native Node.js features — must not be bundled by webpack
-  serverExternalPackages: ['youtubei.js'],
   images: {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
@@ -23,6 +21,8 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'clsx', 'tailwind-merge'],
+    // youtubei.js uses native Node.js modules — prevent webpack from bundling it
+    serverComponentsExternalPackages: ['youtubei.js'],
   },
   async headers() {
     return [
