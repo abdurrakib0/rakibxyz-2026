@@ -476,130 +476,164 @@ export async function deleteRecommendationAsync(id: string): Promise<boolean> {
 // ---------------------------------------------------------------------------
 
 export async function getSubscribersAsync(): Promise<Subscriber[]> {
+  const localDb = getDatabase();
+  const localSubs = localDb.subscribers || [];
+
   if (isSupabaseConfigured() && supabaseAdmin) {
     try {
       const { data, error } = await supabaseAdmin
         .from('subscribers')
         .select('*')
         .order('created_at', { ascending: false });
+
       if (!error && data) {
-        return data.map((d) => ({
-          id: String(d.id),
-          email: d.email,
-          created_at: d.created_at || new Date().toISOString(),
-        }));
+        const map = new Map<string, Subscriber>();
+        for (const s of localSubs) {
+          if (s.email) map.set(s.email.toLowerCase().trim(), s);
+        }
+        for (const d of data) {
+          if (d.email) {
+            map.set(d.email.toLowerCase().trim(), {
+              id: String(d.id),
+              email: d.email,
+              created_at: d.created_at || new Date().toISOString(),
+            });
+          }
+        }
+        return Array.from(map.values()).sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
       }
     } catch (err) {
       console.error('Error fetching subscribers from Supabase:', err);
     }
   }
 
-  const localDb = getDatabase();
-  return (localDb.subscribers || []).sort(
+  return localSubs.sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 }
 
 export async function saveNewsletterSubscriber(email: string): Promise<{ success: boolean; message: string }> {
-  if (isSupabaseConfigured() && supabaseAdmin) {
-    try {
-      const { error } = await supabaseAdmin
-        .from('subscribers')
-        .insert([{ email }]);
-      if (error) {
-        if (error.code === '23505') {
-          return { success: true, message: 'Already subscribed!' };
-        }
-        throw error;
-      }
-      return { success: true, message: 'Subscribed successfully!' };
-    } catch (err: any) {
-      console.error('Error saving subscriber to Supabase:', err);
-      return { success: false, message: err.message || 'Subscription failed' };
-    }
-  }
+  const cleanEmail = email.trim().toLowerCase();
 
-  // Local fallback save
+  // 1. Always save to local database file
   try {
     const localDb = getDatabase();
     if (!localDb.subscribers) localDb.subscribers = [];
     const exists = localDb.subscribers.find(
-      (s) => s.email.toLowerCase() === email.toLowerCase()
+      (s) => s.email.toLowerCase().trim() === cleanEmail
     );
-    if (exists) {
-      return { success: true, message: 'Already subscribed!' };
+    if (!exists) {
+      localDb.subscribers.unshift({
+        id: `sub_${Date.now()}`,
+        email: cleanEmail,
+        created_at: new Date().toISOString(),
+      });
+      saveDatabase(localDb);
     }
-    localDb.subscribers.unshift({
-      id: `sub_${Date.now()}`,
-      email,
-      created_at: new Date().toISOString(),
-    });
-    saveDatabase(localDb);
   } catch (e) {
     console.error('Local subscriber save error:', e);
   }
 
-  console.log(`[Local Fallback] Subscriber recorded: ${email}`);
-  return { success: true, message: 'Subscribed successfully!' };
-}
-
-export async function deleteSubscriberAsync(id: string): Promise<boolean> {
+  // 2. Also save to Supabase if configured
   if (isSupabaseConfigured() && supabaseAdmin) {
     try {
       const { error } = await supabaseAdmin
         .from('subscribers')
-        .delete()
-        .eq('id', id);
-      if (!error) return true;
+        .insert([{ email: cleanEmail }]);
+      if (error && error.code !== '23505') {
+        console.error('Supabase subscriber insert error:', error);
+      }
+    } catch (err: any) {
+      console.error('Error saving subscriber to Supabase:', err);
+    }
+  }
+
+  return { success: true, message: 'Subscribed successfully!' };
+}
+
+export async function deleteSubscriberAsync(id: string, email?: string): Promise<boolean> {
+  let targetEmail = email ? email.trim().toLowerCase() : '';
+
+  // 1. Delete from local database (by ID and by Email)
+  try {
+    const localDb = getDatabase();
+    if (localDb.subscribers) {
+      if (!targetEmail) {
+        const found = localDb.subscribers.find(
+          (s) => s.id === id || String(s.id) === String(id)
+        );
+        if (found) targetEmail = found.email.trim().toLowerCase();
+      }
+      localDb.subscribers = localDb.subscribers.filter(
+        (s) =>
+          s.id !== id &&
+          String(s.id) !== String(id) &&
+          (!targetEmail || s.email.trim().toLowerCase() !== targetEmail)
+      );
+      saveDatabase(localDb);
+    }
+  } catch (e) {
+    console.error('Local subscriber delete error:', e);
+  }
+
+  // 2. Delete from Supabase (by ID and by Email)
+  if (isSupabaseConfigured() && supabaseAdmin) {
+    try {
+      await supabaseAdmin.from('subscribers').delete().eq('id', id);
+      if (targetEmail) {
+        await supabaseAdmin.from('subscribers').delete().eq('email', targetEmail);
+      }
     } catch (err) {
       console.error('Error deleting subscriber from Supabase:', err);
     }
   }
 
-  const localDb = getDatabase();
-  if (localDb.subscribers) {
-    localDb.subscribers = localDb.subscribers.filter((s) => s.id !== id);
-    saveDatabase(localDb);
-    return true;
-  }
-  return false;
+  return true;
 }
 
 export async function updateSubscriberAsync(id: string, newEmail: string): Promise<{ success: boolean; message?: string }> {
+  const cleanEmail = newEmail.trim().toLowerCase();
+
+  // 1. Update in local database
+  try {
+    const localDb = getDatabase();
+    if (localDb.subscribers) {
+      const exists = localDb.subscribers.find(
+        (s) => s.email.toLowerCase().trim() === cleanEmail && s.id !== id
+      );
+      if (exists) {
+        return { success: false, message: 'Email already exists in subscriber list.' };
+      }
+      const sub = localDb.subscribers.find((s) => s.id === id || String(s.id) === String(id));
+      if (sub) {
+        sub.email = cleanEmail;
+        saveDatabase(localDb);
+      }
+    }
+  } catch (e) {
+    console.error('Local subscriber update error:', e);
+  }
+
+  // 2. Update in Supabase
   if (isSupabaseConfigured() && supabaseAdmin) {
     try {
       const { error } = await supabaseAdmin
         .from('subscribers')
-        .update({ email: newEmail })
+        .update({ email: cleanEmail })
         .eq('id', id);
       if (error) {
         if (error.code === '23505') {
           return { success: false, message: 'Email already exists in subscriber list.' };
         }
-        throw error;
+        console.warn('Supabase subscriber update error:', error);
       }
-      return { success: true };
     } catch (err: any) {
       console.error('Error updating subscriber in Supabase:', err);
-      return { success: false, message: err.message || 'Failed to update subscriber' };
     }
   }
 
-  const localDb = getDatabase();
-  if (localDb.subscribers) {
-    const exists = localDb.subscribers.find(
-      (s) => s.email.toLowerCase() === newEmail.toLowerCase() && s.id !== id
-    );
-    if (exists) {
-      return { success: false, message: 'Email already exists in subscriber list.' };
-    }
-    const sub = localDb.subscribers.find((s) => s.id === id);
-    if (sub) {
-      sub.email = newEmail;
-      saveDatabase(localDb);
-      return { success: true };
-    }
-  }
-  return { success: false, message: 'Subscriber not found' };
+  return { success: true };
 }
 

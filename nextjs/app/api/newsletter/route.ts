@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { saveNewsletterSubscriber } from '@/lib/data';
 import { validateEmail } from '@/lib/email-validator';
+import { revalidatePath } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,12 @@ export async function POST(req: NextRequest) {
     const cleanEmail = validation.cleanEmail || String(email).trim().toLowerCase();
 
     const saveResult = await saveNewsletterSubscriber(cleanEmail);
+
+    try {
+      revalidatePath('/admin/subscribers', 'page');
+      revalidatePath('/admin', 'page');
+    } catch (_) {}
+
     return NextResponse.json(saveResult);
   } catch (error) {
     return NextResponse.json(

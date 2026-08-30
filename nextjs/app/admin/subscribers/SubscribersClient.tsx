@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Subscriber } from '@/lib/data';
 import { validateEmail } from '@/lib/email-validator';
 
@@ -11,10 +12,23 @@ interface SubscribersClientProps {
 }
 
 export default function SubscribersClient({ initialSubscribers }: SubscribersClientProps) {
+  const router = useRouter();
   const [subscribers, setSubscribers] = useState<Subscriber[]>(initialSubscribers || []);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Sync with initialSubscribers prop changes
+  useEffect(() => {
+    if (initialSubscribers) {
+      setSubscribers(initialSubscribers);
+    }
+  }, [initialSubscribers]);
+
+  // Fetch live on mount
+  useEffect(() => {
+    fetchSubscribers();
+  }, []);
 
   // Edit inline states
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -27,8 +41,8 @@ export default function SubscribersClient({ initialSubscribers }: SubscribersCli
     try {
       const res = await fetch('/api/subscribers', { cache: 'no-store' });
       const data = await res.json();
-      if (data.success) {
-        setSubscribers(data.subscribers || []);
+      if (data.success && Array.isArray(data.subscribers)) {
+        setSubscribers(data.subscribers);
       }
     } catch (err) {
       console.error('Error fetching subscribers:', err);
@@ -73,6 +87,7 @@ export default function SubscribersClient({ initialSubscribers }: SubscribersCli
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, email: cleanEmail }),
       });
+      router.refresh();
     } catch (err) {
       console.error('Error updating subscriber:', err);
     }
@@ -84,14 +99,17 @@ export default function SubscribersClient({ initialSubscribers }: SubscribersCli
     }
 
     // Instant optimistic update
-    setSubscribers((prev) => prev.filter((s) => s.id !== id));
+    setSubscribers((prev) =>
+      prev.filter((s) => s.id !== id && s.email.toLowerCase() !== email.toLowerCase())
+    );
     setStatusMessage(`Removed ${email}`);
     setTimeout(() => setStatusMessage(''), 3500);
 
     try {
-      await fetch(`/api/subscribers?id=${encodeURIComponent(id)}`, {
+      await fetch(`/api/subscribers?id=${encodeURIComponent(id)}&email=${encodeURIComponent(email)}`, {
         method: 'DELETE',
       });
+      router.refresh();
     } catch (err) {
       console.error('Error deleting subscriber:', err);
     }

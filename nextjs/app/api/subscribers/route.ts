@@ -1,13 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSubscribersAsync, deleteSubscriberAsync, updateSubscriberAsync } from '@/lib/data';
 import { validateEmail } from '@/lib/email-validator';
+import { revalidatePath } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 export async function GET() {
   try {
     const subscribers = await getSubscribersAsync();
-    return NextResponse.json({ success: true, subscribers });
+    return NextResponse.json(
+      { success: true, subscribers },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message || 'Failed to fetch subscribers' },
@@ -45,6 +57,11 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    try {
+      revalidatePath('/admin/subscribers', 'page');
+      revalidatePath('/admin', 'page');
+    } catch (_) {}
+
     return NextResponse.json({ success: true, message: 'Subscriber updated successfully.' });
   } catch (error: any) {
     return NextResponse.json(
@@ -58,15 +75,22 @@ export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
+    const email = searchParams.get('email') || undefined;
 
-    if (!id) {
+    if (!id && !email) {
       return NextResponse.json(
-        { success: false, message: 'Subscriber ID is required' },
+        { success: false, message: 'Subscriber ID or email is required' },
         { status: 400 }
       );
     }
 
-    const success = await deleteSubscriberAsync(id);
+    const success = await deleteSubscriberAsync(id || '', email);
+
+    try {
+      revalidatePath('/admin/subscribers', 'page');
+      revalidatePath('/admin', 'page');
+    } catch (_) {}
+
     return NextResponse.json({ success });
   } catch (error: any) {
     return NextResponse.json(
