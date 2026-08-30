@@ -113,14 +113,44 @@
     }
 
     .logo {
-      font-size: var(--step--1);
-      font-weight: 600;
+      font-family: var(--font-display);
+      font-size: 1.375rem;
+      font-weight: 500;
       color: var(--ink);
-      border-bottom: none;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      border-bottom: none !important;
+      text-decoration: none !important;
+      display: inline-flex;
+      align-items: baseline;
+      transition: color 0.2s ease, opacity 0.2s ease;
+    }
+
+    @media (min-width: 768px) {
+      .logo {
+        font-size: 1.5625rem;
+      }
     }
 
     .logo:hover {
       color: var(--accent);
+    }
+
+    .logo-text {
+      font-feature-settings: "kern" 1, "liga" 1;
+    }
+
+    .logo-dot {
+      color: var(--accent);
+      font-family: var(--font-display);
+      font-weight: 700;
+      margin-left: 1px;
+      display: inline-block;
+      transition: transform 0.2s ease;
+    }
+
+    .logo:hover .logo-dot {
+      transform: scale(1.2);
     }
 
     /* Navigation */

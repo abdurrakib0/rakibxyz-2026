@@ -48,8 +48,9 @@ export default function Header() {
   return (
     <header>
       <div className="container header-inner">
-        <Link href="/" className="logo">
-          Abdur Rakib
+        <Link href="/" className="logo" aria-label="Abdur Rakib - Home">
+          <span className="logo-text">Abdur Rakib</span>
+          <span className="logo-dot">.</span>
         </Link>
 
         {/* Desktop Nav */}
