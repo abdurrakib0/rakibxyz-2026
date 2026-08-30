@@ -217,6 +217,7 @@ export async function getDatabaseAsync(): Promise<DatabaseSchema> {
           philosophy: siteInfoRes.data.philosophy || localDb.siteInfo.philosophy,
           ecosystemLinks: siteInfoRes.data.ecosystem_links || localDb.siteInfo.ecosystemLinks,
           socialLinks: siteInfoRes.data.social_links || localDb.siteInfo.socialLinks,
+          socialMetrics: siteInfoRes.data.social_metrics || siteInfoRes.data.socialMetrics || localDb.siteInfo.socialMetrics,
         }
       : localDb.siteInfo;
 

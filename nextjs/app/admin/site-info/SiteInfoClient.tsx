@@ -296,7 +296,7 @@ export default function SiteInfoClient({ initialSiteInfo }: SiteInfoClientProps)
               <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink-muted)]">Follower Count</label>
               <input
                 type="text"
-                value={siteInfo.socialMetrics?.linkedinFollowers || '35,000+'}
+                value={siteInfo.socialMetrics?.linkedinFollowers ?? ''}
                 onChange={(e) => setSiteInfo({
                   ...siteInfo,
                   socialMetrics: { ...(siteInfo.socialMetrics || {}), linkedinFollowers: e.target.value }
@@ -307,7 +307,7 @@ export default function SiteInfoClient({ initialSiteInfo }: SiteInfoClientProps)
               <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink-muted)]">Label</label>
               <input
                 type="text"
-                value={siteInfo.socialMetrics?.linkedinLabel || 'Followers & Connections'}
+                value={siteInfo.socialMetrics?.linkedinLabel ?? ''}
                 onChange={(e) => setSiteInfo({
                   ...siteInfo,
                   socialMetrics: { ...(siteInfo.socialMetrics || {}), linkedinLabel: e.target.value }
@@ -325,7 +325,7 @@ export default function SiteInfoClient({ initialSiteInfo }: SiteInfoClientProps)
               <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink-muted)]">Subscriber Count</label>
               <input
                 type="text"
-                value={siteInfo.socialMetrics?.youtubeSubscribers || '25,000+'}
+                value={siteInfo.socialMetrics?.youtubeSubscribers ?? ''}
                 onChange={(e) => setSiteInfo({
                   ...siteInfo,
                   socialMetrics: { ...(siteInfo.socialMetrics || {}), youtubeSubscribers: e.target.value }
@@ -336,7 +336,7 @@ export default function SiteInfoClient({ initialSiteInfo }: SiteInfoClientProps)
               <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink-muted)]">Label</label>
               <input
                 type="text"
-                value={siteInfo.socialMetrics?.youtubeLabel || 'Subscribers'}
+                value={siteInfo.socialMetrics?.youtubeLabel ?? ''}
                 onChange={(e) => setSiteInfo({
                   ...siteInfo,
                   socialMetrics: { ...(siteInfo.socialMetrics || {}), youtubeLabel: e.target.value }
@@ -354,7 +354,7 @@ export default function SiteInfoClient({ initialSiteInfo }: SiteInfoClientProps)
               <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink-muted)]">Follower Count</label>
               <input
                 type="text"
-                value={siteInfo.socialMetrics?.facebookFollowers || '50,000+'}
+                value={siteInfo.socialMetrics?.facebookFollowers ?? ''}
                 onChange={(e) => setSiteInfo({
                   ...siteInfo,
                   socialMetrics: { ...(siteInfo.socialMetrics || {}), facebookFollowers: e.target.value }
@@ -365,7 +365,7 @@ export default function SiteInfoClient({ initialSiteInfo }: SiteInfoClientProps)
               <label className="font-mono text-[0.6875rem] uppercase text-[var(--ink-muted)]">Label</label>
               <input
                 type="text"
-                value={siteInfo.socialMetrics?.facebookLabel || 'Followers'}
+                value={siteInfo.socialMetrics?.facebookLabel ?? ''}
                 onChange={(e) => setSiteInfo({
                   ...siteInfo,
                   socialMetrics: { ...(siteInfo.socialMetrics || {}), facebookLabel: e.target.value }

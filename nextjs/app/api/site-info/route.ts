@@ -26,6 +26,7 @@ export async function GET() {
           philosophy: data.philosophy,
           ecosystemLinks: data.ecosystem_links,
           socialLinks: data.social_links,
+          socialMetrics: data.social_metrics || data.socialMetrics,
         });
       }
     } catch (e) {
@@ -55,6 +56,7 @@ export async function PUT(req: NextRequest) {
           philosophy: updatedSiteInfo.philosophy,
           ecosystem_links: updatedSiteInfo.ecosystemLinks,
           social_links: updatedSiteInfo.socialLinks,
+          social_metrics: updatedSiteInfo.socialMetrics,
           updated_at: new Date().toISOString(),
         });
         if (error) {
