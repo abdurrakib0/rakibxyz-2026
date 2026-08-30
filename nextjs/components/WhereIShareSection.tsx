@@ -34,17 +34,20 @@ function FacebookIcon({ size = 18 }: { size?: number }) {
 
 /* ── Count-up animation on scroll ──────────────────── */
 function useCountUp(target: string, inView: boolean) {
-  const [display, setDisplay] = useState('—');
+  const [display, setDisplay] = useState(target);
 
   useEffect(() => {
-    if (!inView) return;
+    if (!inView || !target) return;
     const numericStr = target.replace(/[^0-9]/g, '');
     const suffix = target.replace(/[0-9,]/g, '');
     const end = parseInt(numericStr, 10);
-    if (isNaN(end)) { setDisplay(target); return; }
+    if (isNaN(end) || end === 0) {
+      setDisplay(target);
+      return;
+    }
 
-    const steps = 45;
-    const duration = 1200;
+    const steps = 30;
+    const duration = 1000;
     let current = 0;
     const inc = end / steps;
     const id = setInterval(() => {
@@ -59,7 +62,7 @@ function useCountUp(target: string, inView: boolean) {
     return () => clearInterval(id);
   }, [inView, target]);
 
-  return display;
+  return display || target;
 }
 
 /* ── Fetch live YouTube subscriber count ────────────
@@ -236,8 +239,8 @@ export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps
       name: 'YouTube',
       handle: '@abdurrakib0',
       url: socialLinks?.youtube || 'https://www.youtube.com/@abdurrakib0',
-      // Live API count takes priority; falls back to admin-set value
-      count: youtubeLive || socialMetrics?.youtubeSubscribers || '25,000+',
+      // Admin-set value takes priority; falls back to live count if empty
+      count: socialMetrics?.youtubeSubscribers || youtubeLive || '25,000+',
       countLabel: socialMetrics?.youtubeLabel || 'Subscribers',
       description:
         'Host of Career Crackerz & Borderless Bangladeshi — podcast conversations, keynotes, and step-by-step developer growth masterclasses.',
