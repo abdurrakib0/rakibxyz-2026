@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { Subscriber } from '@/lib/data';
+import { validateEmail } from '@/lib/email-validator';
 
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i;
 const ITEMS_PER_PAGE = 10;
 
 interface SubscribersClientProps {
@@ -50,17 +50,14 @@ export default function SubscribersClient({ initialSubscribers }: SubscribersCli
   };
 
   const handleSaveEdit = async (id: string) => {
-    const cleanEmail = editEmail.trim().toLowerCase();
+    const validation = validateEmail(editEmail);
 
-    if (!cleanEmail) {
-      setEditError('Email address cannot be empty.');
+    if (!validation.isValid) {
+      setEditError(validation.error || 'Please enter a valid email address.');
       return;
     }
 
-    if (!EMAIL_REGEX.test(cleanEmail)) {
-      setEditError('Please enter a valid email address.');
-      return;
-    }
+    const cleanEmail = validation.cleanEmail || editEmail.trim().toLowerCase();
 
     // Instant optimistic update
     setSubscribers((prev) =>

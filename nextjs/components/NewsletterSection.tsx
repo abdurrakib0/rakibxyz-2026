@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i;
+import { validateEmail } from '@/lib/email-validator';
 
 export default function NewsletterSection() {
   const [email, setEmail] = useState('');
@@ -13,13 +12,15 @@ export default function NewsletterSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanEmail = email.trim();
+    const result = validateEmail(email);
 
-    if (!cleanEmail || !EMAIL_REGEX.test(cleanEmail)) {
-      setMessage('Please provide a valid email address (e.g., yourname@domain.com).');
+    if (!result.isValid) {
+      setMessage(result.error || 'Please provide a valid email address (e.g. yourname@domain.com).');
       setIsError(true);
       return;
     }
+
+    const cleanEmail = result.cleanEmail || email.trim().toLowerCase();
 
     setLoading(true);
     setMessage('');

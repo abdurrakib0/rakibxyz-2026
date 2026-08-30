@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSubscribersAsync, deleteSubscriberAsync, updateSubscriberAsync } from '@/lib/data';
+import { validateEmail } from '@/lib/email-validator';
 
 export const dynamic = 'force-dynamic';
-
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i;
 
 export async function GET() {
   try {
@@ -20,21 +19,23 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   try {
     const { id, email } = await req.json();
-    const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
 
-    if (!id || !cleanEmail) {
+    if (!id || !email) {
       return NextResponse.json(
         { success: false, message: 'Subscriber ID and email are required.' },
         { status: 400 }
       );
     }
 
-    if (!EMAIL_REGEX.test(cleanEmail)) {
+    const validation = validateEmail(email);
+    if (!validation.isValid) {
       return NextResponse.json(
-        { success: false, message: 'Please provide a valid email address.' },
+        { success: false, message: validation.error || 'Please provide a valid email address.' },
         { status: 400 }
       );
     }
+
+    const cleanEmail = validation.cleanEmail || String(email).trim().toLowerCase();
 
     const result = await updateSubscriberAsync(id, cleanEmail);
     if (!result.success) {

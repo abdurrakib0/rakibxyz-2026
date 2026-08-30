@@ -1,24 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { saveNewsletterSubscriber } from '@/lib/data';
+import { validateEmail } from '@/lib/email-validator';
 
 export const dynamic = 'force-dynamic';
-
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i;
 
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
-    const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    const validation = validateEmail(email);
 
-    if (!cleanEmail || !EMAIL_REGEX.test(cleanEmail)) {
+    if (!validation.isValid) {
       return NextResponse.json(
-        { success: false, message: 'Please provide a valid email address.' },
+        { success: false, message: validation.error || 'Please provide a valid email address.' },
         { status: 400 }
       );
     }
 
-    const result = await saveNewsletterSubscriber(cleanEmail);
-    return NextResponse.json(result);
+    const cleanEmail = validation.cleanEmail || String(email).trim().toLowerCase();
+
+    const saveResult = await saveNewsletterSubscriber(cleanEmail);
+    return NextResponse.json(saveResult);
   } catch (error) {
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
