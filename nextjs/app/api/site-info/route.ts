@@ -15,6 +15,14 @@ export async function GET() {
         .maybeSingle();
 
       if (!error && data) {
+        const socialLinks = data.social_links || {};
+        const socialMetrics =
+          data.social_metrics ||
+          data.socialMetrics ||
+          socialLinks.metrics ||
+          socialLinks.socialMetrics ||
+          null;
+
         return NextResponse.json({
           name: data.name,
           role: data.role,
@@ -26,7 +34,7 @@ export async function GET() {
           philosophy: data.philosophy,
           ecosystemLinks: data.ecosystem_links,
           socialLinks: data.social_links,
-          socialMetrics: data.social_metrics || data.socialMetrics,
+          socialMetrics: socialMetrics,
         });
       }
     } catch (e) {
@@ -43,7 +51,13 @@ export async function PUT(req: NextRequest) {
     const updatedSiteInfo = await req.json();
 
     if (isSupabaseConfigured() && supabaseAdmin) {
+      const socialLinksWithMetrics = {
+        ...(updatedSiteInfo.socialLinks || {}),
+        metrics: updatedSiteInfo.socialMetrics,
+      };
+
       try {
+        // First try upserting with both social_metrics and social_links
         const { error } = await supabaseAdmin.from('site_info').upsert({
           id: 'default',
           name: updatedSiteInfo.name,
@@ -55,12 +69,32 @@ export async function PUT(req: NextRequest) {
           stats: updatedSiteInfo.stats,
           philosophy: updatedSiteInfo.philosophy,
           ecosystem_links: updatedSiteInfo.ecosystemLinks,
-          social_links: updatedSiteInfo.socialLinks,
+          social_links: socialLinksWithMetrics,
           social_metrics: updatedSiteInfo.socialMetrics,
           updated_at: new Date().toISOString(),
         });
+
         if (error) {
-          console.error('Supabase error updating site-info:', error);
+          console.warn('Supabase upsert with social_metrics column error, using social_links.metrics fallback:', error.message);
+          // Fallback without social_metrics column in case column is not yet created in Supabase
+          const { error: fallbackError } = await supabaseAdmin.from('site_info').upsert({
+            id: 'default',
+            name: updatedSiteInfo.name,
+            role: updatedSiteInfo.role,
+            company: updatedSiteInfo.company,
+            hero_headline: updatedSiteInfo.heroHeadline,
+            hero_bio: updatedSiteInfo.heroBio,
+            stats_caption: updatedSiteInfo.statsCaption,
+            stats: updatedSiteInfo.stats,
+            philosophy: updatedSiteInfo.philosophy,
+            ecosystem_links: updatedSiteInfo.ecosystemLinks,
+            social_links: socialLinksWithMetrics,
+            updated_at: new Date().toISOString(),
+          });
+
+          if (fallbackError) {
+            console.error('Supabase fallback upsert error:', fallbackError);
+          }
         }
       } catch (e) {
         console.error('Supabase exception updating site-info:', e);

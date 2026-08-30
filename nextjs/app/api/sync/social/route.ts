@@ -53,12 +53,28 @@ export async function POST() {
     // 3. Save to Supabase if configured
     if (isSupabaseConfigured() && supabaseAdmin) {
       try {
-        await supabaseAdmin
+        const socialLinksWithMetrics = {
+          ...(localDb.siteInfo.socialLinks || {}),
+          metrics: updatedMetrics,
+        };
+
+        const { error: updateErr } = await supabaseAdmin
           .from('site_info')
           .update({
             social_metrics: updatedMetrics,
+            social_links: socialLinksWithMetrics,
           })
           .eq('id', 'default');
+
+        if (updateErr) {
+          // Fallback if social_metrics column doesn't exist
+          await supabaseAdmin
+            .from('site_info')
+            .update({
+              social_links: socialLinksWithMetrics,
+            })
+            .eq('id', 'default');
+        }
       } catch (dbErr) {
         console.warn('Supabase site_info update error:', dbErr);
       }
