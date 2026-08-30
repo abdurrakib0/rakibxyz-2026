@@ -77,6 +77,8 @@ export async function PUT(req: NextRequest) {
 
     try {
       revalidatePath('/', 'layout');
+      revalidatePath('/', 'page');
+      revalidatePath('/admin/site-info', 'page');
     } catch (err) {
       console.warn('revalidatePath warning:', err);
     }

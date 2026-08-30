@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { SiteInfo } from '@/lib/data';
 
 const DRAFT_SITEINFO_KEY = 'abdur_rakib_siteinfo_draft_v1';
@@ -10,6 +11,7 @@ interface SiteInfoClientProps {
 }
 
 export default function SiteInfoClient({ initialSiteInfo }: SiteInfoClientProps) {
+  const router = useRouter();
   const [siteInfo, setSiteInfo] = useState<SiteInfo>(initialSiteInfo);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
@@ -17,6 +19,12 @@ export default function SiteInfoClient({ initialSiteInfo }: SiteInfoClientProps)
   const [draftStatus, setDraftStatus] = useState('');
   const [hasSavedDraft, setHasSavedDraft] = useState(false);
   const [isSyncingSocial, setIsSyncingSocial] = useState(false);
+
+  useEffect(() => {
+    if (initialSiteInfo) {
+      setSiteInfo(initialSiteInfo);
+    }
+  }, [initialSiteInfo]);
 
   const handleSyncSocialStats = async () => {
     setIsSyncingSocial(true);
@@ -120,12 +128,18 @@ export default function SiteInfoClient({ initialSiteInfo }: SiteInfoClientProps)
 
       const data = await res.json();
       if (res.ok && data.success) {
+        if (data.siteInfo) {
+          setSiteInfo(data.siteInfo);
+        }
         setSaveStatus('success');
         setMessage('Site Info updated and synced across all pages!');
         try {
+          if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
           localStorage.removeItem(DRAFT_SITEINFO_KEY);
           setHasSavedDraft(false);
+          setDraftStatus('');
         } catch (e) {}
+        router.refresh();
         setTimeout(() => setSaveStatus('idle'), 3500);
       } else {
         setSaveStatus('error');
