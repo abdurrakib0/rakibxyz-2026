@@ -693,8 +693,8 @@ export default function EssayEditorClient({ initialPost, isNew = false }: EssayE
 
           {/* Formatting Toolbar + Markdown Editor */}
           <div className="flex flex-col rounded-[var(--radius-lg)] overflow-hidden border border-[var(--rule)] bg-[var(--surface)] shadow-xs">
-            {/* Formatting Toolbar */}
-            <div className="sticky top-[3.75rem] z-20 flex items-center gap-1.5 flex-wrap bg-[var(--surface)] border-b border-[var(--rule)] p-2.5 backdrop-blur-md">
+            {/* Formatting Toolbar - Solid header above textarea */}
+            <div className="flex items-center gap-1.5 flex-wrap bg-[var(--surface)] border-b border-[var(--rule)] p-3">
               <button
                 type="button"
                 onClick={() => insertFormatting('## ', '', 'Section Heading')}
