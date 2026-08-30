@@ -13,9 +13,7 @@ import Footer from '@/components/Footer';
 import { getDatabaseAsync } from '@/lib/data';
 import { getYouTubePlaylists } from '@/lib/youtube-playlists';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
+export const revalidate = 60;
 
 export default async function HomePage() {
   const [db, playlists] = await Promise.all([

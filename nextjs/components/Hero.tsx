@@ -77,7 +77,7 @@ export default function Hero({ siteInfo }: HeroProps) {
         {/* Portrait Image with High Priority Next.js Image Optimization */}
         <div className="portrait-box relative overflow-hidden" aria-label="Portrait Photograph of Abdur Rakib">
           <Image 
-            src="/img/Hero image.png" 
+            src="/img/hero-portrait.webp" 
             alt="Abdur Rakib - Chief Operating Officer at Programming Hero" 
             width={520}
             height={520}

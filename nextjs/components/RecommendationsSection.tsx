@@ -215,6 +215,9 @@ export default function RecommendationsSection({
                             alt={rec.name}
                             className="w-full h-full object-cover"
                             loading="lazy"
+                            width={48}
+                            height={48}
+                            decoding="async"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center font-mono text-[0.875rem] font-bold text-[var(--accent)]">

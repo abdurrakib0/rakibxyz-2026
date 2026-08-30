@@ -62,6 +62,9 @@ function VideoCard({
           alt={video.title}
           className="podcast-thumb-img"
           loading="lazy"
+          width={480}
+          height={270}
+          decoding="async"
         />
         <div className="podcast-play-overlay">
           <div className="podcast-play-btn">
