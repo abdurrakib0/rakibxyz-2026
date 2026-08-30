@@ -58,6 +58,18 @@ function htmlToMarkdown(html: string): string {
   return md;
 }
 
+// Formats inline markdown (bold, italic, links, inline code) for Preview
+function renderInlineMarkdown(text: string) {
+  // Simple regex replacements for preview
+  let formatted = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code class="bg-[var(--bg)] px-1.5 py-0.5 rounded text-sm font-mono border border-[var(--rule)]">$1</code>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-[var(--accent)] underline">$1</a>');
+
+  return <span dangerouslySetInnerHTML={{ __html: formatted }} />;
+}
+
 interface EssayEditorClientProps {
   initialPost?: Post | null;
   isNew?: boolean;
@@ -81,7 +93,7 @@ export default function EssayEditorClient({ initialPost, isNew = false }: EssayE
   };
 
   const [post, setPost] = useState<Post>(initialPost || emptyPost);
-  const [editorMode, setEditorMode] = useState<'write' | 'preview' | 'split'>('write');
+  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
 
   // Save status
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
@@ -121,7 +133,7 @@ export default function EssayEditorClient({ initialPost, isNew = false }: EssayE
     const timeout = setTimeout(() => {
       try {
         localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(post));
-        setDraftStatus('Draft saved locally');
+        setDraftStatus('Auto-saved');
         setTimeout(() => setDraftStatus(''), 2500);
       } catch (_) {}
     }, 1000);
@@ -214,7 +226,6 @@ export default function EssayEditorClient({ initialPost, isNew = false }: EssayE
     setCompressionStats(null);
 
     try {
-      const originalSize = file.size;
       const compressed = await compressImage(file, {
         maxWidth: 1600,
         maxHeight: 1200,
@@ -280,16 +291,16 @@ export default function EssayEditorClient({ initialPost, isNew = false }: EssayE
     }
   };
 
-  const handleSave = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-
+  const handleSave = async () => {
     if (!post.title.trim()) {
       alert('Please enter an essay title.');
+      setActiveTab('editor');
       return;
     }
 
     if (!post.slug.trim()) {
       alert('Please enter a URL slug.');
+      setActiveTab('editor');
       return;
     }
 
@@ -331,88 +342,85 @@ export default function EssayEditorClient({ initialPost, isNew = false }: EssayE
   const wordCount = post.content ? post.content.trim().split(/\s+/).filter(Boolean).length : 0;
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-[var(--ink)] flex flex-col">
-      {/* ── Top Bar Header (Substack / Notion style) ─────────────── */}
-      <header className="sticky top-0 z-30 bg-[var(--surface)]/95 backdrop-blur-md border-b border-[var(--rule)] px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 min-w-0">
+    <div className="flex flex-col min-h-screen -m-6 sm:-m-8 md:-m-10 lg:-m-12 bg-[var(--bg)]">
+      {/* ── Fixed Sticky Top Navbar (z-index 50) ────────────────── */}
+      <nav className="sticky top-0 z-50 bg-[var(--surface)] border-b border-[var(--rule)] px-4 sm:px-8 py-3 shadow-sm flex items-center justify-between gap-4 backdrop-blur-md">
+        {/* Left: Breadcrumb & Title */}
+        <div className="flex items-center gap-3.5 min-w-0">
           <Link
             href="/admin/writings"
-            className="flex items-center gap-1.5 font-mono text-[0.8125rem] text-[var(--ink-muted)] hover:text-[var(--ink)] no-underline shrink-0 px-2.5 py-1.5 rounded border border-[var(--rule)] bg-[var(--bg)] hover:border-[var(--ink)] transition-colors"
+            className="flex items-center gap-1.5 font-mono text-[0.8125rem] text-[var(--ink-muted)] hover:text-[var(--ink)] no-underline px-3 py-1.5 rounded border border-[var(--rule)] bg-[var(--bg)] hover:border-[var(--ink)] transition-colors shrink-0"
           >
             <span>←</span>
-            <span className="hidden sm:inline">All Writings</span>
+            <span>All Writings</span>
           </Link>
-          <div className="h-4 w-px bg-[var(--rule)] shrink-0 hidden sm:block" />
+
+          <div className="h-5 w-px bg-[var(--rule)] shrink-0 hidden sm:block" />
+
           <div className="min-w-0">
-            <h1 className="font-serif text-[1.125rem] sm:text-[1.25rem] text-[var(--ink)] font-normal truncate leading-tight">
+            <h2 className="font-serif text-[1.125rem] sm:text-[1.25rem] font-medium text-[var(--ink)] truncate leading-tight">
               {post.title || (isNew ? 'Untitled Essay' : 'Editing Essay')}
-            </h1>
-            <span className="font-mono text-[0.6875rem] text-[var(--ink-muted)] block mt-0.5">
-              {wordCount} words · {post.readTime} · {post.published ? '🟢 Published' : '🟡 Draft'}
-            </span>
+            </h2>
+            <div className="flex items-center gap-2 font-mono text-[0.6875rem] text-[var(--ink-muted)] mt-0.5">
+              <span>{wordCount} words</span>
+              <span>·</span>
+              <span>{post.readTime}</span>
+              {draftStatus && (
+                <>
+                  <span>·</span>
+                  <span className="text-emerald-700 font-semibold">✓ {draftStatus}</span>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
-          {/* Mode Switcher */}
-          <div className="flex items-center bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] p-0.5 font-mono text-[0.75rem]">
+        {/* Right: Mode Switcher Tabs & Actions */}
+        <div className="flex items-center gap-3 shrink-0">
+          {/* Distinct Tab Buttons: Edit vs Live Preview */}
+          <div className="flex items-center bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] p-1 font-mono text-[0.75rem]">
             <button
               type="button"
-              onClick={() => setEditorMode('write')}
-              className={`px-3 py-1.5 rounded transition-colors cursor-pointer ${
-                editorMode === 'write'
-                  ? 'bg-[var(--ink)] text-[var(--bg)] font-medium'
+              onClick={() => setActiveTab('editor')}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded transition-all cursor-pointer ${
+                activeTab === 'editor'
+                  ? 'bg-[var(--ink)] text-[var(--bg)] font-bold shadow-xs'
                   : 'text-[var(--ink-muted)] hover:text-[var(--ink)]'
               }`}
             >
-              ✏️ Write
+              <span>✏️</span>
+              <span>Edit Canvas</span>
             </button>
+
             <button
               type="button"
-              onClick={() => setEditorMode('split')}
-              className={`hidden md:inline-block px-3 py-1.5 rounded transition-colors cursor-pointer ${
-                editorMode === 'split'
-                  ? 'bg-[var(--ink)] text-[var(--bg)] font-medium'
+              onClick={() => setActiveTab('preview')}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded transition-all cursor-pointer ${
+                activeTab === 'preview'
+                  ? 'bg-[var(--ink)] text-[var(--bg)] font-bold shadow-xs'
                   : 'text-[var(--ink-muted)] hover:text-[var(--ink)]'
               }`}
             >
-              🌓 Split
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditorMode('preview')}
-              className={`px-3 py-1.5 rounded transition-colors cursor-pointer ${
-                editorMode === 'preview'
-                  ? 'bg-[var(--ink)] text-[var(--bg)] font-medium'
-                  : 'text-[var(--ink-muted)] hover:text-[var(--ink)]'
-              }`}
-            >
-              👁️ Preview
+              <span>👁️</span>
+              <span>Live Article Preview</span>
             </button>
           </div>
 
-          {/* Draft Status Indicator */}
-          {draftStatus && (
-            <span className="font-mono text-[0.6875rem] text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-200 hidden lg:inline">
-              ✓ {draftStatus}
-            </span>
-          )}
-
           {/* Published Toggle */}
-          <label className="flex items-center gap-1.5 font-mono text-[0.75rem] text-[var(--ink)] cursor-pointer px-2.5 py-1.5 rounded border border-[var(--rule)] bg-[var(--bg)]">
+          <label className="hidden sm:flex items-center gap-1.5 font-mono text-[0.75rem] text-[var(--ink)] cursor-pointer px-3 py-1.5 rounded border border-[var(--rule)] bg-[var(--bg)]">
             <input
               type="checkbox"
               checked={post.published}
               onChange={(e) => setPost({ ...post, published: e.target.checked })}
               className="accent-[var(--accent)] cursor-pointer"
             />
-            <span className="hidden sm:inline">{post.published ? 'Live' : 'Draft'}</span>
+            <span>{post.published ? 'Live (Public)' : 'Draft (Hidden)'}</span>
           </label>
 
-          {/* Primary Save Button */}
+          {/* Primary Save Action */}
           <button
             type="button"
-            onClick={() => handleSave()}
+            onClick={handleSave}
             disabled={saveStatus === 'saving'}
             className={`px-5 py-2 rounded-[var(--radius)] font-mono text-[0.8125rem] font-medium text-white transition-all cursor-pointer shadow-sm ${
               saveStatus === 'saving'
@@ -431,9 +439,9 @@ export default function EssayEditorClient({ initialPost, isNew = false }: EssayE
               : 'Save Changes'}
           </button>
         </div>
-      </header>
+      </nav>
 
-      {/* ── Status message banner ───────────────────────────────── */}
+      {/* ── Status Message Banner ────────────────────────────────── */}
       {statusMessage && (
         <div
           className={`px-6 py-2.5 font-mono text-[0.8125rem] flex items-center justify-between border-b ${
@@ -449,7 +457,7 @@ export default function EssayEditorClient({ initialPost, isNew = false }: EssayE
         </div>
       )}
 
-      {/* ── Draft Restore Prompt ────────────────────────────────── */}
+      {/* ── Draft Restore Prompt ─────────────────────────────────── */}
       {hasSavedDraft && (
         <div className="bg-amber-50 border-b border-amber-200 px-6 py-2.5 flex items-center justify-between font-mono text-[0.75rem] text-amber-900">
           <span>📋 You have an uncommitted auto-saved draft from a previous session.</span>
@@ -473,330 +481,331 @@ export default function EssayEditorClient({ initialPost, isNew = false }: EssayE
         </div>
       )}
 
-      {/* ── Main Canvas ─────────────────────────────────────────── */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-8 py-8 flex flex-col gap-6">
-        {/* Title & Slug */}
-        <div className="flex flex-col gap-3">
-          <input
-            type="text"
-            value={post.title}
-            onChange={(e) => handleTitleChange(e.target.value)}
-            placeholder="Essay Title..."
-            required
-            className="w-full font-serif text-[2rem] sm:text-[2.75rem] text-[var(--ink)] placeholder:text-[var(--ink-muted)]/40 bg-transparent border-0 outline-none leading-tight font-normal"
-          />
-
-          <div className="flex items-center gap-2 font-mono text-[0.8125rem] text-[var(--ink-muted)] bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius)] px-3.5 py-2">
-            <span className="shrink-0 font-medium">Permalink:</span>
-            <span className="shrink-0 text-[var(--ink-muted)]">/writing/</span>
+      {/* ── VIEW 1: FULL EDIT CANVAS (when activeTab === 'editor') ─ */}
+      {activeTab === 'editor' && (
+        <div className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-8 py-8 flex flex-col gap-6">
+          {/* Article Title Input */}
+          <div className="flex flex-col gap-2">
             <input
               type="text"
-              value={post.slug}
-              onChange={(e) => setPost({ ...post, slug: e.target.value })}
-              placeholder="url-slug"
+              value={post.title}
+              onChange={(e) => handleTitleChange(e.target.value)}
+              placeholder="Title of your essay..."
               required
-              className="w-full bg-transparent border-0 outline-none text-[var(--ink)] font-mono font-semibold"
+              className="w-full font-serif text-[2.25rem] sm:text-[3rem] text-[var(--ink)] placeholder:text-[var(--ink-muted)]/30 bg-transparent border-0 outline-none leading-tight font-normal"
             />
-          </div>
-        </div>
 
-        {/* Metadata Controls Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-4 sm:p-5">
-          <div className="flex flex-col gap-1.5">
-            <label className="font-mono text-[0.6875rem] uppercase tracking-wider text-[var(--ink-muted)] font-medium">
-              Category / Tag
-            </label>
-            <input
-              type="text"
-              value={post.tag}
-              onChange={(e) => setPost({ ...post, tag: e.target.value })}
-              placeholder="e.g. Systems & Leadership"
-              className="bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] px-3 py-2 text-[0.8125rem] font-mono text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="font-mono text-[0.6875rem] uppercase tracking-wider text-[var(--ink-muted)] font-medium">
-              Publish Date
-            </label>
-            <input
-              type="text"
-              value={post.date}
-              onChange={(e) => setPost({ ...post, date: e.target.value })}
-              placeholder="e.g. Aug 30, 2026"
-              className="bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] px-3 py-2 text-[0.8125rem] font-mono text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="font-mono text-[0.6875rem] uppercase tracking-wider text-[var(--ink-muted)] font-medium">
-              Read Time (Auto)
-            </label>
-            <input
-              type="text"
-              value={post.readTime}
-              onChange={(e) => setPost({ ...post, readTime: e.target.value })}
-              placeholder="e.g. 5 min read"
-              className="bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] px-3 py-2 text-[0.8125rem] font-mono text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
-            />
-          </div>
-
-          <div className="sm:col-span-3 flex flex-col gap-1.5">
-            <label className="font-mono text-[0.6875rem] uppercase tracking-wider text-[var(--ink-muted)] font-medium">
-              Subtitle / Lead Hook
-            </label>
-            <textarea
-              value={post.subtitle}
-              onChange={(e) => setPost({ ...post, subtitle: e.target.value })}
-              placeholder="A clear 1-2 sentence overview that appears on list cards and in the article lead..."
-              rows={2}
-              className="bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] px-3.5 py-2 text-[0.875rem] text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
-            />
-          </div>
-        </div>
-
-        {/* Cover Image Upload (WebP Compressed) */}
-        <div className="flex flex-col gap-3 p-5 bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)]">
-          <div className="flex items-center justify-between">
-            <label className="font-mono text-[0.6875rem] uppercase tracking-wider text-[var(--ink)] font-bold flex items-center gap-2">
-              <span>🖼️ Cover / Thumbnail Image</span>
-              {uploadingCover && (
-                <span className="text-[var(--accent)] animate-pulse font-normal">
-                  (Compressing &amp; Uploading WebP...)
-                </span>
-              )}
-            </label>
-            <button
-              type="button"
-              onClick={() => setShowUrlInput(!showUrlInput)}
-              className="font-mono text-[0.6875rem] text-[var(--accent)] hover:underline cursor-pointer"
-            >
-              {showUrlInput ? 'Switch to Device Upload' : 'or enter Image URL'}
-            </button>
-          </div>
-
-          {compressionStats && (
-            <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded font-mono text-[0.75rem] text-emerald-800">
-              ✓ {compressionStats}
-            </div>
-          )}
-
-          {showUrlInput ? (
-            <div className="flex flex-col sm:flex-row gap-3 items-start">
+            {/* Permalink row */}
+            <div className="flex items-center gap-2 font-mono text-[0.8125rem] text-[var(--ink-muted)] bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius)] px-3.5 py-2">
+              <span className="font-medium text-[var(--ink)]">Permalink:</span>
+              <span className="text-[var(--ink-muted)]">/writing/</span>
               <input
                 type="text"
-                value={post.coverImage}
-                onChange={(e) => setPost({ ...post, coverImage: e.target.value })}
-                placeholder="https://images.unsplash.com/... or /uploads/..."
-                className="w-full bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] px-3 py-2 text-[0.8125rem] font-mono text-[var(--ink)]"
+                value={post.slug}
+                onChange={(e) => setPost({ ...post, slug: e.target.value })}
+                placeholder="url-slug"
+                required
+                className="w-full bg-transparent border-0 outline-none text-[var(--ink)] font-mono font-semibold"
               />
-              {post.coverImage && (
-                <div className="shrink-0 w-24 h-16 rounded border border-[var(--rule)] overflow-hidden bg-black/5">
-                  <img src={post.coverImage} alt="Cover preview" className="w-full h-full object-cover" />
-                </div>
-              )}
             </div>
-          ) : (
-            <div
-              onDragOver={(e) => {
-                e.preventDefault();
-                setIsDraggingCover(true);
-              }}
-              onDragLeave={() => setIsDraggingCover(false)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setIsDraggingCover(false);
-                if (e.dataTransfer.files?.[0]) handleCoverFileUpload(e.dataTransfer.files[0]);
-              }}
-              onClick={() => coverFileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-[var(--radius)] p-4 text-center cursor-pointer transition-all ${
-                isDraggingCover
-                  ? 'border-[var(--accent)] bg-[var(--accent)]/5'
-                  : 'border-[var(--rule)] hover:border-[var(--ink)]/40 bg-[var(--bg)]'
-              }`}
-            >
+          </div>
+
+          {/* Metadata Controls Card */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)] p-4 sm:p-5">
+            <div className="flex flex-col gap-1.5">
+              <label className="font-mono text-[0.6875rem] uppercase tracking-wider text-[var(--ink-muted)] font-medium">
+                Category / Tag
+              </label>
+              <input
+                type="text"
+                value={post.tag}
+                onChange={(e) => setPost({ ...post, tag: e.target.value })}
+                placeholder="e.g. Systems & Leadership"
+                className="bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] px-3 py-2 text-[0.8125rem] font-mono text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="font-mono text-[0.6875rem] uppercase tracking-wider text-[var(--ink-muted)] font-medium">
+                Publish Date
+              </label>
+              <input
+                type="text"
+                value={post.date}
+                onChange={(e) => setPost({ ...post, date: e.target.value })}
+                placeholder="e.g. Aug 30, 2026"
+                className="bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] px-3 py-2 text-[0.8125rem] font-mono text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="font-mono text-[0.6875rem] uppercase tracking-wider text-[var(--ink-muted)] font-medium">
+                Read Time (Auto)
+              </label>
+              <input
+                type="text"
+                value={post.readTime}
+                onChange={(e) => setPost({ ...post, readTime: e.target.value })}
+                placeholder="e.g. 5 min read"
+                className="bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] px-3 py-2 text-[0.8125rem] font-mono text-[var(--ink)] focus:outline-none focus:border-[var(--ink)]"
+              />
+            </div>
+
+            <div className="sm:col-span-3 flex flex-col gap-1.5 pt-2 border-t border-[var(--rule)]">
+              <label className="font-mono text-[0.6875rem] uppercase tracking-wider text-[var(--ink-muted)] font-medium">
+                Subtitle / Lead Paragraph Hook
+              </label>
+              <textarea
+                value={post.subtitle}
+                onChange={(e) => setPost({ ...post, subtitle: e.target.value })}
+                placeholder="A clear 1-2 sentence overview that appears on list cards and in the article lead..."
+                rows={2}
+                className="bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] px-3.5 py-2 text-[0.875rem] text-[var(--ink)] focus:outline-none focus:border-[var(--ink)] leading-relaxed"
+              />
+            </div>
+          </div>
+
+          {/* Cover Image Upload Card */}
+          <div className="flex flex-col gap-3 p-5 bg-[var(--surface)] border border-[var(--rule)] rounded-[var(--radius-lg)]">
+            <div className="flex items-center justify-between">
+              <label className="font-mono text-[0.6875rem] uppercase tracking-wider text-[var(--ink)] font-bold flex items-center gap-2">
+                <span>🖼️ Cover / Thumbnail Image</span>
+                {uploadingCover && (
+                  <span className="text-[var(--accent)] animate-pulse font-normal">
+                    (Compressing &amp; Uploading WebP...)
+                  </span>
+                )}
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowUrlInput(!showUrlInput)}
+                className="font-mono text-[0.6875rem] text-[var(--accent)] hover:underline cursor-pointer"
+              >
+                {showUrlInput ? 'Switch to Device Upload' : 'or enter Image URL'}
+              </button>
+            </div>
+
+            {compressionStats && (
+              <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded font-mono text-[0.75rem] text-emerald-800">
+                ✓ {compressionStats}
+              </div>
+            )}
+
+            {showUrlInput ? (
+              <div className="flex flex-col sm:flex-row gap-3 items-start">
+                <input
+                  type="text"
+                  value={post.coverImage}
+                  onChange={(e) => setPost({ ...post, coverImage: e.target.value })}
+                  placeholder="https://images.unsplash.com/... or /uploads/..."
+                  className="w-full bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] px-3 py-2 text-[0.8125rem] font-mono text-[var(--ink)]"
+                />
+                {post.coverImage && (
+                  <div className="shrink-0 w-24 h-16 rounded border border-[var(--rule)] overflow-hidden bg-black/5">
+                    <img src={post.coverImage} alt="Cover preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDraggingCover(true);
+                }}
+                onDragLeave={() => setIsDraggingCover(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDraggingCover(false);
+                  if (e.dataTransfer.files?.[0]) handleCoverFileUpload(e.dataTransfer.files[0]);
+                }}
+                onClick={() => coverFileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-[var(--radius)] p-4 text-center cursor-pointer transition-all ${
+                  isDraggingCover
+                    ? 'border-[var(--accent)] bg-[var(--accent)]/5'
+                    : 'border-[var(--rule)] hover:border-[var(--ink)]/40 bg-[var(--bg)]'
+                }`}
+              >
+                <input
+                  type="file"
+                  ref={coverFileInputRef}
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) handleCoverFileUpload(e.target.files[0]);
+                  }}
+                />
+
+                {post.coverImage ? (
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-20 h-14 rounded border border-[var(--rule)] overflow-hidden bg-black/5 shrink-0">
+                        <img src={post.coverImage} alt="Cover" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="text-left">
+                        <div className="font-mono text-xs text-[var(--ink)] font-semibold">
+                          Image Attached &amp; Optimized
+                        </div>
+                        <div className="font-mono text-[0.6875rem] text-[var(--ink-muted)] truncate max-w-xs sm:max-w-md">
+                          {post.coverImage}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          coverFileInputRef.current?.click();
+                        }}
+                        className="bg-[var(--surface)] hover:bg-[var(--bg)] text-[var(--ink)] border border-[var(--rule)] px-3 py-1 rounded font-mono text-xs cursor-pointer"
+                      >
+                        Replace
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPost({ ...post, coverImage: '' });
+                          setCompressionStats(null);
+                        }}
+                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded font-mono text-xs cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="py-3 flex flex-col items-center gap-1.5">
+                    <div className="w-10 h-10 rounded-full bg-[var(--surface)] border border-[var(--rule)] flex items-center justify-center text-lg">
+                      📁
+                    </div>
+                    <div className="font-mono text-xs text-[var(--ink)] font-semibold">
+                      Click to upload cover image from your device (PC / Phone)
+                    </div>
+                    <div className="font-mono text-[0.6875rem] text-[var(--ink-muted)]">
+                      Auto-compressed to ultra-lightweight WebP format (typically 80-95% smaller)
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Formatting Toolbar + Markdown Editor */}
+          <div className="flex flex-col rounded-[var(--radius-lg)] overflow-hidden border border-[var(--rule)] bg-[var(--surface)] shadow-xs">
+            {/* Formatting Toolbar */}
+            <div className="sticky top-[3.75rem] z-20 flex items-center gap-1.5 flex-wrap bg-[var(--surface)] border-b border-[var(--rule)] p-2.5 backdrop-blur-md">
+              <button
+                type="button"
+                onClick={() => insertFormatting('## ', '', 'Section Heading')}
+                className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] font-bold cursor-pointer transition-colors"
+                title="Heading 2"
+              >
+                H2
+              </button>
+              <button
+                type="button"
+                onClick={() => insertFormatting('### ', '', 'Sub-section Heading')}
+                className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] font-bold cursor-pointer transition-colors"
+                title="Heading 3"
+              >
+                H3
+              </button>
+              <div className="w-px h-5 bg-[var(--rule)] mx-1" />
+              <button
+                type="button"
+                onClick={() => insertFormatting('**', '**', 'bold text')}
+                className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] font-bold cursor-pointer transition-colors"
+                title="Bold"
+              >
+                B
+              </button>
+              <button
+                type="button"
+                onClick={() => insertFormatting('*', '*', 'italic text')}
+                className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] italic cursor-pointer transition-colors"
+                title="Italic"
+              >
+                I
+              </button>
+              <button
+                type="button"
+                onClick={() => insertFormatting('> ', '', 'Important quote or reflection')}
+                className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer transition-colors"
+                title="Quote Block"
+              >
+                &ldquo; Quote
+              </button>
+              <div className="w-px h-5 bg-[var(--rule)] mx-1" />
+              <button
+                type="button"
+                onClick={() => insertFormatting('- ', '', 'List item')}
+                className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer transition-colors"
+                title="Bullet List"
+              >
+                • Bullet
+              </button>
+              <button
+                type="button"
+                onClick={() => insertFormatting('1. ', '', 'Numbered item')}
+                className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer transition-colors"
+                title="Numbered List"
+              >
+                1. Numbered
+              </button>
+              <div className="w-px h-5 bg-[var(--rule)] mx-1" />
+              <button
+                type="button"
+                onClick={() => insertFormatting('`', '`', 'code')}
+                className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer transition-colors"
+                title="Inline Code"
+              >
+                &lt;/&gt; Code
+              </button>
+              <button
+                type="button"
+                onClick={() => insertFormatting('\n\n```\n', '\n```\n', '// Code snippet here')}
+                className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer transition-colors"
+                title="Code Block"
+              >
+                Code Block
+              </button>
+              <div className="w-px h-5 bg-[var(--rule)] mx-1" />
+              <button
+                type="button"
+                onClick={() => insertFormatting('[', '](https://example.com)', 'Link text')}
+                className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer transition-colors"
+                title="Link"
+              >
+                🔗 Link
+              </button>
+              <button
+                type="button"
+                onClick={() => toolbarFileInputRef.current?.click()}
+                className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer transition-colors flex items-center gap-1"
+                title="Upload Image into Article"
+              >
+                <span>🖼️</span>
+                <span>{uploadingToolbar ? 'Uploading...' : 'Insert Image'}</span>
+              </button>
               <input
                 type="file"
-                ref={coverFileInputRef}
+                ref={toolbarFileInputRef}
                 accept="image/*"
                 className="hidden"
                 onChange={(e) => {
-                  if (e.target.files?.[0]) handleCoverFileUpload(e.target.files[0]);
+                  if (e.target.files?.[0]) handleToolbarImageUpload(e.target.files[0]);
                 }}
               />
 
-              {post.coverImage ? (
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-20 h-14 rounded border border-[var(--rule)] overflow-hidden bg-black/5 shrink-0">
-                      <img src={post.coverImage} alt="Cover" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-mono text-xs text-[var(--ink)] font-semibold">
-                        Image Attached &amp; Optimized
-                      </div>
-                      <div className="font-mono text-[0.6875rem] text-[var(--ink-muted)] truncate max-w-xs sm:max-w-md">
-                        {post.coverImage}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        coverFileInputRef.current?.click();
-                      }}
-                      className="bg-[var(--surface)] hover:bg-[var(--bg)] text-[var(--ink)] border border-[var(--rule)] px-3 py-1 rounded font-mono text-xs cursor-pointer"
-                    >
-                      Replace
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setPost({ ...post, coverImage: '' });
-                        setCompressionStats(null);
-                      }}
-                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded font-mono text-xs cursor-pointer"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="py-3 flex flex-col items-center gap-1.5">
-                  <div className="w-10 h-10 rounded-full bg-[var(--surface)] border border-[var(--rule)] flex items-center justify-center text-lg">
-                    📁
-                  </div>
-                  <div className="font-mono text-xs text-[var(--ink)] font-semibold">
-                    Click to upload cover image from your device (PC / Phone)
-                  </div>
-                  <div className="font-mono text-[0.6875rem] text-[var(--ink-muted)]">
-                    Auto-compressed to ultra-lightweight WebP format (typically 80-95% smaller)
-                  </div>
-                </div>
-              )}
+              <div className="ml-auto flex items-center gap-2">
+                <span className="font-mono text-[0.6875rem] text-[var(--accent)] font-medium hidden sm:inline">
+                  💡 Paste directly from Docs / Notion
+                </span>
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* ── Visual Markdown Editor & Live Preview ────────────────── */}
-        <div className="flex flex-col gap-2">
-          {/* Formatting Toolbar */}
-          <div className="sticky top-[4.25rem] z-20 flex items-center gap-1.5 flex-wrap bg-[var(--surface)] border border-[var(--rule)] rounded-t-[var(--radius)] p-2 backdrop-blur-md shadow-2xs">
-            <button
-              type="button"
-              onClick={() => insertFormatting('## ', '', 'Section Heading')}
-              className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] font-bold cursor-pointer transition-colors"
-              title="Heading 2"
-            >
-              H2
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting('### ', '', 'Sub-section Heading')}
-              className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] font-bold cursor-pointer transition-colors"
-              title="Heading 3"
-            >
-              H3
-            </button>
-            <div className="w-px h-5 bg-[var(--rule)] mx-1" />
-            <button
-              type="button"
-              onClick={() => insertFormatting('**', '**', 'bold text')}
-              className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] font-bold cursor-pointer transition-colors"
-              title="Bold"
-            >
-              B
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting('*', '*', 'italic text')}
-              className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] italic cursor-pointer transition-colors"
-              title="Italic"
-            >
-              I
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting('> ', '', 'Important quote or reflection')}
-              className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer transition-colors"
-              title="Quote Block"
-            >
-              &ldquo; Quote
-            </button>
-            <div className="w-px h-5 bg-[var(--rule)] mx-1" />
-            <button
-              type="button"
-              onClick={() => insertFormatting('- ', '', 'List item')}
-              className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer transition-colors"
-              title="Bullet List"
-            >
-              • Bullet
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting('1. ', '', 'Numbered item')}
-              className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer transition-colors"
-              title="Numbered List"
-            >
-              1. Numbered
-            </button>
-            <div className="w-px h-5 bg-[var(--rule)] mx-1" />
-            <button
-              type="button"
-              onClick={() => insertFormatting('`', '`', 'code')}
-              className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer transition-colors"
-              title="Inline Code"
-            >
-              &lt;/&gt; Code
-            </button>
-            <button
-              type="button"
-              onClick={() => insertFormatting('\n\n```\n', '\n```\n', '// Code snippet here')}
-              className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer transition-colors"
-              title="Code Block"
-            >
-              Code Block
-            </button>
-            <div className="w-px h-5 bg-[var(--rule)] mx-1" />
-            <button
-              type="button"
-              onClick={() => insertFormatting('[', '](https://example.com)', 'Link text')}
-              className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer transition-colors"
-              title="Link"
-            >
-              🔗 Link
-            </button>
-            <button
-              type="button"
-              onClick={() => toolbarFileInputRef.current?.click()}
-              className="px-2.5 py-1 bg-[var(--bg)] hover:bg-[var(--ink)] hover:text-white border border-[var(--rule)] rounded font-mono text-[0.75rem] cursor-pointer transition-colors flex items-center gap-1"
-              title="Upload Image into Article"
-            >
-              <span>🖼️</span>
-              <span>{uploadingToolbar ? 'Uploading...' : 'Insert Image'}</span>
-            </button>
-            <input
-              type="file"
-              ref={toolbarFileInputRef}
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files?.[0]) handleToolbarImageUpload(e.target.files[0]);
-              }}
-            />
-
-            <div className="ml-auto flex items-center gap-2">
-              <span className="font-mono text-[0.6875rem] text-[var(--accent)] font-medium hidden sm:inline">
-                💡 Paste formatted text from Docs / Notion directly
-              </span>
-            </div>
-          </div>
-
-          {/* Editor Body: Write / Split / Preview */}
-          {editorMode === 'write' && (
+            {/* Main Article Content Textarea */}
             <textarea
               ref={textareaRef}
               value={post.content}
@@ -807,78 +816,21 @@ export default function EssayEditorClient({ initialPost, isNew = false }: EssayE
 ## Section Title
 
 Your paragraphs here. Support for **bold**, *italic*, blockquotes, and lists."
-              className="w-full min-h-[600px] bg-[var(--surface)] border border-t-0 border-[var(--rule)] rounded-b-[var(--radius)] p-6 font-mono text-[0.9375rem] leading-relaxed text-[var(--ink)] focus:outline-none resize-y"
+              className="w-full min-h-[650px] p-6 font-mono text-[0.9375rem] leading-relaxed text-[var(--ink)] bg-[var(--bg)] border-0 outline-none resize-y"
             />
-          )}
+          </div>
 
-          {editorMode === 'split' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-t-0 border-[var(--rule)] rounded-b-[var(--radius)] bg-[var(--surface)] p-4">
-              <textarea
-                ref={textareaRef}
-                value={post.content}
-                onChange={(e) => handleContentChange(e.target.value)}
-                onPaste={handleSmartPaste}
-                placeholder="Write markdown here..."
-                className="w-full min-h-[600px] bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] p-4 font-mono text-[0.875rem] leading-relaxed text-[var(--ink)] focus:outline-none resize-none"
-              />
-              <div className="min-h-[600px] bg-[var(--bg)] border border-[var(--rule)] rounded-[var(--radius)] p-6 overflow-y-auto prose prose-stone max-w-none">
-                <h1 className="font-serif text-[2rem] font-normal leading-tight mb-2">{post.title || 'Untitled Essay'}</h1>
-                {post.subtitle && <p className="text-lg text-[var(--ink-muted)] italic mb-6">{post.subtitle}</p>}
-                {post.coverImage && (
-                  <img src={post.coverImage} alt="Cover" className="w-full h-64 object-cover rounded mb-6" />
-                )}
-                <div className="whitespace-pre-wrap font-sans text-base leading-relaxed text-[var(--ink)]">
-                  {post.content || 'Nothing to preview yet. Start typing on the left.'}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {editorMode === 'preview' && (
-            <div className="border border-t-0 border-[var(--rule)] rounded-b-[var(--radius)] bg-[var(--surface)] p-8 sm:p-12">
-              <div className="max-w-2xl mx-auto flex flex-col gap-6">
-                <div className="flex items-center gap-2 font-mono text-[0.75rem] text-[var(--ink-muted)]">
-                  <span className="text-[var(--accent)] font-semibold">{post.tag}</span>
-                  <span>·</span>
-                  <span>{post.date}</span>
-                  <span>·</span>
-                  <span>{post.readTime}</span>
-                </div>
-                <h1 className="font-serif text-[2.5rem] sm:text-[3.25rem] text-[var(--ink)] font-normal leading-tight">
-                  {post.title || 'Untitled Essay'}
-                </h1>
-                {post.subtitle && (
-                  <p className="font-serif text-[1.25rem] text-[var(--ink-muted)] leading-relaxed italic border-l-2 border-[var(--accent)] pl-4">
-                    {post.subtitle}
-                  </p>
-                )}
-                {post.coverImage && (
-                  <img
-                    src={post.coverImage}
-                    alt="Cover preview"
-                    className="w-full max-h-96 object-cover rounded-[var(--radius-lg)] border border-[var(--rule)] shadow-sm"
-                  />
-                )}
-                <div className="whitespace-pre-wrap font-sans text-base leading-relaxed text-[var(--ink)] pt-4 border-t border-[var(--rule)]">
-                  {post.content || 'No content written yet.'}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Bottom Actions Bar */}
-        <div className="flex items-center justify-between gap-4 pt-6 border-t border-[var(--rule)]">
-          <Link
-            href="/admin/writings"
-            className="font-mono text-[0.8125rem] text-[var(--ink-muted)] hover:text-[var(--ink)] no-underline"
-          >
-            ← Cancel &amp; Back to All Writings
-          </Link>
-          <div className="flex items-center gap-3">
+          {/* Bottom Navigation */}
+          <div className="flex items-center justify-between pt-6 border-t border-[var(--rule)]">
+            <Link
+              href="/admin/writings"
+              className="font-mono text-[0.8125rem] text-[var(--ink-muted)] hover:text-[var(--ink)] no-underline"
+            >
+              ← Cancel &amp; Back to All Writings
+            </Link>
             <button
               type="button"
-              onClick={() => handleSave()}
+              onClick={handleSave}
               disabled={saveStatus === 'saving'}
               className="bg-[var(--accent)] hover:bg-[var(--ink)] text-white px-6 py-2.5 rounded-[var(--radius)] font-mono text-[0.8125rem] font-medium transition-colors cursor-pointer shadow-sm"
             >
@@ -886,7 +838,201 @@ Your paragraphs here. Support for **bold**, *italic*, blockquotes, and lists."
             </button>
           </div>
         </div>
-      </main>
+      )}
+
+      {/* ── VIEW 2: FULL READER ARTICLE PREVIEW (when activeTab === 'preview') ─ */}
+      {activeTab === 'preview' && (
+        <div className="flex-1 w-full bg-[var(--bg)]">
+          {/* Floating Return to Edit Bar */}
+          <div className="bg-[var(--surface)] border-b border-[var(--rule)] py-2.5 px-6 text-center font-mono text-[0.75rem] text-[var(--ink-muted)] flex items-center justify-center gap-3">
+            <span>Viewing how readers see this essay on your live website.</span>
+            <button
+              onClick={() => setActiveTab('editor')}
+              className="font-semibold text-[var(--accent)] hover:underline cursor-pointer border-0 bg-transparent"
+            >
+              ← Return to Edit Canvas
+            </button>
+          </div>
+
+          {/* Real Live Essay Container */}
+          <article className="max-w-[760px] mx-auto px-6 sm:px-8 py-12 flex flex-col gap-8">
+            {/* Header / Meta */}
+            <header className="flex flex-col gap-4">
+              <div className="flex items-center gap-2.5 font-mono text-[0.75rem] text-[var(--ink-muted)] flex-wrap">
+                <span className="font-semibold text-[var(--accent)] uppercase tracking-wider">{post.tag}</span>
+                <span>·</span>
+                <time>{post.date}</time>
+                <span>·</span>
+                <span>{post.readTime}</span>
+              </div>
+
+              <h1 className="font-serif text-[2.5rem] sm:text-[3.25rem] text-[var(--ink)] font-normal leading-[1.15] tracking-tight">
+                {post.title || 'Untitled Essay'}
+              </h1>
+
+              {post.subtitle && (
+                <p className="font-serif text-[1.25rem] text-[var(--ink-muted)] leading-relaxed italic border-l-2 border-[var(--accent)] pl-4 my-2">
+                  {post.subtitle}
+                </p>
+              )}
+
+              <div className="h-px bg-[var(--rule)] w-full mt-2" />
+            </header>
+
+            {/* Cover Image */}
+            {post.coverImage && (
+              <div className="w-full max-h-[440px] rounded-[var(--radius-lg)] border border-[var(--rule)] overflow-hidden shadow-sm bg-[var(--surface)]">
+                <img
+                  src={post.coverImage}
+                  alt={post.title}
+                  className="w-full h-full max-h-[440px] object-cover block"
+                />
+              </div>
+            )}
+
+            {/* Essay Body (Rendered exactly like SingleEssayPage) */}
+            <div className="flex flex-col gap-6 text-[1.0625rem] leading-[1.8] text-[var(--ink)]">
+              {post.content ? (
+                post.content.split('\n\n').map((paragraph, idx) => {
+                  const trimmed = paragraph.trim();
+
+                  // Heading 2
+                  if (trimmed.startsWith('## ')) {
+                    return (
+                      <h2
+                        key={idx}
+                        className="font-serif text-[1.75rem] font-normal mt-6 mb-2 text-[var(--ink)] leading-tight tracking-tight border-b border-[var(--rule)] pb-2"
+                      >
+                        {trimmed.replace('## ', '')}
+                      </h2>
+                    );
+                  }
+
+                  // Heading 3
+                  if (trimmed.startsWith('### ')) {
+                    return (
+                      <h3
+                        key={idx}
+                        className="font-serif text-[1.4rem] font-medium mt-4 mb-1 text-[var(--ink)] leading-tight"
+                      >
+                        {trimmed.replace('### ', '')}
+                      </h3>
+                    );
+                  }
+
+                  // Heading 1
+                  if (trimmed.startsWith('# ')) {
+                    return (
+                      <h1
+                        key={idx}
+                        className="font-serif text-[2.25rem] font-normal mt-6 mb-2 text-[var(--ink)] leading-tight"
+                      >
+                        {trimmed.replace('# ', '')}
+                      </h1>
+                    );
+                  }
+
+                  // Blockquote
+                  if (trimmed.startsWith('> ')) {
+                    return (
+                      <blockquote
+                        key={idx}
+                        className="border-l-3 border-[var(--accent)] pl-5 py-2 my-3 text-[1.125rem] font-serif italic text-[var(--ink-muted)] bg-[var(--surface)] rounded-r"
+                      >
+                        {trimmed.replace(/^>\s*/gm, '')}
+                      </blockquote>
+                    );
+                  }
+
+                  // Code block
+                  if (trimmed.startsWith('```')) {
+                    const code = trimmed.replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/, '');
+                    return (
+                      <pre
+                        key={idx}
+                        className="p-5 rounded-[var(--radius)] bg-[var(--ink)] text-[var(--bg)] font-mono text-[0.875rem] overflow-x-auto my-3"
+                      >
+                        <code>{code}</code>
+                      </pre>
+                    );
+                  }
+
+                  // Unordered list
+                  if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+                    const items = trimmed.split('\n').map((l) => l.replace(/^[-*]\s*/, ''));
+                    return (
+                      <ul key={idx} className="list-disc pl-6 flex flex-col gap-2 my-2">
+                        {items.map((item, i) => (
+                          <li key={i}>{renderInlineMarkdown(item)}</li>
+                        ))}
+                      </ul>
+                    );
+                  }
+
+                  // Ordered list
+                  if (/^\d+\.\s/.test(trimmed)) {
+                    const items = trimmed.split('\n').map((l) => l.replace(/^\d+\.\s*/, ''));
+                    return (
+                      <ol key={idx} className="list-decimal pl-6 flex flex-col gap-2 my-2">
+                        {items.map((item, i) => (
+                          <li key={i}>{renderInlineMarkdown(item)}</li>
+                        ))}
+                      </ol>
+                    );
+                  }
+
+                  // Image markdown
+                  const imgMatch = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+                  if (imgMatch) {
+                    return (
+                      <div key={idx} className="my-4 rounded-[var(--radius)] overflow-hidden border border-[var(--rule)]">
+                        <img src={imgMatch[2]} alt={imgMatch[1]} className="w-full object-cover" />
+                        {imgMatch[1] && (
+                          <p className="text-center font-mono text-xs text-[var(--ink-muted)] py-2 bg-[var(--surface)]">
+                            {imgMatch[1]}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  // Regular Paragraph
+                  return (
+                    <p key={idx} className="font-sans leading-[1.8] m-0">
+                      {renderInlineMarkdown(trimmed)}
+                    </p>
+                  );
+                })
+              ) : (
+                <div className="py-16 text-center font-mono text-[0.875rem] text-[var(--ink-muted)]">
+                  No content written yet. Switch to "Edit Canvas" to write your essay.
+                </div>
+              )}
+            </div>
+
+            {/* Reader Footer Bio */}
+            <div className="mt-12 pt-8 border-t border-[var(--rule)] flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-full overflow-hidden border border-[var(--rule)] shrink-0">
+                  <img src="/img/Abdur Rakib Vaiya 2.JPG" alt="Abdur Rakib" className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-[1rem] font-medium text-[var(--ink)]">Abdur Rakib</h3>
+                  <p className="font-mono text-xs text-[var(--ink-muted)]">Co-founder @ Programming Hero · Systems &amp; Scaling</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('editor')}
+                className="font-mono text-xs text-[var(--accent)] hover:underline border border-[var(--rule)] bg-[var(--surface)] px-3 py-1.5 rounded cursor-pointer"
+              >
+                ✏️ Edit this Essay
+              </button>
+            </div>
+          </article>
+        </div>
+      )}
     </div>
   );
 }
