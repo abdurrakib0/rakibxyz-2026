@@ -22,14 +22,31 @@ export async function GET() {
       '';
 
     if (subText) {
-      // "25.4K subscribers" → "25.4K+"
       const cleaned = subText.replace(/\s*subscribers?/i, '').trim();
-      if (cleaned) youtubeCount = cleaned + '+';
+      if (cleaned) youtubeCount = cleaned.endsWith('+') ? cleaned : cleaned + '+';
     }
   } catch (err) {
-    console.warn('[social-counts] youtubei.js error, using fallback:', err);
-    // Graceful fallback — use admin-set value
-    youtubeCount = fallback;
+    // Secondary fallback: Direct lightweight HTML scrape
+    try {
+      const res = await fetch('https://www.youtube.com/@abdurrakib0', {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept-Language': 'en-US,en;q=0.9',
+        },
+        next: { revalidate: 3600 },
+      });
+      if (res.ok) {
+        const html = await res.text();
+        const match = html.match(/([0-9.]+[KM]?)\s+subscribers/i);
+        if (match && match[1]) {
+          youtubeCount = match[1] + '+';
+        }
+      }
+    } catch (_) {}
+
+    if (!youtubeCount) {
+      youtubeCount = fallback;
+    }
   }
 
   return NextResponse.json(
