@@ -1,4 +1,5 @@
-import { Podcast } from './data';
+import fs from 'fs';
+import path from 'path';
 
 export interface PlaylistVideo {
   id: string;
@@ -32,14 +33,92 @@ const PLAYLISTS = [
   },
 ];
 
-function extractVideoId(url: string): string {
-  const match = url.match(/[?&]v=([^&]+)/) || url.match(/youtu\.be\/([^?]+)/);
-  return match?.[1] || '';
+// Fallback seed data in case file read is unavailable
+const SEED_CACHE = {
+  careerCrackerz: [
+    {
+      id: 'cGeqbDG1ulg',
+      title: 'বাংলাদেশের Gaming ইন্ডাস্ট্রির বাস্তবতা | Ershadul Hoque',
+      thumbnail: 'https://img.youtube.com/vi/cGeqbDG1ulg/hqdefault.jpg',
+      url: 'https://www.youtube.com/watch?v=cGeqbDG1ulg',
+      show: 'Career Crackerz Podcast',
+      tag: 'Tech & Career',
+    },
+    {
+      id: '5vnU8j3UT1Y',
+      title: 'রাস্তায় কাপড় বিক্রি থেকে ১৬ হাজার কর্মীর বিশাল প্রতিষ্ঠান গড়ার গল্প | Waeez R Hossain',
+      thumbnail: 'https://img.youtube.com/vi/5vnU8j3UT1Y/hqdefault.jpg',
+      url: 'https://www.youtube.com/watch?v=5vnU8j3UT1Y',
+      show: 'Career Crackerz Podcast',
+      tag: 'Tech & Career',
+    },
+    {
+      id: 'o4sLGPZMxkc',
+      title: 'আগামী ৫ বছরে কোন চাকরিগুলো থাকবে? | Sadman Sadik',
+      thumbnail: 'https://img.youtube.com/vi/o4sLGPZMxkc/hqdefault.jpg',
+      url: 'https://www.youtube.com/watch?v=o4sLGPZMxkc',
+      show: 'Career Crackerz Podcast',
+      tag: 'Tech & Career',
+    },
+  ],
+  borderlessBangladeshi: [
+    {
+      id: 'qnTA0Obkrq8',
+      title: 'বাংলাদেশ থেকে Global Software Engineer হওয়ার পথ | Saad Bin Amjad',
+      thumbnail: 'https://img.youtube.com/vi/qnTA0Obkrq8/hqdefault.jpg',
+      url: 'https://www.youtube.com/watch?v=qnTA0Obkrq8',
+      show: 'Borderless Bangladeshi',
+      tag: 'Global Career',
+    },
+    {
+      id: 'OZSgWq_OKr8',
+      title: 'এই ১ টা এপিসোড বাংলাদেশের প্রত্যেক ইউনিভার্সিটি স্টুডেন্টের দেখা উচিত | Omar Faroque',
+      thumbnail: 'https://img.youtube.com/vi/OZSgWq_OKr8/hqdefault.jpg',
+      url: 'https://www.youtube.com/watch?v=OZSgWq_OKr8',
+      show: 'Borderless Bangladeshi',
+      tag: 'Global Career',
+    },
+  ],
+};
+
+function getCacheFilePath(): string {
+  return path.join(process.cwd(), 'data', 'youtube-cache.json');
 }
 
-function parseRssFeed(xml: string, show: string, tag: string, limit = 10): PlaylistVideo[] {
-  const videos: PlaylistVideo[] = [];
+function loadCachedPlaylists(): { careerCrackerz: PlaylistVideo[]; borderlessBangladeshi: PlaylistVideo[] } {
+  try {
+    const filePath = getCacheFilePath();
+    if (fs.existsSync(filePath)) {
+      const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      if (Array.isArray(data.careerCrackerz) && data.careerCrackerz.length > 0) {
+        return {
+          careerCrackerz: data.careerCrackerz,
+          borderlessBangladeshi: data.borderlessBangladeshi || [],
+        };
+      }
+    }
+  } catch (e) {
+    // ignore read error
+  }
+  return SEED_CACHE;
+}
 
+function saveCachedPlaylists(career: PlaylistVideo[], borderless: PlaylistVideo[]) {
+  try {
+    const filePath = getCacheFilePath();
+    const data = {
+      updatedAt: new Date().toISOString(),
+      careerCrackerz: career,
+      borderlessBangladeshi: borderless,
+    };
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (e) {
+    // Vercel serverless read-only is fine; in-memory cache handles runtime
+  }
+}
+
+function parseRssFeed(xml: string, show: string, tag: string, limit = 6): PlaylistVideo[] {
+  const videos: PlaylistVideo[] = [];
   const entryMatches = Array.from(xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g));
 
   for (const match of entryMatches) {
@@ -92,83 +171,43 @@ export async function fetchPlaylistRss(
   playlistId: string,
   show: string,
   tag: string,
-  limit = 10,
+  limit = 6,
 ): Promise<PlaylistVideo[]> {
   const rssUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${playlistId}`;
   try {
     const res = await fetch(rssUrl, {
-      next: { revalidate: 3600 }, // Cache for 1 hour
+      next: { revalidate: 3600 }, // Cache for 1 hour — auto updates when new videos are added
       headers: { 'User-Agent': 'Mozilla/5.0' },
     });
     if (!res.ok) throw new Error(`RSS fetch failed: ${res.status}`);
     const xml = await res.text();
     return parseRssFeed(xml, show, tag, limit);
   } catch (err) {
-    console.warn(`[youtube-playlists] RSS fetch failed for ${playlistId}, using database fallback:`, err);
+    console.warn(`[youtube-playlists] RSS fetch failed for ${playlistId}, using persistent cache:`, err);
     return [];
   }
 }
 
-function convertDbPodcasts(podcasts: Podcast[], showKeyword: string, showName: string, defaultTag: string): PlaylistVideo[] {
-  return (podcasts || [])
-    .filter((p) => {
-      const show = (p.show || '').toLowerCase();
-      const title = (p.title || '').toLowerCase();
-      const tag = (p.tag || '').toLowerCase();
-      if (showKeyword === 'career') {
-        return !p.show || show.includes('career') || tag.includes('career') || (!show.includes('borderless') && !title.includes('borderless'));
-      }
-      return show.includes('borderless') || tag.includes('borderless') || title.includes('borderless') || title.includes('omar') || (p.guest && p.guest.toLowerCase().includes('omar'));
-    })
-    .map((p) => ({
-      id: p.id,
-      title: p.title,
-      thumbnail: `https://img.youtube.com/vi/${p.id}/hqdefault.jpg`,
-      url: p.youtubeUrl || `https://www.youtube.com/watch?v=${p.id}`,
-      show: p.show || showName,
-      tag: p.tag || defaultTag,
-      date: p.date,
-      guest: p.guest,
-    }));
-}
+export async function getYouTubePlaylists(): Promise<PlaylistsResult> {
+  const cached = loadCachedPlaylists();
 
-function mergeVideos(liveVideos: PlaylistVideo[], dbVideos: PlaylistVideo[], limit = 3): PlaylistVideo[] {
-  const seenIds = new Set<string>();
-  const merged: PlaylistVideo[] = [];
-
-  // 1. Add fresh live videos from RSS
-  for (const v of liveVideos) {
-    if (v.id && !seenIds.has(v.id)) {
-      seenIds.add(v.id);
-      merged.push(v);
-    }
-  }
-
-  // 2. Backfill with persistent database videos
-  for (const v of dbVideos) {
-    if (v.id && !seenIds.has(v.id)) {
-      seenIds.add(v.id);
-      merged.push(v);
-    }
-  }
-
-  return merged.slice(0, limit);
-}
-
-export async function getYouTubePlaylists(dbPodcasts?: Podcast[]): Promise<PlaylistsResult> {
-  // Convert local DB podcasts to fallbacks
-  const dbCareer = convertDbPodcasts(dbPodcasts || [], 'career', 'Career Crackerz Podcast', 'Tech & Career');
-  const dbBorderless = convertDbPodcasts(dbPodcasts || [], 'borderless', 'Borderless Bangladeshi', 'Global Career');
-
-  // Fetch live YouTube RSS feeds in parallel
+  // Fetch live RSS feeds in parallel
   const [liveCareer, liveBorderless] = await Promise.all([
     fetchPlaylistRss(PLAYLISTS[0].id, PLAYLISTS[0].show, PLAYLISTS[0].tag, 6),
     fetchPlaylistRss(PLAYLISTS[1].id, PLAYLISTS[1].show, PLAYLISTS[1].tag, 6),
   ]);
 
-  // Merge live videos + persistent database fallback so section is NEVER empty
-  const careerCrackerz = mergeVideos(liveCareer, dbCareer, 3);
-  const borderlessBangladeshi = mergeVideos(liveBorderless, dbBorderless, 3);
+  // Use fresh RSS videos if available, otherwise use cached videos
+  const careerCrackerz = liveCareer.length > 0 ? liveCareer.slice(0, 3) : (cached.careerCrackerz || []).slice(0, 3);
+  const borderlessBangladeshi = liveBorderless.length > 0 ? liveBorderless.slice(0, 3) : (cached.borderlessBangladeshi || []).slice(0, 3);
+
+  // If live data was fetched, persist to cache file
+  if (liveCareer.length > 0 || liveBorderless.length > 0) {
+    saveCachedPlaylists(
+      liveCareer.length > 0 ? liveCareer : cached.careerCrackerz,
+      liveBorderless.length > 0 ? liveBorderless : cached.borderlessBangladeshi
+    );
+  }
 
   return {
     careerCrackerz,

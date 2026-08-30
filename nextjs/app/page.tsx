@@ -18,8 +18,10 @@ export const revalidate = 0;
 export const fetchCache = 'force-no-store';
 
 export default async function HomePage() {
-  const db = await getDatabaseAsync();
-  const playlists = await getYouTubePlaylists(db.podcasts);
+  const [db, playlists] = await Promise.all([
+    getDatabaseAsync(),
+    getYouTubePlaylists(),
+  ]);
 
   const { siteInfo, posts, experience, recommendations } = db;
 
