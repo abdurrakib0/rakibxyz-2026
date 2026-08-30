@@ -250,11 +250,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content Viewport */}
-      <main className="flex-1 p-6 sm:p-8 md:p-10 lg:p-12 w-full md:h-screen md:overflow-y-auto">
-        <div className="max-w-6xl mx-auto">
+      {pathname.startsWith('/admin/writings/') ? (
+        <main className="flex-1 w-full md:h-screen md:overflow-y-auto bg-[var(--bg)]">
           {children}
-        </div>
-      </main>
+        </main>
+      ) : (
+        <main className="flex-1 p-6 sm:p-8 md:p-10 lg:p-12 w-full md:h-screen md:overflow-y-auto">
+          <div className="max-w-6xl mx-auto">
+            {children}
+          </div>
+        </main>
+      )}
     </div>
   );
 }

@@ -342,7 +342,7 @@ export default function EssayEditorClient({ initialPost, isNew = false }: EssayE
   const wordCount = post.content ? post.content.trim().split(/\s+/).filter(Boolean).length : 0;
 
   return (
-    <div className="flex flex-col min-h-screen -m-6 sm:-m-8 md:-m-10 lg:-m-12 bg-[var(--bg)]">
+    <div className="flex flex-col min-h-full bg-[var(--bg)]">
       {/* ── Fixed Sticky Top Navbar (z-index 50) ────────────────── */}
       <nav className="sticky top-0 z-50 bg-[var(--surface)] border-b border-[var(--rule)] px-4 sm:px-8 py-3 shadow-sm flex items-center justify-between gap-4 backdrop-blur-md">
         {/* Left: Breadcrumb & Title */}
