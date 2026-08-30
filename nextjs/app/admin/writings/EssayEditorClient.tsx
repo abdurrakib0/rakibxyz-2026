@@ -342,9 +342,9 @@ export default function EssayEditorClient({ initialPost, isNew = false }: EssayE
   const wordCount = post.content ? post.content.trim().split(/\s+/).filter(Boolean).length : 0;
 
   return (
-    <div className="flex flex-col min-h-full bg-[var(--bg)]">
-      {/* ── Fixed Sticky Top Navbar (z-index 50) ────────────────── */}
-      <nav className="sticky top-0 z-50 bg-[var(--surface)] border-b border-[var(--rule)] px-4 sm:px-8 py-3 shadow-sm flex items-center justify-between gap-4 backdrop-blur-md">
+    <div className="flex flex-col min-h-full bg-[var(--bg)] relative">
+      {/* ── Fixed Sticky Top Navbar (z-index 100 with 100% opaque solid background) ── */}
+      <nav className="sticky top-0 z-[100] w-full bg-[var(--surface)] border-b border-[var(--rule)] px-4 sm:px-8 py-3.5 shadow-sm flex items-center justify-between gap-4">
         {/* Left: Breadcrumb & Title */}
         <div className="flex items-center gap-3.5 min-w-0">
           <Link
@@ -842,7 +842,7 @@ Your paragraphs here. Support for **bold**, *italic*, blockquotes, and lists."
 
       {/* ── VIEW 2: FULL READER ARTICLE PREVIEW (when activeTab === 'preview') ─ */}
       {activeTab === 'preview' && (
-        <div className="flex-1 w-full bg-[var(--bg)]">
+        <div className="flex-1 w-full bg-[var(--bg)] relative z-0">
           {/* Floating Return to Edit Bar */}
           <div className="bg-[var(--surface)] border-b border-[var(--rule)] py-2.5 px-6 text-center font-mono text-[0.75rem] text-[var(--ink-muted)] flex items-center justify-center gap-3">
             <span>Viewing how readers see this essay on your live website.</span>
@@ -855,7 +855,7 @@ Your paragraphs here. Support for **bold**, *italic*, blockquotes, and lists."
           </div>
 
           {/* Real Live Essay Container */}
-          <article className="max-w-[760px] mx-auto px-6 sm:px-8 py-12 flex flex-col gap-8">
+          <article className="max-w-[760px] mx-auto px-6 sm:px-8 py-12 flex flex-col gap-8 relative z-0">
             {/* Header / Meta */}
             <header className="flex flex-col gap-4">
               <div className="flex items-center gap-2.5 font-mono text-[0.75rem] text-[var(--ink-muted)] flex-wrap">
