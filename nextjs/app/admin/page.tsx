@@ -123,7 +123,7 @@ export default async function AdminDashboardPage() {
               {subscribers.length}
             </span>
             <span className="font-mono text-[0.75rem] text-emerald-700 font-semibold">
-              Verified @gmail.com leads
+              Verified active subscribers
             </span>
           </div>
           <Link

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-const GMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i;
 
 export default function NewsletterSection() {
   const [email, setEmail] = useState('');
@@ -15,8 +15,8 @@ export default function NewsletterSection() {
     e.preventDefault();
     const cleanEmail = email.trim();
 
-    if (!cleanEmail || !GMAIL_REGEX.test(cleanEmail)) {
-      setMessage('Please provide a valid @gmail.com address (e.g., yourname@gmail.com).');
+    if (!cleanEmail || !EMAIL_REGEX.test(cleanEmail)) {
+      setMessage('Please provide a valid email address (e.g., yourname@domain.com).');
       setIsError(true);
       return;
     }
@@ -68,7 +68,7 @@ export default function NewsletterSection() {
               <input
                 className={`newsletter-input ${isError ? '!border-red-500 ring-1 ring-red-500' : ''}`}
                 type="email"
-                placeholder="you@gmail.com"
+                placeholder="you@domain.com"
                 required
                 value={email}
                 onChange={(e) => {

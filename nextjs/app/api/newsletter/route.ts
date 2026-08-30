@@ -3,16 +3,16 @@ import { saveNewsletterSubscriber } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
-const GMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i;
 
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
     const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
 
-    if (!cleanEmail || !GMAIL_REGEX.test(cleanEmail)) {
+    if (!cleanEmail || !EMAIL_REGEX.test(cleanEmail)) {
       return NextResponse.json(
-        { success: false, message: 'Please provide a valid @gmail.com address.' },
+        { success: false, message: 'Please provide a valid email address.' },
         { status: 400 }
       );
     }

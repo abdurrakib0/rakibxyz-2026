@@ -3,7 +3,7 @@ import { getSubscribersAsync, deleteSubscriberAsync, updateSubscriberAsync } fro
 
 export const dynamic = 'force-dynamic';
 
-const GMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i;
 
 export async function GET() {
   try {
@@ -29,9 +29,9 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    if (!GMAIL_REGEX.test(cleanEmail)) {
+    if (!EMAIL_REGEX.test(cleanEmail)) {
       return NextResponse.json(
-        { success: false, message: 'Please provide a valid @gmail.com address.' },
+        { success: false, message: 'Please provide a valid email address.' },
         { status: 400 }
       );
     }

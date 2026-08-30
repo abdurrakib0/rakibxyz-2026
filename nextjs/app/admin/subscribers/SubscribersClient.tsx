@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Subscriber } from '@/lib/data';
 
-const GMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i;
 const ITEMS_PER_PAGE = 10;
 
 interface SubscribersClientProps {
@@ -57,8 +57,8 @@ export default function SubscribersClient({ initialSubscribers }: SubscribersCli
       return;
     }
 
-    if (!GMAIL_REGEX.test(cleanEmail)) {
-      setEditError('Please enter a valid @gmail.com address.');
+    if (!EMAIL_REGEX.test(cleanEmail)) {
+      setEditError('Please enter a valid email address.');
       return;
     }
 
@@ -344,7 +344,7 @@ export default function SubscribersClient({ initialSubscribers }: SubscribersCli
                                 if (e.key === 'Enter') handleSaveEdit(sub.id);
                                 if (e.key === 'Escape') handleCancelEdit();
                               }}
-                              placeholder="name@gmail.com"
+                              placeholder="name@domain.com"
                               autoFocus
                               className="bg-white border border-[var(--ink)] px-2.5 py-1 rounded text-[0.8125rem] font-mono focus:outline-none focus:ring-1 focus:ring-[var(--ink)]"
                             />
