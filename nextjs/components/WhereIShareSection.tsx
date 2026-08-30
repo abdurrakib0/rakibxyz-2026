@@ -72,7 +72,6 @@ function useCountUp(target: string, inView: boolean) {
 ───────────────────────────────────────────────────── */
 function useLiveCounts() {
   const [youtubeLive, setYoutubeLive] = useState<string | null>(null);
-  const [isLive, setIsLive] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -84,7 +83,6 @@ function useLiveCounts() {
         const data = await res.json();
         if (data.youtube && !data.apiKeyMissing && !cancelled) {
           setYoutubeLive(data.youtube);
-          setIsLive(true);
         }
       } catch (_) { /* silent fallback */ }
     };
@@ -94,7 +92,7 @@ function useLiveCounts() {
     return () => { cancelled = true; clearInterval(interval); };
   }, []);
 
-  return { youtubeLive, isLive };
+  return { youtubeLive };
 }
 
 /* ── Individual Channel Card ────────────────────────── */
@@ -107,14 +105,13 @@ interface ChannelCardProps {
   description: string;
   actionText: string;
   brandColor: string;
-  isApiLive?: boolean;
   icon: React.ReactNode;
   iconSmall: React.ReactNode;
 }
 
 function ChannelCard({
   name, handle, url, count, countLabel,
-  description, actionText, brandColor, isApiLive,
+  description, actionText, brandColor,
   icon, iconSmall,
 }: ChannelCardProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -156,15 +153,6 @@ function ChannelCard({
               </span>
             </div>
           </div>
-
-          {/* Live badge — uses API live indicator for YouTube, static for others */}
-          <span className="flex items-center gap-1.5 font-mono text-[0.625rem] uppercase tracking-wider text-[var(--ink-muted)] border border-[var(--rule)] rounded-full px-2 py-0.5 shrink-0">
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${isApiLive ? 'animate-pulse' : ''}`}
-              style={{ backgroundColor: isApiLive ? brandColor : 'var(--ink-muted)', opacity: isApiLive ? 1 : 0.5 }}
-            />
-            {isApiLive ? 'Live API' : 'Live'}
-          </span>
         </div>
 
         {/* Divider */}
@@ -218,7 +206,7 @@ function ChannelCard({
 /* ── Main Section ───────────────────────────────────── */
 export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps) {
   const { socialLinks, socialMetrics } = siteInfo;
-  const { youtubeLive, isLive } = useLiveCounts();
+  const { youtubeLive } = useLiveCounts();
 
   const channels: ChannelCardProps[] = [
     {
@@ -233,7 +221,6 @@ export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps
       brandColor: '#0A66C2',
       icon: <LinkedInIcon size={22} />,
       iconSmall: <LinkedInIcon size={14} />,
-      isApiLive: false,
     },
     {
       name: 'YouTube',
@@ -248,7 +235,6 @@ export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps
       brandColor: '#CC0000',
       icon: <YouTubeIcon size={22} />,
       iconSmall: <YouTubeIcon size={14} />,
-      isApiLive: isLive,
     },
     {
       name: 'Facebook',
@@ -262,7 +248,6 @@ export default function WhereIShareSection({ siteInfo }: WhereIShareSectionProps
       brandColor: '#1877F2',
       icon: <FacebookIcon size={22} />,
       iconSmall: <FacebookIcon size={14} />,
-      isApiLive: false,
     },
   ];
 
