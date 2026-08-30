@@ -317,33 +317,8 @@
   ],
   "subscribers": [
     {
-      "id": "sub_1788065973039",
-      "email": "subuser4@programming-hero.com",
-      "created_at": "2026-08-30T04:59:33.039Z"
-    },
-    {
-      "id": "sub_1788065972943",
-      "email": "subuser3@yahoo.com",
-      "created_at": "2026-08-30T04:59:32.943Z"
-    },
-    {
-      "id": "sub_1788065972849",
-      "email": "subuser2@outlook.com",
-      "created_at": "2026-08-30T04:59:32.849Z"
-    },
-    {
-      "id": "sub_1788065972715",
-      "email": "subuser1@gmail.com",
-      "created_at": "2026-08-30T04:59:32.715Z"
-    },
-    {
-      "id": "sub_1788064605041",
-      "email": "demo@outlook.com",
-      "created_at": "2026-08-30T04:36:45.041Z"
-    },
-    {
       "id": "sub_1787572746573",
-      "email": "lead_developer@example.com",
+      "email": "lead_developer@gmail.com",
       "created_at": "2026-08-24T11:59:06.573Z"
     }
   ],
