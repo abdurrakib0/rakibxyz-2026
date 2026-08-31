@@ -110,6 +110,42 @@ async function seed() {
   }
   console.log('✓ experience seeded successfully');
 
+  // 5. Seed Recommendations
+  if (db.recommendations && db.recommendations.length > 0) {
+    console.log(`Inserting ${db.recommendations.length} recommendations...`);
+    for (let i = 0; i < db.recommendations.length; i++) {
+      const rec = db.recommendations[i];
+      const { error: recErr } = await supabase.from('recommendations').upsert({
+        id: rec.id,
+        name: rec.name,
+        role: rec.role,
+        company: rec.company,
+        avatar_url: rec.avatarUrl,
+        content: rec.content,
+        linkedin_url: rec.linkedinUrl,
+        relation: rec.relation,
+        date: rec.date,
+        sort_order: rec.sortOrder ?? i + 1,
+      });
+      if (recErr) console.error(`Error inserting recommendation ${rec.id}:`, recErr.message);
+    }
+    console.log('✓ recommendations seeded successfully');
+  }
+
+  // 6. Seed Subscribers
+  if (db.subscribers && db.subscribers.length > 0) {
+    console.log(`Inserting ${db.subscribers.length} subscribers...`);
+    for (const sub of db.subscribers) {
+      const { error: subErr } = await supabase.from('subscribers').upsert({
+        id: sub.id,
+        email: sub.email,
+        created_at: sub.createdAt || new Date().toISOString(),
+      });
+      if (subErr) console.error(`Error inserting subscriber ${sub.email}:`, subErr.message);
+    }
+    console.log('✓ subscribers seeded successfully');
+  }
+
   console.log('\x1b[32m%s\x1b[0m', '✨ Supabase database seeding complete!');
 }
 
